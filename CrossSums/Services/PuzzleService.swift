@@ -14,6 +14,8 @@ class PuzzleService {
     
     private var puzzleCache: [String: [Puzzle]] = [:]
     private var isLoaded = false
+    private var generatedPuzzleCache: [String: Puzzle] = [:]
+    private let puzzleGenerator = EmbeddedPuzzleGenerator.shared
     
     // MARK: - Singleton
     
@@ -29,23 +31,35 @@ class PuzzleService {
     ///   - level: The level number within that difficulty
     /// - Returns: The requested Puzzle, or nil if not found
     func getPuzzle(difficulty: String, level: Int) -> Puzzle? {
-        // Ensure puzzles are loaded
+        let puzzleKey = "\(difficulty.lowercased())-\(level)"
+        
+        // First, check if we have a generated puzzle cached
+        if let cachedGeneratedPuzzle = generatedPuzzleCache[puzzleKey] {
+            print("✅ Returning cached generated puzzle: \(puzzleKey)")
+            return cachedGeneratedPuzzle
+        }
+        
+        // Always generate new puzzles for consistent experience
+        print("🎲 Generating new puzzle for \(difficulty) level \(level)")
+        if let generatedPuzzle = puzzleGenerator.generatePuzzle(difficulty: difficulty, level: level) {
+            // Cache the generated puzzle
+            generatedPuzzleCache[puzzleKey] = generatedPuzzle
+            print("✅ Generated and cached new puzzle: \(puzzleKey)")
+            return generatedPuzzle
+        }
+        
+        // Only fall back to static puzzles if generation fails
         loadPuzzlesIfNeeded()
         
-        // Get puzzles for the difficulty
-        guard let puzzlesForDifficulty = puzzleCache[difficulty] else {
-            print("❌ No puzzles found for difficulty: \(difficulty)")
-            return nil
+        if let puzzlesForDifficulty = puzzleCache[difficulty] {
+            if let staticPuzzle = puzzlesForDifficulty.first(where: { $0.id.contains("-\(level)") }) {
+                print("⚠️ Falling back to static puzzle: \(puzzleKey)")
+                return staticPuzzle
+            }
         }
         
-        // Find puzzle with matching level
-        let puzzle = puzzlesForDifficulty.first { $0.id.contains("-\(level)") }
-        
-        if puzzle == nil {
-            print("❌ Puzzle not found for \(difficulty) level \(level)")
-        }
-        
-        return puzzle
+        print("❌ Failed to find or generate puzzle for \(difficulty) level \(level)")
+        return nil
     }
     
     /// Gets all puzzles for a specific difficulty
@@ -59,8 +73,8 @@ class PuzzleService {
     /// Gets all available difficulties
     /// - Returns: Array of difficulty strings
     func getAvailableDifficulties() -> [String] {
-        loadPuzzlesIfNeeded()
-        return Array(puzzleCache.keys).sorted()
+        // With dynamic generation, all difficulties are always available
+        return ["Easy", "Medium", "Hard", "Extra Hard"]
     }
     
     /// Gets the number of levels available for a difficulty
@@ -73,17 +87,11 @@ class PuzzleService {
     
     /// Gets the highest available level for a difficulty
     /// - Parameter difficulty: The difficulty level
-    /// - Returns: The highest level number, or 0 if no puzzles
+    /// - Returns: The highest level number, or Int.max for infinite generation
     func getMaxLevel(for difficulty: String) -> Int {
-        let puzzles = getPuzzles(for: difficulty)
-        
-        let maxLevel = puzzles.compactMap { puzzle in
-            // Extract level number from ID (format: "difficulty-level")
-            let components = puzzle.id.split(separator: "-")
-            return components.last.flatMap { Int($0) }
-        }.max()
-        
-        return maxLevel ?? 0
+        // With dynamic generation, we support infinite levels
+        // Return a very high number to represent "unlimited"
+        return 999999
     }
     
     /// Validates that all puzzles have correct solutions
@@ -110,8 +118,15 @@ class PuzzleService {
     /// Clears the puzzle cache and forces reload on next access
     func clearCache() {
         puzzleCache.removeAll()
+        generatedPuzzleCache.removeAll()
         isLoaded = false
-        print("🗑️ Puzzle cache cleared")
+        print("🗑️ Puzzle cache cleared - will use dynamic generation")
+    }
+    
+    /// Forces regeneration of all puzzles (clears generated cache)
+    func forceRegeneration() {
+        generatedPuzzleCache.removeAll()
+        print("🎲 Forced regeneration - all puzzles will be dynamically generated")
     }
     
     // MARK: - Private Methods
@@ -266,4 +281,178 @@ class PuzzleService {
 /// Root structure for puzzle JSON data
 private struct PuzzleData: Codable {
     let puzzles: [Puzzle]
+}
+
+// MARK: - Embedded Puzzle Generator
+
+/// Embedded puzzle generator for dynamic puzzle creation
+class EmbeddedPuzzleGenerator {
+    
+    static let shared = EmbeddedPuzzleGenerator()
+    private init() {}
+    
+    /// Configuration for different difficulty levels
+    private struct DifficultyConfig {
+        let gridSize: Int
+        let numberRange: ClosedRange<Int>
+        let maxAttempts: Int
+        
+        static let easy = DifficultyConfig(gridSize: 3, numberRange: 1...9, maxAttempts: 50)
+        static let medium = DifficultyConfig(gridSize: 4, numberRange: 1...12, maxAttempts: 50)
+        static let hard = DifficultyConfig(gridSize: 4, numberRange: 1...15, maxAttempts: 50)
+        static let extraHard = DifficultyConfig(gridSize: 5, numberRange: 1...18, maxAttempts: 50)
+    }
+    
+    /// Generates a new puzzle for the specified difficulty and level
+    func generatePuzzle(difficulty: String, level: Int) -> Puzzle? {
+        print("🎲 Generating puzzle for \(difficulty) level \(level)")
+        
+        guard let config = getDifficultyConfig(for: difficulty) else {
+            print("❌ Unknown difficulty: \(difficulty)")
+            return nil
+        }
+        
+        // Use level as seed for reproducible puzzles
+        let baseSeed = UInt64(abs(difficulty.hashValue)) &+ UInt64(level) &+ 1000
+        
+        for attempt in 1...config.maxAttempts {
+            // Use different seed for each attempt to avoid getting stuck
+            var rng = SeededRandomNumberGenerator(seed: baseSeed &+ UInt64(attempt))
+            
+            if let puzzle = attemptGeneration(config: config, difficulty: difficulty, level: level, rng: &rng) {
+                print("✅ Generated puzzle \(puzzle.id) in \(attempt) attempts")
+                return puzzle
+            }
+        }
+        
+        print("❌ Failed to generate puzzle for \(difficulty) level \(level)")
+        return nil
+    }
+    
+    private func getDifficultyConfig(for difficulty: String) -> DifficultyConfig? {
+        switch difficulty.lowercased() {
+        case "easy": return .easy
+        case "medium": return .medium
+        case "hard": return .hard
+        case "extra hard", "extrahard": return .extraHard
+        default: return nil
+        }
+    }
+    
+    private func attemptGeneration(config: DifficultyConfig, difficulty: String, level: Int, rng: inout SeededRandomNumberGenerator) -> Puzzle? {
+        // Generate simple grid patterns for testing
+        let size = config.gridSize
+        var grid: [[Int]] = []
+        
+        for _ in 0..<size {
+            var row: [Int] = []
+            for _ in 0..<size {
+                let number = Int.random(in: config.numberRange, using: &rng)
+                row.append(number)
+            }
+            grid.append(row)
+        }
+        
+        // Create a simple solution pattern (checkerboard-like)
+        var solution: [[Bool]] = []
+        for row in 0..<size {
+            var solutionRow: [Bool] = []
+            for col in 0..<size {
+                // Checkerboard pattern with some randomness
+                let isKept = (row + col) % 2 == 0 ? Bool.random(using: &rng) : !Bool.random(using: &rng)
+                solutionRow.append(isKept)
+            }
+            solution.append(solutionRow)
+        }
+        
+        // Ensure at least 1/3 of cells are kept
+        let totalCells = size * size
+        let minKeptCells = max(1, totalCells / 3)
+        var keptCount = solution.flatMap { $0 }.filter { $0 }.count
+        
+        if keptCount < minKeptCells {
+            // Flip some false values to true, but limit attempts to prevent infinite loops
+            var attempts = 0
+            let maxFlipAttempts = totalCells * 2
+            
+            outerLoop: for row in 0..<size {
+                for col in 0..<size {
+                    attempts += 1
+                    if attempts > maxFlipAttempts { break outerLoop }
+                    
+                    if !solution[row][col] && Bool.random(using: &rng) {
+                        solution[row][col] = true
+                        keptCount += 1
+                        
+                        if keptCount >= minKeptCells {
+                            break outerLoop
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Calculate sums
+        let rowSums = calculateRowSums(grid: grid, solution: solution)
+        let columnSums = calculateColumnSums(grid: grid, solution: solution)
+        
+        let puzzleId = "\(difficulty.lowercased())-\(level)"
+        
+        return Puzzle(
+            id: puzzleId,
+            difficulty: difficulty,
+            grid: grid,
+            solution: solution,
+            rowSums: rowSums,
+            columnSums: columnSums
+        )
+    }
+    
+    private func calculateRowSums(grid: [[Int]], solution: [[Bool]]) -> [Int] {
+        let size = grid.count
+        var rowSums: [Int] = []
+        
+        for row in 0..<size {
+            var sum = 0
+            for col in 0..<size {
+                if solution[row][col] {
+                    sum += grid[row][col]
+                }
+            }
+            rowSums.append(sum)
+        }
+        
+        return rowSums
+    }
+    
+    private func calculateColumnSums(grid: [[Int]], solution: [[Bool]]) -> [Int] {
+        let size = grid.count
+        var columnSums: [Int] = []
+        
+        for col in 0..<size {
+            var sum = 0
+            for row in 0..<size {
+                if solution[row][col] {
+                    sum += grid[row][col]
+                }
+            }
+            columnSums.append(sum)
+        }
+        
+        return columnSums
+    }
+}
+
+/// A simple seeded random number generator
+struct SeededRandomNumberGenerator: RandomNumberGenerator {
+    private var state: UInt64
+    
+    init(seed: UInt64) {
+        self.state = seed
+    }
+    
+    mutating func next() -> UInt64 {
+        state = state &* 1103515245 &+ 12345
+        return state
+    }
 }
