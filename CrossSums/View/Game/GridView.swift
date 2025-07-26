@@ -48,10 +48,20 @@ struct GridView: View {
                             ForEach(0..<puzzle.columnCount, id: \.self) { col in
                                 PuzzleCellView(
                                     number: puzzle.grid[row][col],
-                                    cellState: gameState.getCellState(row: row, column: col)
-                                ) {
-                                    gameViewModel.toggleCell(row: row, column: col)
-                                }
+                                    cellState: gameState.getCellState(row: row, column: col),
+                                    onTap: {
+                                        // Single tap -> Mark as kept (true)
+                                        gameViewModel.setCellState(row: row, column: col, targetState: true)
+                                    },
+                                    onLongPress: {
+                                        // Long press -> Mark as removed (false)
+                                        gameViewModel.setCellState(row: row, column: col, targetState: false)
+                                    },
+                                    onDoubleTap: {
+                                        // Double tap -> Clear to unmarked (nil)
+                                        gameViewModel.setCellState(row: row, column: col, targetState: nil)
+                                    }
+                                )
                                 .frame(width: cellSize, height: cellSize)
                             }
                         }

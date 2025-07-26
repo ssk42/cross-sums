@@ -122,6 +122,38 @@ class GameViewModel: ObservableObject {
         }
     }
     
+    /// Sets a cell to a specific state directly (US4, US5, US6)
+    /// - Parameters:
+    ///   - row: Row index of the cell
+    ///   - column: Column index of the cell
+    ///   - targetState: The desired state (true=kept, false=removed, nil=unmarked)
+    func setCellState(row: Int, column: Int, targetState: Bool?) {
+        guard isGameActive,
+              var state = gameState else {
+            return
+        }
+        
+        // Set the cell to the target state directly
+        let success = state.setCellState(row: row, column: column, state: targetState)
+        guard success else {
+            print("❌ Invalid cell position: (\(row), \(column))")
+            return
+        }
+        
+        // Update game state
+        gameState = state
+        
+        // Check if this was a mistake (only for non-nil states)
+        if let cellState = targetState {
+            validateMove(row: row, column: column, expectedState: cellState)
+        }
+        
+        // Check for win condition after each move
+        checkForWinCondition()
+        
+        print("🔄 Cell (\(row), \(column)) set to: \(String(describing: targetState))")
+    }
+    
     /// Toggles a cell state when tapped by the player (US4, US5, US6)
     /// - Parameters:
     ///   - row: Row index of the cell

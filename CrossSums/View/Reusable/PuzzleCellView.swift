@@ -1,48 +1,74 @@
 import SwiftUI
+import UIKit
 
 struct PuzzleCellView: View {
     let number: Int
     let cellState: Bool?? // nil = unmarked, true = kept, false = removed
     let onTap: () -> Void
+    let onLongPress: () -> Void
+    let onDoubleTap: () -> Void
     
     @State private var isPressed: Bool = false
     
     var body: some View {
-        Button(action: {
+        ZStack {
+            // Background
+            RoundedRectangle(cornerRadius: 8)
+                .fill(backgroundColor)
+                .stroke(borderColor, lineWidth: 2)
+            
+            // Number text
+            Text("\(number)")
+                .font(.system(size: fontSize, weight: .semibold, design: .rounded))
+                .foregroundColor(textColor)
+                .scaleEffect(isPressed ? 0.95 : 1.0)
+            
+            // State indicator overlay
+            if let state = cellState, let actualState = state {
+                // Show state indicator
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(stateOverlayColor(for: actualState))
+                    .opacity(0.3)
+                    .scaleEffect(0.85)
+            }
+        }
+        .aspectRatio(1.0, contentMode: .fit)
+        .scaleEffect(isPressed ? 0.98 : 1.0)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            // Light haptic feedback for tap
+            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+            impactFeedback.impactOccurred()
+            
             withAnimation(.easeInOut(duration: 0.15)) {
                 onTap()
             }
-        }) {
-            ZStack {
-                // Background
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(backgroundColor)
-                    .stroke(borderColor, lineWidth: 2)
-                
-                // Number text
-                Text("\(number)")
-                    .font(.system(size: fontSize, weight: .semibold, design: .rounded))
-                    .foregroundColor(textColor)
-                    .scaleEffect(isPressed ? 0.95 : 1.0)
-                
-                // State indicator overlay
-                if let state = cellState, let actualState = state {
-                    // Show state indicator
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(stateOverlayColor(for: actualState))
-                        .opacity(0.3)
-                        .scaleEffect(0.85)
-                }
-            }
-            .aspectRatio(1.0, contentMode: .fit)
-            .scaleEffect(isPressed ? 0.98 : 1.0)
         }
-        .buttonStyle(PlainButtonStyle())
-        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
+        .onLongPressGesture(minimumDuration: 0.5, maximumDistance: 50) {
+            // Medium haptic feedback for long press
+            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+            impactFeedback.impactOccurred()
+            
+            withAnimation(.easeInOut(duration: 0.15)) {
+                onLongPress()
+            }
+        } onPressingChanged: { pressing in
             withAnimation(.easeInOut(duration: 0.1)) {
                 isPressed = pressing
             }
-        }, perform: {})
+        }
+        .gesture(
+            TapGesture(count: 2)
+                .onEnded {
+                    // Soft haptic feedback for double tap
+                    let impactFeedback = UIImpactFeedbackGenerator(style: .soft)
+                    impactFeedback.impactOccurred()
+                    
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        onDoubleTap()
+                    }
+                }
+        )
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: cellState)
     }
     
@@ -117,27 +143,39 @@ struct PuzzleCellView: View {
             VStack {
                 Text("Unmarked")
                     .font(.caption)
-                PuzzleCellView(number: 5, cellState: nil) {
-                    print("Unmarked cell tapped")
-                }
+                PuzzleCellView(
+                    number: 5, 
+                    cellState: nil,
+                    onTap: { print("Unmarked cell tapped") },
+                    onLongPress: { print("Unmarked cell long pressed") },
+                    onDoubleTap: { print("Unmarked cell double tapped") }
+                )
                 .frame(width: 60, height: 60)
             }
             
             VStack {
                 Text("Kept")
                     .font(.caption)
-                PuzzleCellView(number: 8, cellState: true) {
-                    print("Kept cell tapped")
-                }
+                PuzzleCellView(
+                    number: 8, 
+                    cellState: true,
+                    onTap: { print("Kept cell tapped") },
+                    onLongPress: { print("Kept cell long pressed") },
+                    onDoubleTap: { print("Kept cell double tapped") }
+                )
                 .frame(width: 60, height: 60)
             }
             
             VStack {
                 Text("Removed")
                     .font(.caption)
-                PuzzleCellView(number: 3, cellState: false) {
-                    print("Removed cell tapped")
-                }
+                PuzzleCellView(
+                    number: 3, 
+                    cellState: false,
+                    onTap: { print("Removed cell tapped") },
+                    onLongPress: { print("Removed cell long pressed") },
+                    onDoubleTap: { print("Removed cell double tapped") }
+                )
                 .frame(width: 60, height: 60)
             }
         }
@@ -159,27 +197,37 @@ struct PuzzleCellView: View {
                 Text("Interactive Cell Demo")
                     .font(.headline)
                 
-                PuzzleCellView(number: 12, cellState: cellState) {
-                    // Cycle through states: nil -> true -> false -> nil
-                    if cellState == nil {
-                        cellState = true // Mark as kept
-                    } else if let state = cellState, let actualState = state {
-                        if actualState {
-                            cellState = false // Mark as removed
-                        } else {
-                            cellState = nil // Mark as unmarked
-                        }
+                PuzzleCellView(
+                    number: 12, 
+                    cellState: cellState,
+                    onTap: {
+                        // Single tap -> Keep
+                        cellState = true
+                    },
+                    onLongPress: {
+                        // Long press -> Remove
+                        cellState = false
+                    },
+                    onDoubleTap: {
+                        // Double tap -> Clear
+                        cellState = nil
                     }
-                }
+                )
                 .frame(width: 80, height: 80)
                 
                 Text(stateDescription)
                     .font(.body)
                     .foregroundColor(.secondary)
                 
-                Text("Tap to cycle through states")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                VStack {
+                    Text("Single tap: Keep (green)")
+                        .font(.caption)
+                    Text("Long press: Remove (red)")
+                        .font(.caption)
+                    Text("Double tap: Clear")
+                        .font(.caption)
+                }
+                .foregroundColor(.secondary)
             }
             .padding()
         }
