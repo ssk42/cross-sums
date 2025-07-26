@@ -16,6 +16,9 @@
 		AA0001007 /* PuzzleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000007 /* PuzzleService.swift */; };
 		AA0001008 /* PersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000008 /* PersistenceService.swift */; };
 		AA0001009 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000009 /* Assets.xcassets */; };
+		AA0001010 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000012 /* GameView.swift */; };
+		AA0001011 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000013 /* HelpView.swift */; };
+		AA0001012 /* puzzles.json in Resources */ = {isa = PBXBuildFile; fileRef = AA0000014 /* puzzles.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +33,9 @@
 		AA0000009 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0000010 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA0000011 /* CrossSums.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CrossSums.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000012 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
+		AA0000013 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		AA0000014 /* puzzles.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = puzzles.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +137,7 @@
 		AA0003010 /* Game */ = {
 			isa = PBXGroup;
 			children = (
+				AA0000012 /* GameView.swift */,
 			);
 			path = Game;
 			sourceTree = "<group>";
@@ -138,6 +145,7 @@
 		AA0003011 /* Popups */ = {
 			isa = PBXGroup;
 			children = (
+				AA0000013 /* HelpView.swift */,
 			);
 			path = Popups;
 			sourceTree = "<group>";
@@ -152,6 +160,7 @@
 		AA0003013 /* Puzzles */ = {
 			isa = PBXGroup;
 			children = (
+				AA0000014 /* puzzles.json */,
 			);
 			path = Puzzles;
 			sourceTree = "<group>";
@@ -215,6 +224,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA0001009 /* Assets.xcassets in Resources */,
+				AA0001012 /* puzzles.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,6 +243,8 @@
 				AA0001006 /* GameViewModel.swift in Sources */,
 				AA0001007 /* PuzzleService.swift in Sources */,
 				AA0001008 /* PersistenceService.swift in Sources */,
+				AA0001010 /* GameView.swift in Sources */,
+				AA0001011 /* HelpView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
