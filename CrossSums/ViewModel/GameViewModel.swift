@@ -31,6 +31,12 @@ class GameViewModel: ObservableObject {
     /// Error message to display to user, if any
     @Published var errorMessage: String?
     
+    /// The current sums of the rows, based on the player's moves
+    @Published var currentRowSums: [Int] = []
+    
+    /// The current sums of the columns, based on the player's moves
+    @Published var currentColumnSums: [Int] = []
+    
     /// Whether hint usage is currently available
     @Published var canUseHint: Bool = false
     
@@ -115,6 +121,7 @@ class GameViewModel: ObservableObject {
             self.isLevelComplete = false
             self.isGameOver = false
             self.updateHintAvailability()
+            self.updateCurrentSums()
             
             self.isLoading = false
             
@@ -142,6 +149,7 @@ class GameViewModel: ObservableObject {
         
         // Update game state
         gameState = state
+        updateCurrentSums()
         
         // Check if this was a mistake (only for non-nil states)
         if let cellState = targetState {
@@ -173,6 +181,7 @@ class GameViewModel: ObservableObject {
         
         // Update game state
         gameState = state
+        updateCurrentSums()
         
         // Check if this was a mistake (only for non-nil states)
         if let cellState = newState {
@@ -209,6 +218,7 @@ class GameViewModel: ObservableObject {
         // Set the cell to its correct state
         _ = state.setCellState(row: randomCell.row, column: randomCell.column, state: correctState)
         gameState = state
+        updateCurrentSums()
         
         // Consume the hint
         _ = playerProfile.useHint()
@@ -230,6 +240,7 @@ class GameViewModel: ObservableObject {
         isLevelComplete = false
         isGameOver = false
         updateHintAvailability()
+        updateCurrentSums()
         
         print("🔄 Level restarted: \(puzzle.id)")
     }
@@ -259,6 +270,32 @@ class GameViewModel: ObservableObject {
     }
     
     // MARK: - Private Helper Methods
+    
+    private func updateCurrentSums() {
+        guard let puzzle = currentPuzzle, let state = gameState else {
+            currentRowSums = []
+            currentColumnSums = []
+            return
+        }
+        
+        currentRowSums = puzzle.grid.indices.map { row in
+            puzzle.grid[row].indices.reduce(0) { sum, col in
+                if let cellState = state.getCellState(row: row, column: col), cellState == true {
+                    return sum + puzzle.grid[row][col]
+                }
+                return sum
+            }
+        }
+        
+        currentColumnSums = puzzle.grid[0].indices.map { col in
+            puzzle.grid.indices.reduce(0) { sum, row in
+                if let cellState = state.getCellState(row: row, column: col), cellState == true {
+                    return sum + puzzle.grid[row][col]
+                }
+                return sum
+            }
+        }
+    }
     
     /// Validates if a move was correct and handles mistakes
     /// - Parameters:

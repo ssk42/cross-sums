@@ -28,7 +28,7 @@ struct GridView: View {
                         ForEach(0..<puzzle.columnCount, id: \.self) { col in
                             SumLabel(
                                 target: puzzle.columnSums[col],
-                                current: calculateCurrentColumnSum(puzzle: puzzle, gameState: gameState, column: col),
+                                current: gameViewModel.currentColumnSums[col],
                                 size: cellSize
                             )
                         }
@@ -40,7 +40,7 @@ struct GridView: View {
                             // Row sum label
                             SumLabel(
                                 target: puzzle.rowSums[row],
-                                current: calculateCurrentRowSum(puzzle: puzzle, gameState: gameState, row: row),
+                                current: gameViewModel.currentRowSums[row],
                                 size: cellSize
                             )
                             
@@ -57,9 +57,11 @@ struct GridView: View {
                                         // Long press -> Mark as removed (false)
                                         gameViewModel.setCellState(row: row, column: col, targetState: false)
                                     },
-                                    onDoubleTap: {
-                                        // Double tap -> Clear to unmarked (nil)
-                                        gameViewModel.setCellState(row: row, column: col, targetState: nil)
+                                    onDrag: { isDragging in
+                                        // Drag -> Clear to unmarked (nil)
+                                        if !isDragging {
+                                            gameViewModel.setCellState(row: row, column: col, targetState: nil)
+                                        }
                                     }
                                 )
                                 .frame(width: cellSize, height: cellSize)
@@ -82,34 +84,8 @@ struct GridView: View {
             }
         }
     }
-    
-    // MARK: - Helper Methods
-    
-    private func calculateCurrentRowSum(puzzle: Puzzle, gameState: GameState, row: Int) -> Int {
-        var sum = 0
-        for col in 0..<puzzle.columnCount {
-            if let cellState = gameState.getCellState(row: row, column: col),
-               let state = cellState,
-               state == true { // Only count cells marked as "kept"
-                sum += puzzle.grid[row][col]
-            }
-        }
-        return sum
-    }
-    
-    private func calculateCurrentColumnSum(puzzle: Puzzle, gameState: GameState, column: Int) -> Int {
-        var sum = 0
-        for row in 0..<puzzle.rowCount {
-            if let cellState = gameState.getCellState(row: row, column: column),
-               let state = cellState,
-               state == true { // Only count cells marked as "kept"
-                sum += puzzle.grid[row][column]
-            }
-        }
-        return sum
-    }
 }
-
+    
 // MARK: - Sum Label Component
 
 struct SumLabel: View {

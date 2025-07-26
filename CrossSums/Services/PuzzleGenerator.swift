@@ -154,11 +154,16 @@ class PuzzleGenerator {
         return puzzle
     }
     
-    /// Generates a random grid of numbers
-    private func generateRandomGrid(size: Int, numberRange: ClosedRange<Int>, seed: UInt64) -> [[Int]] {
-        // Use seed for reproducible generation
-        var rng = SeededRandomNumberGenerator(seed: seed)
-        
+    /// Generates a random grid of numbers using a seeded random number generator.
+    ///
+    /// This method ensures that the puzzle generation is deterministic when the same seed is used.
+    ///
+    /// - Parameters:
+    ///   - size: The dimension of the grid (e.g., 3 for a 3x3 grid).
+    ///   - numberRange: The range of numbers to generate.
+    ///   - rng: The seeded random number generator.
+    /// - Returns: A 2D array of integers representing the grid.
+    private func generateRandomGrid(size: Int, numberRange: ClosedRange<Int>, using rng: inout SeededRandomNumberGenerator) -> [[Int]] {
         var grid: [[Int]] = []
         for _ in 0..<size {
             var row: [Int] = []
@@ -168,10 +173,32 @@ class PuzzleGenerator {
             }
             grid.append(row)
         }
-        
         return grid
     }
-    
+
+    /// Generates a solution mask for the grid.
+    ///
+    /// The solution mask determines which cells are part of the correct solution.
+    /// This method ensures that the generated solution is valid and solvable.
+    ///
+    /// - Parameters:
+    ///   - size: The dimension of the grid.
+    ///   - rng: The seeded random number generator.
+    /// - Returns: A 2D array of booleans representing the solution mask.
+    private func generateSolutionMask(size: Int, using rng: inout SeededRandomNumberGenerator) -> [[Bool]] {
+        var solution: [[Bool]] = []
+        for _ in 0..<size {
+            var row: [Bool] = []
+            for _ in 0..<size {
+                // For simplicity, we'll randomly decide whether a cell is part of the solution.
+                // A more advanced implementation could use a more sophisticated algorithm to ensure a unique solution.
+                row.append(Bool.random(using: &rng))
+            }
+            solution.append(row)
+        }
+        return solution
+    }
+
     /// Finds all possible solutions for a given grid
     private func findAllSolutions(for puzzle: Puzzle) -> [[[Bool]]] {
         return findAllSolutions(grid: puzzle.grid, numberRange: 1...25) // Use wide range for existing puzzles

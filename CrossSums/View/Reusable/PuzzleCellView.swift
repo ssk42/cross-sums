@@ -6,7 +6,7 @@ struct PuzzleCellView: View {
     let cellState: Bool?? // nil = unmarked, true = kept, false = removed
     let onTap: () -> Void
     let onLongPress: () -> Void
-    let onDoubleTap: () -> Void
+    let onDrag: (Bool) -> Void
     
     @State private var isPressed: Bool = false
     
@@ -58,15 +58,15 @@ struct PuzzleCellView: View {
             }
         }
         .gesture(
-            TapGesture(count: 2)
-                .onEnded {
-                    // Soft haptic feedback for double tap
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .soft)
-                    impactFeedback.impactOccurred()
-                    
-                    withAnimation(.easeInOut(duration: 0.15)) {
-                        onDoubleTap()
-                    }
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    // This is called when the drag starts or changes
+                    // We can use this to indicate a drag is in progress
+                    onDrag(true)
+                }
+                .onEnded { _ in
+                    // This is called when the drag ends
+                    onDrag(false)
                 }
         )
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: cellState)
@@ -126,8 +126,15 @@ struct PuzzleCellView: View {
     }
     
     private var fontSize: CGFloat {
-        // Dynamic font size based on cell size - will be adjusted by container
-        return 20
+        let numberString = String(number)
+        switch numberString.count {
+        case 1:
+            return 20 // Original size for single digits
+        case 2:
+            return 16 // Slightly smaller for double digits
+        default:
+            return 12 // Even smaller for three or more digits
+        }
     }
 }
 
@@ -148,7 +155,7 @@ struct PuzzleCellView: View {
                     cellState: nil,
                     onTap: { print("Unmarked cell tapped") },
                     onLongPress: { print("Unmarked cell long pressed") },
-                    onDoubleTap: { print("Unmarked cell double tapped") }
+                    onDrag: { _ in print("Unmarked cell dragged") }
                 )
                 .frame(width: 60, height: 60)
             }
@@ -161,7 +168,7 @@ struct PuzzleCellView: View {
                     cellState: true,
                     onTap: { print("Kept cell tapped") },
                     onLongPress: { print("Kept cell long pressed") },
-                    onDoubleTap: { print("Kept cell double tapped") }
+                    onDrag: { _ in print("Kept cell dragged") }
                 )
                 .frame(width: 60, height: 60)
             }
@@ -174,7 +181,7 @@ struct PuzzleCellView: View {
                     cellState: false,
                     onTap: { print("Removed cell tapped") },
                     onLongPress: { print("Removed cell long pressed") },
-                    onDoubleTap: { print("Removed cell double tapped") }
+                    onDrag: { _ in print("Removed cell dragged") }
                 )
                 .frame(width: 60, height: 60)
             }
@@ -208,9 +215,11 @@ struct PuzzleCellView: View {
                         // Long press -> Remove
                         cellState = false
                     },
-                    onDoubleTap: {
-                        // Double tap -> Clear
-                        cellState = nil
+                    onDrag: { isDragging in
+                        // Handle drag gesture for clearing
+                        if !isDragging {
+                            cellState = nil
+                        }
                     }
                 )
                 .frame(width: 80, height: 80)
@@ -224,7 +233,7 @@ struct PuzzleCellView: View {
                         .font(.caption)
                     Text("Long press: Remove (red)")
                         .font(.caption)
-                    Text("Double tap: Clear")
+                    Text("Drag: Clear")
                         .font(.caption)
                 }
                 .foregroundColor(.secondary)
