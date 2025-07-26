@@ -12,6 +12,9 @@ xcuserdata/
 ## compatibility with Xcode 3 and earlier (ignoring not required starting Xcode 4)
 build/
 DerivedData/
+**/DerivedData/
+*DerivedData/
+**/*DerivedData/
 *.moved-aside
 *.pbxuser
 !default.pbxuser
@@ -105,12 +108,23 @@ iOSInjectionProject/
 *.framework
 
 # Cross Sums specific
-# Ignore user-specific Xcode settings
+# Ignore user-specific Xcode settings for both old and new project names
 CrossSums.xcodeproj/xcuserdata/
 CrossSums.xcodeproj/project.xcworkspace/xcuserdata/
+CrossSumsSimple.xcodeproj/xcuserdata/
+CrossSumsSimple.xcodeproj/project.xcworkspace/xcuserdata/
 
 # Ignore build directory
 build/
 
 # Ignore any local configuration files
 LocalConfig.plist
+
+# App Store screenshots and test results
+Screenshots/
+TestResults/
+*.xcresult
+
+# Archive and export options
+ExportOptions.plist
+*.xcarchive

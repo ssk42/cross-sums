@@ -12,7 +12,18 @@
       "Bash(xcrun simctl spawn:*)",
       "Bash(python3:*)",
       "Bash(git rev-parse:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(chmod:*)",
+      "Bash(xcrun xcresulttool:*)",
+      "Bash(./Scripts/generate_screenshots.sh:*)",
+      "Bash(-project \"CrossSumsSimple.xcodeproj\" )",
+      "Bash(-scheme \"Simple Cross Sums\" )",
+      "Bash(-destination \"platform=iOS Simulator,name=iPhone 16 Pro Max\" )",
+      "Bash(-derivedDataPath \"./ProMaxDerivedData\" )",
+      "Bash(-only-testing \"Simple Cross Sums UI Tests/AppStoreScreenshotTests/testIPhoneScreenshots\" )",
+      "Bash(test)",
+      "Bash(__NEW_LINE__ echo \"🎉 iPhone Pro Max Screenshots Successfully Generated!\")",
+      "Bash(__NEW_LINE__ echo \"\")"
     ],
     "deny": []
   }

@@ -43,8 +43,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		91A453AC2E3546C30013679A /* CrossSumsSimpleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CrossSumsSimpleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		91A453BB2E3546D40013679A /* CrossSumsSimpleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CrossSumsSimpleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		91A453AC2E3546C30013679A /* CrossSumsSimpleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = CrossSumsSimpleTests.xctest; path = "Simple Cross Sums Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		91A453BB2E3546D40013679A /* CrossSumsSimpleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = CrossSumsSimpleUITests.xctest; path = "Simple Cross Sums UI Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000001 /* CrossSumsSimpleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossSumsSimpleApp.swift; sourceTree = "<group>"; };
 		AA0000002 /* MainMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuView.swift; sourceTree = "<group>"; };
 		AA0000003 /* Puzzle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle.swift; sourceTree = "<group>"; };
@@ -55,7 +55,7 @@
 		AA0000008 /* PersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceService.swift; sourceTree = "<group>"; };
 		AA0000009 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0000010 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AA0000011 /* CrossSumsSimple.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CrossSumsSimple.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000011 /* CrossSumsSimple.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = CrossSumsSimple.app; path = "Simple Cross Sums.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000012 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		AA0000013 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		AA0000015 /* PuzzleCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleCellView.swift; sourceTree = "<group>"; };
@@ -98,14 +98,14 @@
 		AA0003001 = {
 			isa = PBXGroup;
 			children = (
-				AA0003002 /* CrossSums */,
+				AA0003002 /* CrossSumsSimple */,
 				91A453AD2E3546C30013679A /* CrossSumsTests */,
 				91A453BC2E3546D40013679A /* CrossSumsUITests */,
 				AA0003003 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		AA0003002 /* CrossSums */ = {
+		AA0003002 /* CrossSumsSimple */ = {
 			isa = PBXGroup;
 			children = (
 				AA0000001 /* CrossSumsSimpleApp.swift */,
@@ -222,9 +222,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		91A453AB2E3546C30013679A /* CrossSumsTests */ = {
+		91A453AB2E3546C30013679A /* Simple Cross Sums Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 91A453B22E3546C30013679A /* Build configuration list for PBXNativeTarget "CrossSumsTests" */;
+			buildConfigurationList = 91A453B22E3546C30013679A /* Build configuration list for PBXNativeTarget "Simple Cross Sums Tests" */;
 			buildPhases = (
 				91A453A82E3546C30013679A /* Sources */,
 				91A453A92E3546C30013679A /* Frameworks */,
@@ -245,9 +245,9 @@
 			productReference = 91A453AC2E3546C30013679A /* CrossSumsSimpleTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		91A453BA2E3546D40013679A /* CrossSumsUITests */ = {
+		91A453BA2E3546D40013679A /* Simple Cross Sums UI Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 91A453C32E3546D40013679A /* Build configuration list for PBXNativeTarget "CrossSumsUITests" */;
+			buildConfigurationList = 91A453C32E3546D40013679A /* Build configuration list for PBXNativeTarget "Simple Cross Sums UI Tests" */;
 			buildPhases = (
 				91A453B72E3546D40013679A /* Sources */,
 				91A453B82E3546D40013679A /* Frameworks */,
@@ -268,9 +268,9 @@
 			productReference = 91A453BB2E3546D40013679A /* CrossSumsSimpleUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		AA0004001 /* CrossSums */ = {
+		AA0004001 /* Simple Cross Sums */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AA0005002 /* Build configuration list for PBXNativeTarget "CrossSums" */;
+			buildConfigurationList = AA0005002 /* Build configuration list for PBXNativeTarget "Simple Cross Sums" */;
 			buildPhases = (
 				AA0004002 /* Sources */,
 				AA0002001 /* Frameworks */,
@@ -321,9 +321,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AA0004001 /* CrossSums */,
-				91A453AB2E3546C30013679A /* CrossSumsTests */,
-				91A453BA2E3546D40013679A /* CrossSumsUITests */,
+				AA0004001 /* Simple Cross Sums */,
+				91A453AB2E3546C30013679A /* Simple Cross Sums Tests */,
+				91A453BA2E3546D40013679A /* Simple Cross Sums UI Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -395,12 +395,12 @@
 /* Begin PBXTargetDependency section */
 		91A453B12E3546C30013679A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AA0004001 /* CrossSums */;
+			target = AA0004001 /* Simple Cross Sums */;
 			targetProxy = 91A453B02E3546C30013679A /* PBXContainerItemProxy */;
 		};
 		91A453C22E3546D40013679A /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = AA0004001 /* CrossSums */;
+			target = AA0004001 /* Simple Cross Sums */;
 			targetProxy = 91A453C12E3546D40013679A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
