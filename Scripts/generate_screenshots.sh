@@ -13,19 +13,15 @@ DERIVED_DATA_PATH="./DerivedData"
 
 # Device configurations for App Store
 declare -a IPHONE_DEVICES=(
-    "iPhone 16 Pro Max"
-    "iPhone 16 Pro" 
-    "iPhone 16 Plus"
-    "iPhone 16"
-    "iPhone 15 Pro Max"
-    "iPhone 15 Pro"
+    # "iPhone 16 Pro Max"
+    # "iPhone 16 Pro" 
+    # "iPhone 16 Plus"
+    # "iPhone 16"
+    # "iPhone 15 Pro"
 )
 
 declare -a IPAD_DEVICES=(
-    "iPad Pro (12.9-inch) (6th generation)"
-    "iPad Pro (11-inch) (4th generation)"
-    "iPad Air (5th generation)"
-    "iPad (10th generation)"
+    "iPad Pro 13-inch (M4)"
 )
 
 # Colors for output
@@ -44,6 +40,10 @@ echo ""
 mkdir -p "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR/iPhone"
 mkdir -p "$OUTPUT_DIR/iPad"
+
+# Clear previous screenshots
+rm -rf "$OUTPUT_DIR/iPhone"/*
+rm -rf "$OUTPUT_DIR/iPad"/*
 
 # Function to generate screenshots for a device
 generate_screenshots_for_device() {
@@ -79,17 +79,46 @@ extract_screenshots_from_results() {
         # Create device-specific directory
         DEVICE_DIR="$OUTPUT_DIR/$device_type/$(echo "$device" | sed 's/ /_/g')"
         mkdir -p "$DEVICE_DIR"
+        export DEVICE_DIR # Export DEVICE_DIR for the Python script
         
+        # Remove existing manifest.json if it exists
+        rm -f "$DEVICE_DIR/manifest.json"
         # Extract screenshots using modern xcresulttool
         xcrun xcresulttool export attachments --path "$RESULTS_PATH" --output-path "$DEVICE_DIR"
-        
-        # Move screenshots to have better names
-        if [ -d "$DEVICE_DIR" ]; then
-            find "$DEVICE_DIR" -name "*.png" -type f | while read -r screenshot; do
-                if [[ "$screenshot" == *"Screenshot"* ]] || [[ "$screenshot" == *"screenshot"* ]]; then
-                    echo "    Found screenshot: $(basename "$screenshot")"
-                fi
-            done
+
+        # Read manifest and rename files based on suggested names
+        if [ -f "$DEVICE_DIR/manifest.json" ]; then
+            echo "  Renaming screenshots based on manifest..."
+            
+            # Use Python to parse JSON and rename files
+            python3 -c "
+import json
+import os
+import shutil
+import sys
+
+DEVICE_DIR = sys.argv[1]
+manifest_path = os.path.join(DEVICE_DIR, "manifest.json")
+if os.path.exists(manifest_path):
+    with open(manifest_path, 'r') as f:
+        data = json.load(f)
+    
+    for test_data in data:
+        for attachment in test_data.get('attachments', []):
+            exported_name = attachment.get('exportedFileName')
+            suggested_name = attachment.get('suggestedHumanReadableName')
+            
+            if exported_name and suggested_name:
+                old_path = os.path.join(DEVICE_DIR, exported_name)
+                new_path = os.path.join(DEVICE_DIR, suggested_name)
+                
+                if os.path.exists(old_path):
+                    shutil.move(old_path, new_path)
+                    print(f"    Renamed: {exported_name} -> {suggested_name}")
+" "$DEVICE_DIR"
+            echo "  ✅ Screenshots renamed!"
+        else
+            echo "  ⚠️  No manifest found, screenshots extracted with original names"
         fi
         
         echo -e "  ${GREEN}✅ Screenshots extracted to: $DEVICE_DIR${NC}"
@@ -134,12 +163,14 @@ echo -e "${BLUE}📊 Summary:${NC}"
 echo "Output directory: $OUTPUT_DIR"
 
 # Count generated screenshots
-IPHONE_COUNT=$(find "$OUTPUT_DIR/iPhone" -name "*.png" 2>/dev/null | wc -l)
-IPAD_COUNT=$(find "$OUTPUT_DIR/iPad" -name "*.png" 2>/dev/null | wc -l)
+IPHONE_COUNT=$(find "$OUTPUT_DIR/iPhone" -type f -name "*.png" 2>/dev/null | wc -l)
+IPAD_COUNT=$(find "$OUTPUT_DIR/iPad" -type f -name "*.png" 2>/dev/null | wc -l)
 
 echo "iPhone screenshots: $IPHONE_COUNT"
 echo "iPad screenshots: $IPAD_COUNT"
 echo "Total screenshots: $((IPHONE_COUNT + IPAD_COUNT))"
+
+ls -R "$OUTPUT_DIR/iPad"
 
 echo ""
 echo -e "${BLUE}📱 Next steps:${NC}"

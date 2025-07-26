@@ -31,6 +31,10 @@ struct GridView: View {
                                 current: gameViewModel.currentColumnSums[col],
                                 size: cellSize
                             )
+                            .accessibilityIdentifier("columnSum\(col)")
+                            .accessibilityLabel("Column \(col + 1)")
+                            .accessibilityValue("Current: \(gameViewModel.currentColumnSums[col]), Target: \(puzzle.columnSums[col])")
+                            .accessibilityHint("Sum of numbers kept in column \(col + 1)")
                         }
                     }
                     
@@ -43,6 +47,10 @@ struct GridView: View {
                                 current: gameViewModel.currentRowSums[row],
                                 size: cellSize
                             )
+                            .accessibilityIdentifier("rowSum\(row)")
+                            .accessibilityLabel("Row \(row + 1)")
+                            .accessibilityValue("Current: \(gameViewModel.currentRowSums[row]), Target: \(puzzle.rowSums[row])")
+                            .accessibilityHint("Sum of numbers kept in row \(row + 1)")
                             
                             // Row cells
                             ForEach(0..<puzzle.columnCount, id: \.self) { col in
@@ -65,6 +73,8 @@ struct GridView: View {
                                     }
                                 )
                                 .frame(width: cellSize, height: cellSize)
+                                .accessibilityIdentifier("cell\(row)\(col)")
+                                .accessibilityAddTraits(.allowsDirectInteraction)
                             }
                         }
                     }
@@ -75,10 +85,13 @@ struct GridView: View {
                 VStack {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
+                        .accessibilityHidden(true)
                     Text("Loading puzzle...")
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .padding(.top, 8)
+                        .accessibilityLabel("Loading puzzle")
+                        .accessibilityHint("Please wait while the puzzle grid is being prepared")
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             }

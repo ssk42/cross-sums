@@ -10,6 +10,31 @@ struct PuzzleCellView: View {
     
     @State private var isPressed: Bool = false
     
+    // Accessibility properties
+    private var accessibilityStateDescription: String {
+        if let state = cellState, let actualState = state {
+            return actualState ? "kept" : "removed"
+        } else {
+            return "unmarked"
+        }
+    }
+    
+    private var accessibilityFullDescription: String {
+        "Number \(number), currently \(accessibilityStateDescription)"
+    }
+    
+    private var accessibilityHintText: String {
+        if let state = cellState, let actualState = state {
+            if actualState {
+                return "This number is kept and included in the sum. Double tap to remove, or triple tap to clear."
+            } else {
+                return "This number is removed and excluded from the sum. Double tap to keep, or triple tap to clear."
+            }
+        } else {
+            return "This number is unmarked. Double tap to keep, triple tap to remove."
+        }
+    }
+    
     var body: some View {
         ZStack {
             // Background
@@ -70,6 +95,13 @@ struct PuzzleCellView: View {
                 }
         )
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: cellState)
+        .modifier(PuzzleCellAccessibilityModifier(
+            number: number,
+            cellState: cellState,
+            onTap: onTap,
+            onLongPress: onLongPress,
+            onDrag: onDrag
+        ))
     }
     
     // MARK: - Computed Properties
@@ -254,3 +286,63 @@ struct PuzzleCellView: View {
     
     return InteractiveDemo()
 }
+
+// MARK: - Accessibility Modifier
+
+struct PuzzleCellAccessibilityModifier: ViewModifier {
+    let number: Int
+    let cellState: Bool??
+    let onTap: () -> Void
+    let onLongPress: () -> Void
+    let onDrag: (Bool) -> Void
+    
+    private var accessibilityStateDescription: String {
+        if let state = cellState, let actualState = state {
+            return actualState ? "kept" : "removed"
+        } else {
+            return "unmarked"
+        }
+    }
+    
+    private var accessibilityFullDescription: String {
+        "Number \(number), currently \(accessibilityStateDescription)"
+    }
+    
+    private var accessibilityHintText: String {
+        if let state = cellState, let actualState = state {
+            if actualState {
+                return "This number is kept and included in the sum. Double tap to remove, or triple tap to clear."
+            } else {
+                return "This number is removed and excluded from the sum. Double tap to keep, or triple tap to clear."
+            }
+        } else {
+            return "This number is unmarked. Double tap to keep, triple tap to remove."
+        }
+    }
+    
+    func body(content: Content) -> some View {
+        content
+            .accessibilityElement(children: .ignore)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityLabel(accessibilityFullDescription)
+            .accessibilityHint(accessibilityHintText)
+            .accessibilityValue(accessibilityStateDescription)
+            .accessibilityAction(.default) {
+                onTap()
+            }
+            .accessibilityAction(named: "Mark as kept") {
+                if cellState != true {
+                    onTap()
+                }
+            }
+            .accessibilityAction(named: "Mark as removed") {
+                onLongPress()
+            }
+            .accessibilityAction(named: "Clear marking") {
+                if cellState != nil {
+                    onDrag(true)
+                    onDrag(false)
+                }
+            }
+    }
+    }

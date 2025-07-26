@@ -19,6 +19,9 @@ struct ControlsView: View {
             ) {
                 showMainMenuConfirmation = true
             }
+            .accessibilityIdentifier("mainMenuButton")
+            .accessibilityLabel("Main Menu")
+            .accessibilityHint("Return to the main menu. Current progress will be lost.")
             
             // Hint Button
             ControlButton(
@@ -30,6 +33,9 @@ struct ControlsView: View {
             ) {
                 gameViewModel.useHint()
             }
+            .accessibilityIdentifier("hintButton")
+            .accessibilityLabel("Hint")
+            .accessibilityHint(canUseHint ? "Use a hint to reveal a correct cell" : "No hints available")
             
             // Restart Button
             ControlButton(
@@ -41,6 +47,9 @@ struct ControlsView: View {
             ) {
                 showRestartConfirmation = true
             }
+            .accessibilityIdentifier("restartButton")
+            .accessibilityLabel("Restart")
+            .accessibilityHint(gameViewModel.isGameActive ? "Restart the current level. All progress will be lost." : "Cannot restart - game is not active")
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)

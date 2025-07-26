@@ -13,6 +13,10 @@ struct HUDView: View {
                 subtitle: gameViewModel.currentDifficulty,
                 color: .blue
             )
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Level \(gameViewModel.currentLevel)")
+            .accessibilityValue("\(gameViewModel.currentDifficulty) difficulty")
+            .accessibilityHint("Current level and difficulty")
             
             Spacer()
             
@@ -24,6 +28,10 @@ struct HUDView: View {
                 subtitle: livesSubtitle,
                 color: livesColor
             )
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Lives remaining: \(gameViewModel.livesRemaining)")
+            .accessibilityValue(livesSubtitle)
+            .accessibilityHint("Number of incorrect moves you can make before game over")
             
             Spacer()
             
@@ -35,6 +43,10 @@ struct HUDView: View {
                 subtitle: hintsSubtitle,
                 color: .orange
             )
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Hints available: \(gameViewModel.hintsAvailable)")
+            .accessibilityValue(hintsSubtitle)
+            .accessibilityHint("Number of hints you can use to reveal correct answers")
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)

@@ -27,10 +27,16 @@ struct MainMenuView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
+                        .accessibilityIdentifier("appTitle")
+                        .accessibilityLabel("Cross Sums")
+                        .accessibilityHint("Main title of the puzzle game")
                     
                     Text("Add numbers to match target sums")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                        .accessibilityIdentifier("gameDescription")
+                        .accessibilityLabel("Add numbers to match target sums")
+                        .accessibilityHint("Brief description of the game rules")
                 }
                 
                 Spacer()
@@ -40,14 +46,23 @@ struct MainMenuView: View {
                     Text("Select Difficulty")
                         .font(.headline)
                         .foregroundColor(.primary)
+                        .accessibilityIdentifier("difficultyLabel")
+                        .accessibilityLabel("Select Difficulty")
+                        .accessibilityHint("Choose the difficulty level for your puzzle")
                     
                     Picker("Difficulty", selection: $selectedDifficulty) {
                         ForEach(difficulties, id: \.self) { difficulty in
-                            Text(difficulty).tag(difficulty)
+                            Text(difficulty)
+                                .tag(difficulty)
+                                .accessibilityLabel(difficulty)
+                                .accessibilityHint("Select \(difficulty) difficulty level")
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     .padding(.horizontal)
+                    .accessibilityIdentifier("difficultyPicker")
+                    .accessibilityLabel("Difficulty selector")
+                    .accessibilityHint("Currently selected: \(selectedDifficulty). Double tap to change difficulty.")
                     
                     // Level info for selected difficulty
                     VStack(spacing: 5) {
@@ -57,16 +72,25 @@ struct MainMenuView: View {
                         Text("Next Level: \(nextLevel)")
                             .font(.body)
                             .foregroundColor(.primary)
+                            .accessibilityIdentifier("nextLevelInfo")
+                            .accessibilityLabel("Next Level: \(nextLevel)")
+                            .accessibilityHint("The next level you will play for \(selectedDifficulty) difficulty")
                         
                         if highestLevel > 0 {
                             Text("Highest Completed: \(highestLevel)")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
+                                .accessibilityIdentifier("highestLevelInfo")
+                                .accessibilityLabel("Highest Completed: \(highestLevel)")
+                                .accessibilityHint("The highest level you have completed for \(selectedDifficulty) difficulty")
                         }
                     }
                     .padding()
                     .background(Color(.systemBackground).opacity(0.8))
                     .cornerRadius(10)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityIdentifier("levelProgressInfo")
+                    .accessibilityLabel("Level Progress: Next level \(gameViewModel.getNextLevel(for: selectedDifficulty))" + (gameViewModel.getHighestLevel(for: selectedDifficulty) > 0 ? ", highest completed \(gameViewModel.getHighestLevel(for: selectedDifficulty))" : ""))
                 }
                 
                 Spacer()
@@ -77,6 +101,7 @@ struct MainMenuView: View {
                     NavigationLink(destination: GameView(gameViewModel: gameViewModel)) {
                         HStack {
                             Image(systemName: "play.fill")
+                                .accessibilityHidden(true)
                             Text("Play")
                                 .fontWeight(.semibold)
                         }
@@ -90,11 +115,15 @@ struct MainMenuView: View {
                     .simultaneousGesture(TapGesture().onEnded {
                         didTapPlay()
                     })
+                    .accessibilityIdentifier("playButton")
+                    .accessibilityLabel("Play")
+                    .accessibilityHint("Start playing the selected difficulty level")
                     
                     // Help Button
                     Button(action: didTapHelp) {
                         HStack {
                             Image(systemName: "questionmark.circle")
+                                .accessibilityHidden(true)
                             Text("How to Play")
                         }
                         .frame(maxWidth: .infinity)
@@ -103,6 +132,9 @@ struct MainMenuView: View {
                         .foregroundColor(.primary)
                         .cornerRadius(12)
                     }
+                    .accessibilityIdentifier("helpButton")
+                    .accessibilityLabel("How to Play")
+                    .accessibilityHint("Learn the rules and instructions for playing Cross Sums")
                 }
                 .padding(.horizontal, 40)
                 
@@ -113,6 +145,9 @@ struct MainMenuView: View {
                     Text("Hints Available: \(gameViewModel.hintsAvailable)")
                         .font(.caption)
                         .foregroundColor(.secondary)
+                        .accessibilityIdentifier("hintsAvailable")
+                        .accessibilityLabel("Hints Available: \(gameViewModel.hintsAvailable)")
+                        .accessibilityHint("Number of hints you can use during gameplay")
                 }
                 .padding(.bottom)
             }
@@ -122,11 +157,15 @@ struct MainMenuView: View {
             if isLoading {
                 Color.black.opacity(0.3)
                     .ignoresSafeArea()
+                    .accessibilityHidden(true)
                 
                 ProgressView("Loading puzzle...")
                     .padding()
                     .background(Color(.systemBackground))
                     .cornerRadius(10)
+                    .accessibilityIdentifier("loadingIndicator")
+                    .accessibilityLabel("Loading puzzle")
+                    .accessibilityHint("Please wait while the puzzle is being prepared")
             }
         }
         .sheet(isPresented: $showHelp) {
