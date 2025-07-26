@@ -136,9 +136,9 @@ struct GameState {
         switch currentState {
         case nil:
             newState = true  // unmarked -> kept
-        case true:
+        case .some(true):
             newState = false // kept -> removed
-        case false:
+        case .some(false):
             newState = nil   // removed -> unmarked
         }
         
