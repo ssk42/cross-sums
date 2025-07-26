@@ -3,11 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		AA0001001 /* CrossSumsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000001 /* CrossSumsApp.swift */; };
+		AA0001001 /* CrossSumsSimpleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000001 /* CrossSumsSimpleApp.swift */; };
 		AA0001002 /* MainMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000002 /* MainMenuView.swift */; };
 		AA0001003 /* Puzzle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000003 /* Puzzle.swift */; };
 		AA0001004 /* PlayerProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000004 /* PlayerProfile.swift */; };
@@ -18,7 +18,6 @@
 		AA0001009 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000009 /* Assets.xcassets */; };
 		AA0001010 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000012 /* GameView.swift */; };
 		AA0001011 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000013 /* HelpView.swift */; };
-		AA0001012 /* puzzles.json in Resources */ = {isa = PBXBuildFile; fileRef = AA0000014 /* puzzles.json */; };
 		AA0001013 /* PuzzleCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000015 /* PuzzleCellView.swift */; };
 		AA0001014 /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000016 /* GridView.swift */; };
 		AA0001015 /* HUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000017 /* HUDView.swift */; };
@@ -26,8 +25,27 @@
 		AA0001017 /* LevelCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000019 /* LevelCompleteView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		91A453B02E3546C30013679A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA0006001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0004001;
+			remoteInfo = CrossSumsSimple;
+		};
+		91A453C12E3546D40013679A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA0006001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0004001;
+			remoteInfo = CrossSumsSimple;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		AA0000001 /* CrossSumsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossSumsApp.swift; sourceTree = "<group>"; };
+		91A453AC2E3546C30013679A /* CrossSumsSimpleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CrossSumsSimpleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		91A453BB2E3546D40013679A /* CrossSumsSimpleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CrossSumsSimpleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000001 /* CrossSumsSimpleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossSumsSimpleApp.swift; sourceTree = "<group>"; };
 		AA0000002 /* MainMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuView.swift; sourceTree = "<group>"; };
 		AA0000003 /* Puzzle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Puzzle.swift; sourceTree = "<group>"; };
 		AA0000004 /* PlayerProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfile.swift; sourceTree = "<group>"; };
@@ -37,10 +55,9 @@
 		AA0000008 /* PersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceService.swift; sourceTree = "<group>"; };
 		AA0000009 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0000010 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AA0000011 /* CrossSums.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CrossSums.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA0000011 /* CrossSumsSimple.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CrossSumsSimple.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000012 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		AA0000013 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
-		AA0000014 /* puzzles.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = puzzles.json; sourceTree = "<group>"; };
 		AA0000015 /* PuzzleCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleCellView.swift; sourceTree = "<group>"; };
 		AA0000016 /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
 		AA0000017 /* HUDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUDView.swift; sourceTree = "<group>"; };
@@ -48,7 +65,26 @@
 		AA0000019 /* LevelCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelCompleteView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		91A453AD2E3546C30013679A /* CrossSumsTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = CrossSumsTests; sourceTree = "<group>"; };
+		91A453BC2E3546D40013679A /* CrossSumsUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = CrossSumsUITests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
+		91A453A92E3546C30013679A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91A453B82E3546D40013679A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AA0002001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -63,6 +99,8 @@
 			isa = PBXGroup;
 			children = (
 				AA0003002 /* CrossSums */,
+				91A453AD2E3546C30013679A /* CrossSumsTests */,
+				91A453BC2E3546D40013679A /* CrossSumsUITests */,
 				AA0003003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -70,7 +108,7 @@
 		AA0003002 /* CrossSums */ = {
 			isa = PBXGroup;
 			children = (
-				AA0000001 /* CrossSumsApp.swift */,
+				AA0000001 /* CrossSumsSimpleApp.swift */,
 				AA0003004 /* Model */,
 				AA0003005 /* ViewModel */,
 				AA0003006 /* View */,
@@ -78,13 +116,15 @@
 				AA0003008 /* Resources */,
 				AA0000010 /* Info.plist */,
 			);
-			path = CrossSums;
+			path = CrossSumsSimple;
 			sourceTree = "<group>";
 		};
 		AA0003003 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AA0000011 /* CrossSums.app */,
+				AA0000011 /* CrossSumsSimple.app */,
+				91A453AC2E3546C30013679A /* CrossSumsSimpleTests.xctest */,
+				91A453BB2E3546D40013679A /* CrossSumsSimpleUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -175,7 +215,6 @@
 		AA0003013 /* Puzzles */ = {
 			isa = PBXGroup;
 			children = (
-				AA0000014 /* puzzles.json */,
 			);
 			path = Puzzles;
 			sourceTree = "<group>";
@@ -183,6 +222,52 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		91A453AB2E3546C30013679A /* CrossSumsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 91A453B22E3546C30013679A /* Build configuration list for PBXNativeTarget "CrossSumsTests" */;
+			buildPhases = (
+				91A453A82E3546C30013679A /* Sources */,
+				91A453A92E3546C30013679A /* Frameworks */,
+				91A453AA2E3546C30013679A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				91A453B12E3546C30013679A /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				91A453AD2E3546C30013679A /* CrossSumsTests */,
+			);
+			name = "Simple Cross Sums Tests";
+			packageProductDependencies = (
+			);
+			productName = CrossSumsSimpleTests;
+			productReference = 91A453AC2E3546C30013679A /* CrossSumsSimpleTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		91A453BA2E3546D40013679A /* CrossSumsUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 91A453C32E3546D40013679A /* Build configuration list for PBXNativeTarget "CrossSumsUITests" */;
+			buildPhases = (
+				91A453B72E3546D40013679A /* Sources */,
+				91A453B82E3546D40013679A /* Frameworks */,
+				91A453B92E3546D40013679A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				91A453C22E3546D40013679A /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				91A453BC2E3546D40013679A /* CrossSumsUITests */,
+			);
+			name = "Simple Cross Sums UI Tests";
+			packageProductDependencies = (
+			);
+			productName = CrossSumsSimpleUITests;
+			productReference = 91A453BB2E3546D40013679A /* CrossSumsSimpleUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		AA0004001 /* CrossSums */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AA0005002 /* Build configuration list for PBXNativeTarget "CrossSums" */;
@@ -195,9 +280,9 @@
 			);
 			dependencies = (
 			);
-			name = CrossSums;
-			productName = CrossSums;
-			productReference = AA0000011 /* CrossSums.app */;
+			name = "Simple Cross Sums";
+			productName = CrossSumsSimple;
+			productReference = AA0000011 /* CrossSumsSimple.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -207,15 +292,23 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1500;
+				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
+					91A453AB2E3546C30013679A = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = AA0004001;
+					};
+					91A453BA2E3546D40013679A = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = AA0004001;
+					};
 					AA0004001 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
 			};
-			buildConfigurationList = AA0005001 /* Build configuration list for PBXProject "CrossSums" */;
+			buildConfigurationList = AA0005001 /* Build configuration list for PBXProject "CrossSumsSimple" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -229,28 +322,57 @@
 			projectRoot = "";
 			targets = (
 				AA0004001 /* CrossSums */,
+				91A453AB2E3546C30013679A /* CrossSumsTests */,
+				91A453BA2E3546D40013679A /* CrossSumsUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		91A453AA2E3546C30013679A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91A453B92E3546D40013679A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AA0004003 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				AA0001009 /* Assets.xcassets in Resources */,
-				AA0001012 /* puzzles.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		91A453A82E3546C30013679A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		91A453B72E3546D40013679A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AA0004002 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA0001001 /* CrossSumsApp.swift in Sources */,
+				AA0001001 /* CrossSumsSimpleApp.swift in Sources */,
 				AA0001002 /* MainMenuView.swift in Sources */,
 				AA0001003 /* Puzzle.swift in Sources */,
 				AA0001004 /* PlayerProfile.swift in Sources */,
@@ -270,7 +392,94 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		91A453B12E3546C30013679A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0004001 /* CrossSums */;
+			targetProxy = 91A453B02E3546C30013679A /* PBXContainerItemProxy */;
+		};
+		91A453C22E3546D40013679A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0004001 /* CrossSums */;
+			targetProxy = 91A453C12E3546D40013679A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		91A453B32E3546C30013679A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J4QUKKF6V3;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Stevereitz.CrossSumsSimpleTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CrossSumsSimple.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CrossSumsSimple";
+			};
+			name = Debug;
+		};
+		91A453B42E3546C30013679A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J4QUKKF6V3;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Stevereitz.CrossSumsSimpleTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CrossSumsSimple.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CrossSumsSimple";
+			};
+			name = Release;
+		};
+		91A453C42E3546D40013679A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J4QUKKF6V3;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Stevereitz.CrossSumsSimpleUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Simple Cross Sums";
+			};
+			name = Debug;
+		};
+		91A453C52E3546D40013679A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = J4QUKKF6V3;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Stevereitz.CrossSumsSimpleUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Simple Cross Sums";
+			};
+			name = Release;
+		};
 		AA0005003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -395,11 +604,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = J4QUKKF6V3;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = CrossSums/Info.plist;
+				INFOPLIST_FILE = CrossSumsSimple/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -411,7 +621,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.crosssums.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.crosssumssimple.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -427,11 +637,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = J4QUKKF6V3;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = CrossSums/Info.plist;
+				INFOPLIST_FILE = CrossSumsSimple/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -443,7 +654,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.crosssums.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.crosssumssimple.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -457,7 +668,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AA0005001 /* Build configuration list for PBXProject "CrossSums" */ = {
+		91A453B22E3546C30013679A /* Build configuration list for PBXNativeTarget "Simple Cross Sums Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				91A453B32E3546C30013679A /* Debug */,
+				91A453B42E3546C30013679A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		91A453C32E3546D40013679A /* Build configuration list for PBXNativeTarget "Simple Cross Sums UI Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				91A453C42E3546D40013679A /* Debug */,
+				91A453C52E3546D40013679A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA0005001 /* Build configuration list for PBXProject "CrossSumsSimple" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0005003 /* Debug */,
@@ -466,7 +695,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		AA0005002 /* Build configuration list for PBXNativeTarget "CrossSums" */ = {
+		AA0005002 /* Build configuration list for PBXNativeTarget "Simple Cross Sums" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AA0005005 /* Debug */,

@@ -4,39 +4,36 @@ import Foundation
 /// 
 /// A puzzle consists of a grid of numbers where the player must mark cells as kept or removed
 /// to match the target sums for each row and column. Each puzzle has a unique solution.
-struct Puzzle: Codable, Identifiable {
+public struct Puzzle: Codable, Identifiable {
     /// Unique identifier for the puzzle (e.g., "hard-50")
-    let id: String
+    public let id: String
     
     /// Difficulty level of the puzzle (Easy, Medium, Hard, Extra Hard)
-    let difficulty: String
+    public let difficulty: String
     
     /// 2D array of numbers representing the puzzle grid
-    let grid: [[Int]]
+    public let grid: [[Int]]
     
     /// The correct solution mask: true for kept cells, false for removed cells
-    let solution: [[Bool]]
+    public let solution: [[Bool]]
     
     /// Target sums for each row
-    let rowSums: [Int]
+    public let rowSums: [Int]
     
     /// Target sums for each column
-    let columnSums: [Int]
+    public let columnSums: [Int]
     
     // MARK: - Computed Properties
     
-    /// The number of rows in the puzzle grid
-    var rowCount: Int {
+    public var rowCount: Int {
         return grid.count
     }
     
-    /// The number of columns in the puzzle grid
-    var columnCount: Int {
+    public var columnCount: Int {
         return grid.first?.count ?? 0
     }
     
-    /// Returns true if the puzzle has valid dimensions
-    var isValid: Bool {
+    public var isValid: Bool {
         guard rowCount > 0 && columnCount > 0 else { return false }
         
         // Check that all rows have the same number of columns
@@ -58,17 +55,13 @@ struct Puzzle: Codable, Identifiable {
         return rowSums.count == rowCount && columnSums.count == columnCount
     }
     
-    /// Returns true if the puzzle grid is empty
-    var isEmpty: Bool {
+    public var isEmpty: Bool {
         return rowCount == 0 || columnCount == 0
     }
     
     // MARK: - Methods
     
-    /// Validates if a given player mask matches the puzzle solution
-    /// - Parameter playerMask: 2D boolean array representing player's current selections
-    /// - Returns: true if the player mask matches the solution exactly
-    func isValidSolution(_ playerMask: [[Bool]]) -> Bool {
+    public func isValidSolution(_ playerMask: [[Bool]]) -> Bool {
         guard playerMask.count == rowCount else { return false }
         
         for (rowIndex, row) in playerMask.enumerated() {
@@ -84,12 +77,7 @@ struct Puzzle: Codable, Identifiable {
         return true
     }
     
-    /// Calculates the current row sum for a given player mask
-    /// - Parameters:
-    ///   - playerMask: 2D boolean array representing player's current selections
-    ///   - row: The row index to calculate
-    /// - Returns: The sum of kept numbers in the specified row, or nil if invalid
-    func calculateRowSum(for playerMask: [[Bool]], row: Int) -> Int? {
+    public func calculateRowSum(for playerMask: [[Bool]], row: Int) -> Int? {
         guard row >= 0 && row < rowCount,
               playerMask.count > row,
               playerMask[row].count == columnCount else {
@@ -106,12 +94,7 @@ struct Puzzle: Codable, Identifiable {
         return sum
     }
     
-    /// Calculates the current column sum for a given player mask
-    /// - Parameters:
-    ///   - playerMask: 2D boolean array representing player's current selections
-    ///   - column: The column index to calculate
-    /// - Returns: The sum of kept numbers in the specified column, or nil if invalid
-    func calculateColumnSum(for playerMask: [[Bool]], column: Int) -> Int? {
+    public func calculateColumnSum(for playerMask: [[Bool]], column: Int) -> Int? {
         guard column >= 0 && column < columnCount,
               playerMask.count == rowCount else {
             return nil
@@ -129,12 +112,7 @@ struct Puzzle: Codable, Identifiable {
         return sum
     }
     
-    /// Gets the number at a specific grid position
-    /// - Parameters:
-    ///   - row: Row index
-    ///   - column: Column index
-    /// - Returns: The number at the specified position, or nil if out of bounds
-    func number(at row: Int, column: Int) -> Int? {
+    public func number(at row: Int, column: Int) -> Int? {
         guard row >= 0 && row < rowCount,
               column >= 0 && column < columnCount else {
             return nil
@@ -143,12 +121,7 @@ struct Puzzle: Codable, Identifiable {
         return grid[row][column]
     }
     
-    /// Gets the solution state for a specific cell
-    /// - Parameters:
-    ///   - row: Row index
-    ///   - column: Column index
-    /// - Returns: true if the cell should be kept in the solution, false if removed, nil if out of bounds
-    func solutionState(at row: Int, column: Int) -> Bool? {
+    public func solutionState(at row: Int, column: Int) -> Bool? {
         guard row >= 0 && row < rowCount,
               column >= 0 && column < columnCount else {
             return nil

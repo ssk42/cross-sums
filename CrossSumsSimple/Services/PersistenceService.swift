@@ -4,19 +4,19 @@ import Foundation
 /// 
 /// Uses UserDefaults for simple, reliable persistence of player progress,
 /// settings, and hint counts. Handles data migration and error recovery gracefully.
-class PersistenceService {
+public class PersistenceService {
     
     // MARK: - Constants
     
-    private static let profileKey = "CrossSums_PlayerProfile"
-    private static let dataVersionKey = "CrossSums_DataVersion"
+    private static let profileKey = "CrossSumsSimple_PlayerProfile"
+    private static let dataVersionKey = "CrossSumsSimple_DataVersion"
     private static let currentDataVersion = 1
     
     // MARK: - Singleton
     
-    static let shared = PersistenceService()
+    public static let shared = PersistenceService()
     
-    private init() {}
+    public init() {}
     
     // MARK: - Public Methods
     
@@ -24,7 +24,7 @@ class PersistenceService {
     /// - Parameter profile: The PlayerProfile to save
     /// - Returns: true if save was successful, false otherwise
     @discardableResult
-    func saveProfile(_ profile: PlayerProfile) -> Bool {
+    public func saveProfile(_ profile: PlayerProfile) -> Bool {
         do {
             let encoder = JSONEncoder()
             encoder.outputFormatting = .prettyPrinted
@@ -45,7 +45,7 @@ class PersistenceService {
     
     /// Loads the player profile from UserDefaults
     /// - Returns: PlayerProfile (either loaded from storage or default if none exists)
-    func loadProfile() -> PlayerProfile {
+    public func loadProfile() -> PlayerProfile {
         // Check if profile exists
         guard let data = UserDefaults.standard.data(forKey: Self.profileKey) else {
             print("ℹ️ No saved profile found, creating default profile")

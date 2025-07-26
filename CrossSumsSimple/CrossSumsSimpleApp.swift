@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct CrossSumsApp: App {
+struct CrossSumsSimpleApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {

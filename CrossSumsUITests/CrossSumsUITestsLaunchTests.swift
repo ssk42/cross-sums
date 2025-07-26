@@ -1,13 +1,13 @@
 //
-//  CrossSumsUITestsLaunchTests.swift
-//  CrossSumsUITests
+//  CrossSumsSimpleUITestsLaunchTests.swift
+//  CrossSumsSimpleUITests
 //
 //  Created by Stephen Reitz on 7/26/25.
 //
 
 import XCTest
 
-final class CrossSumsUITestsLaunchTests: XCTestCase {
+final class CrossSumsSimpleUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

@@ -28,7 +28,7 @@ class PuzzleGenerator {
     
     static let shared = PuzzleGenerator()
     
-    private init() {
+    public init() {
         self.randomNumberGenerator = SystemRandomNumberGenerator()
     }
     

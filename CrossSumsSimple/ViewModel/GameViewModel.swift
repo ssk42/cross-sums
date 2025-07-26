@@ -42,7 +42,7 @@ class GameViewModel: ObservableObject {
     
     // MARK: - Private Properties
     
-    private let puzzleService: PuzzleService
+    private let puzzleService: PuzzleServiceProtocol
     private let persistenceService: PersistenceService
     
     // MARK: - Computed Properties
@@ -79,7 +79,7 @@ class GameViewModel: ObservableObject {
     /// - Parameters:
     ///   - puzzleService: Service for loading puzzles (default: shared instance)
     ///   - persistenceService: Service for saving/loading data (default: shared instance)
-    init(puzzleService: PuzzleService = .shared, persistenceService: PersistenceService = .shared) {
+    init(puzzleService: PuzzleServiceProtocol = PuzzleService.shared, persistenceService: PersistenceService = .shared) {
         self.puzzleService = puzzleService
         self.persistenceService = persistenceService
         
@@ -324,7 +324,7 @@ class GameViewModel: ObservableObject {
     }
     
     /// Handles successful level completion
-    private func handleLevelComplete() {
+    internal func handleLevelComplete() {
         guard let puzzle = currentPuzzle else { return }
         
         isLevelComplete = true

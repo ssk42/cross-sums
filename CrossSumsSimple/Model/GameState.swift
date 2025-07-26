@@ -5,26 +5,26 @@ import Foundation
 /// GameState tracks the current progress and status of a puzzle being played, including
 /// the player's cell selections, remaining lives, and game status. This state is reset
 /// when starting a new puzzle or restarting the current one.
-struct GameState {
+public struct GameState {
     /// 2D boolean array representing the player's current cell selections
     /// true = cell is marked as kept, false = cell is marked as removed
     /// nil values can represent unmarked cells during initial state
-    var playerGridMask: [[Bool?]]
+    public var playerGridMask: [[Bool?]]
     
     /// Number of lives/mistakes remaining before game over
-    var livesRemaining: Int
+    public var livesRemaining: Int
     
     /// Whether the puzzle has been completed successfully
-    var isCompleted: Bool
+    public var isCompleted: Bool
     
     /// Whether the game is over (no lives remaining)
-    var isGameOver: Bool
+    public var isGameOver: Bool
     
     /// Total number of moves made by the player
-    var moveCount: Int
+    public var moveCount: Int
     
     /// Time when the game started (for tracking completion time)
-    var startTime: Date
+    public var startTime: Date
     
     // MARK: - Initializers
     
@@ -32,7 +32,7 @@ struct GameState {
     /// - Parameters:
     ///   - puzzle: The puzzle to create state for
     ///   - lives: Starting number of lives (default: 3)
-    init(for puzzle: Puzzle, lives: Int = 3) {
+    public init(for puzzle: Puzzle, lives: Int = 3) {
         // Initialize grid mask with nil values (unmarked)
         self.playerGridMask = Array(repeating: Array(repeating: nil, count: puzzle.columnCount), count: puzzle.rowCount)
         self.livesRemaining = lives
@@ -50,7 +50,7 @@ struct GameState {
     ///   - isGameOver: Whether game is over
     ///   - moveCount: Number of moves made
     ///   - startTime: When the game started
-    init(playerGridMask: [[Bool?]], livesRemaining: Int, isCompleted: Bool = false, isGameOver: Bool = false, moveCount: Int = 0, startTime: Date = Date()) {
+    public init(playerGridMask: [[Bool?]], livesRemaining: Int, isCompleted: Bool = false, isGameOver: Bool = false, moveCount: Int = 0, startTime: Date = Date()) {
         self.playerGridMask = playerGridMask
         self.livesRemaining = livesRemaining
         self.isCompleted = isCompleted
@@ -62,27 +62,27 @@ struct GameState {
     // MARK: - Computed Properties
     
     /// Returns the number of rows in the grid
-    var rowCount: Int {
+    public var rowCount: Int {
         return playerGridMask.count
     }
     
     /// Returns the number of columns in the grid
-    var columnCount: Int {
+    public var columnCount: Int {
         return playerGridMask.first?.count ?? 0
     }
     
     /// Returns true if the game is still active (not completed and not game over)
-    var isActive: Bool {
+    public var isActive: Bool {
         return !isCompleted && !isGameOver
     }
     
     /// Returns the elapsed time since game start
-    var elapsedTime: TimeInterval {
+    public var elapsedTime: TimeInterval {
         return Date().timeIntervalSince(startTime)
     }
     
     /// Returns the percentage of cells that have been marked (not nil)
-    var completionPercentage: Double {
+    public var completionPercentage: Double {
         let totalCells = rowCount * columnCount
         guard totalCells > 0 else { return 0.0 }
         
@@ -97,7 +97,7 @@ struct GameState {
     ///   - row: Row index
     ///   - column: Column index
     /// - Returns: The cell state (true=kept, false=removed, nil=unmarked), or nil if out of bounds
-    func getCellState(row: Int, column: Int) -> Bool?? {
+    public func getCellState(row: Int, column: Int) -> Bool?? {
         guard isValidPosition(row: row, column: column) else { return nil }
         return playerGridMask[row][column]
     }
@@ -108,7 +108,7 @@ struct GameState {
     ///   - column: Column index
     ///   - state: New cell state (true=kept, false=removed, nil=unmarked)
     /// - Returns: true if the cell was successfully updated, false if out of bounds
-    mutating func setCellState(row: Int, column: Int, state: Bool?) -> Bool {
+    public mutating func setCellState(row: Int, column: Int, state: Bool?) -> Bool {
         guard isValidPosition(row: row, column: column) else { return false }
         
         let oldState = playerGridMask[row][column]
@@ -127,7 +127,7 @@ struct GameState {
     ///   - row: Row index
     ///   - column: Column index
     /// - Returns: The new cell state, or nil if out of bounds
-    mutating func toggleCell(row: Int, column: Int) -> Bool? {
+    public mutating func toggleCell(row: Int, column: Int) -> Bool? {
         guard isValidPosition(row: row, column: column) else { return nil }
         
         let currentState = playerGridMask[row][column]
@@ -151,7 +151,7 @@ struct GameState {
     ///   - row: Row index
     ///   - column: Column index
     /// - Returns: true if successful, false if out of bounds
-    mutating func clearCell(row: Int, column: Int) -> Bool {
+    public mutating func clearCell(row: Int, column: Int) -> Bool {
         return setCellState(row: row, column: column, state: nil)
     }
     
@@ -162,13 +162,13 @@ struct GameState {
     ///   - row: Row index
     ///   - column: Column index
     /// - Returns: true if the position is valid
-    func isValidPosition(row: Int, column: Int) -> Bool {
+    public func isValidPosition(row: Int, column: Int) -> Bool {
         return row >= 0 && row < rowCount && column >= 0 && column < columnCount
     }
     
     /// Returns the current grid mask with nil values converted to false (for validation)
     /// This is useful for checking against puzzle solutions
-    var solidGridMask: [[Bool]] {
+    public var solidGridMask: [[Bool]] {
         return playerGridMask.map { row in
             row.map { cellState in
                 cellState ?? false
@@ -177,7 +177,7 @@ struct GameState {
     }
     
     /// Checks if all cells have been marked (no nil values)
-    var isGridFullyMarked: Bool {
+    public var isGridFullyMarked: Bool {
         return playerGridMask.allSatisfy { row in
             row.allSatisfy { cellState in
                 cellState != nil
@@ -187,7 +187,7 @@ struct GameState {
     
     /// Gets all unmarked cell positions
     /// - Returns: Array of (row, column) tuples for unmarked cells
-    func getUnmarkedCells() -> [(row: Int, column: Int)] {
+    public func getUnmarkedCells() -> [(row: Int, column: Int)] {
         var unmarkedCells: [(row: Int, column: Int)] = []
         
         for (rowIndex, row) in playerGridMask.enumerated() {
@@ -205,7 +205,7 @@ struct GameState {
     
     /// Decreases lives by one
     /// - Returns: true if lives were decreased, false if already at 0
-    mutating func loseLife() -> Bool {
+    public mutating func loseLife() -> Bool {
         guard livesRemaining > 0 else { return false }
         
         livesRemaining -= 1
@@ -219,7 +219,7 @@ struct GameState {
     
     /// Adds lives (for power-ups or bonuses)
     /// - Parameter count: Number of lives to add
-    mutating func addLives(_ count: Int) {
+    public mutating func addLives(_ count: Int) {
         livesRemaining += max(0, count)
         
         // If lives were added and game was over, reactivate game
@@ -231,18 +231,18 @@ struct GameState {
     // MARK: - Game State Control
     
     /// Marks the game as completed
-    mutating func markCompleted() {
+    public mutating func markCompleted() {
         isCompleted = true
     }
     
     /// Marks the game as over
-    mutating func markGameOver() {
+    public mutating func markGameOver() {
         isGameOver = true
     }
     
     /// Resets the game state for a restart (keeps the same puzzle)
     /// - Parameter lives: Number of lives to start with (default: 3)
-    mutating func restart(lives: Int = 3) {
+    public mutating func restart(lives: Int = 3) {
         // Clear all cell states
         for rowIndex in 0..<rowCount {
             for colIndex in 0..<columnCount {

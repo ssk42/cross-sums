@@ -10,7 +10,9 @@
       "Bash(xcrun simctl install:*)",
       "Bash(xcrun simctl launch:*)",
       "Bash(xcrun simctl spawn:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }

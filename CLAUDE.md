@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Cross Sums is an iOS logic puzzle game built with SwiftUI and MVVM architecture. Players solve number puzzles by marking grid cells to match target row and column sums. Currently in specification phase - no actual implementation exists yet.
+CrossSumsSimple is an iOS logic puzzle game built with SwiftUI and MVVM architecture. Players solve number puzzles by marking grid cells to match target row and column sums. Currently in specification phase - no actual implementation exists yet.
 
 ## Development Commands
 
@@ -26,7 +26,7 @@ The project follows MVVM (Model-View-ViewModel) architecture with SwiftUI:
 
 ### Planned Project Structure (Architecture.md:66-98)
 ```
-CrossSums/
+CrossSumsSimple/
 ├── Model/ (Puzzle, PlayerProfile, GameState)
 ├── ViewModel/ (GameViewModel)
 ├── View/ (MainMenu, Game, Popups, Reusable components)

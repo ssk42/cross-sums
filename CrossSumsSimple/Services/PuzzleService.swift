@@ -4,7 +4,13 @@ import Foundation
 /// 
 /// Loads puzzles from JSON files, provides caching for performance,
 /// and validates puzzle integrity to ensure a good game experience.
-class PuzzleService {
+public protocol PuzzleServiceProtocol {
+    func getPuzzle(difficulty: String, level: Int) -> Puzzle?
+    func getMaxLevel(for difficulty: String) -> Int
+    func getAvailableDifficulties() -> [String]
+}
+
+public class PuzzleService: PuzzleServiceProtocol {
     
     // MARK: - Constants
     
@@ -30,7 +36,7 @@ class PuzzleService {
     ///   - difficulty: The difficulty level (e.g., "Easy", "Medium", "Hard", "Extra Hard")
     ///   - level: The level number within that difficulty
     /// - Returns: The requested Puzzle, or nil if not found
-    func getPuzzle(difficulty: String, level: Int) -> Puzzle? {
+    public func getPuzzle(difficulty: String, level: Int) -> Puzzle? {
         let puzzleKey = "\(difficulty.lowercased())-\(level)"
         
         // First, check if we have a generated puzzle cached
@@ -65,14 +71,14 @@ class PuzzleService {
     /// Gets all puzzles for a specific difficulty
     /// - Parameter difficulty: The difficulty level
     /// - Returns: Array of puzzles for that difficulty, or empty array if none found
-    func getPuzzles(for difficulty: String) -> [Puzzle] {
+    public func getPuzzles(for difficulty: String) -> [Puzzle] {
         loadPuzzlesIfNeeded()
         return puzzleCache[difficulty] ?? []
     }
     
     /// Gets all available difficulties
     /// - Returns: Array of difficulty strings
-    func getAvailableDifficulties() -> [String] {
+    public func getAvailableDifficulties() -> [String] {
         // With dynamic generation, all difficulties are always available
         return ["Easy", "Medium", "Hard", "Extra Hard"]
     }
@@ -80,7 +86,7 @@ class PuzzleService {
     /// Gets the number of levels available for a difficulty
     /// - Parameter difficulty: The difficulty level
     /// - Returns: Number of levels available
-    func getLevelCount(for difficulty: String) -> Int {
+    public func getLevelCount(for difficulty: String) -> Int {
         loadPuzzlesIfNeeded()
         return puzzleCache[difficulty]?.count ?? 0
     }
@@ -88,7 +94,7 @@ class PuzzleService {
     /// Gets the highest available level for a difficulty
     /// - Parameter difficulty: The difficulty level
     /// - Returns: The highest level number, or Int.max for infinite generation
-    func getMaxLevel(for difficulty: String) -> Int {
+    public func getMaxLevel(for difficulty: String) -> Int {
         // With dynamic generation, we support infinite levels
         // Return a very high number to represent "unlimited"
         return 999999
@@ -96,7 +102,7 @@ class PuzzleService {
     
     /// Validates that all puzzles have correct solutions
     /// - Returns: Dictionary mapping puzzle IDs to validation results
-    func validateAllPuzzles() -> [String: Bool] {
+    public func validateAllPuzzles() -> [String: Bool] {
         loadPuzzlesIfNeeded()
         
         var results: [String: Bool] = [:]
@@ -116,7 +122,7 @@ class PuzzleService {
     }
     
     /// Clears the puzzle cache and forces reload on next access
-    func clearCache() {
+    public func clearCache() {
         puzzleCache.removeAll()
         generatedPuzzleCache.removeAll()
         isLoaded = false
@@ -124,7 +130,7 @@ class PuzzleService {
     }
     
     /// Forces regeneration of all puzzles (clears generated cache)
-    func forceRegeneration() {
+    public func forceRegeneration() {
         generatedPuzzleCache.removeAll()
         print("🎲 Forced regeneration - all puzzles will be dynamically generated")
     }
@@ -250,7 +256,7 @@ class PuzzleService {
     // MARK: - Debug Methods
     
     /// Prints debug information about loaded puzzles
-    func debugPrintPuzzles() {
+    public func debugPrintPuzzles() {
         loadPuzzlesIfNeeded()
         
         print("🐛 Debug Puzzle Info:")
@@ -270,7 +276,7 @@ class PuzzleService {
     
     /// Gets memory usage information
     /// - Returns: Estimated memory usage in bytes
-    func getMemoryUsage() -> Int {
+    public func getMemoryUsage() -> Int {
         let puzzleCount = puzzleCache.values.map { $0.count }.reduce(0, +)
         return puzzleCount * 1024 // Rough estimate
     }
@@ -289,7 +295,7 @@ private struct PuzzleData: Codable {
 class EmbeddedPuzzleGenerator {
     
     static let shared = EmbeddedPuzzleGenerator()
-    private init() {}
+     public init() {}
     
     /// Configuration for different difficulty levels
     private struct DifficultyConfig {

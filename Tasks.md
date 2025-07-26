@@ -181,37 +181,37 @@ This document breaks down all tasks required to implement the Cross Sums iOS app
 
 ### 6.1 Implement Cell Selection Logic (US4, US5)
 **Acceptance Criteria:**
-- [ ] Track cell states (kept/removed/unmarked)
-- [ ] Validate cell selections against solution
-- [ ] Provide visual feedback for user actions
+- [x] Track cell states (kept/removed/unmarked)
+- [x] Validate cell selections against solution
+- [x] Provide visual feedback for user actions
 
 ### 6.2 Implement Lives System (US6)
 **Acceptance Criteria:**
-- [ ] Start each level with defined number of lives
-- [ ] Decrease lives on incorrect moves
-- [ ] Trigger game over when lives reach zero
-- [ ] Prevent further moves when game over
+- [x] Start each level with defined number of lives
+- [x] Decrease lives on incorrect moves
+- [x] Trigger game over when lives reach zero
+- [x] Prevent further moves when game over
 
 ### 6.3 Implement Hint System (US7)
 **Acceptance Criteria:**
-- [ ] Track available hints in PlayerProfile
-- [ ] Reveal correct cell when hint used
-- [ ] Decrease hint count on usage
-- [ ] Handle case when no hints available
+- [x] Track available hints in PlayerProfile
+- [x] Reveal correct cell when hint used
+- [x] Decrease hint count on usage
+- [x] Handle case when no hints available
 
 ### 6.4 Implement Win Condition Checking (US8)
 **Acceptance Criteria:**
-- [ ] Check row sums against targets
-- [ ] Check column sums against targets
-- [ ] Trigger level complete when all sums match
-- [ ] Update player progress on completion
+- [x] Check row sums against targets
+- [x] Check column sums against targets
+- [x] Trigger level complete when all sums match
+- [x] Update player progress on completion
 
 ### 6.5 Implement Level Progression (US2, US9)
 **Acceptance Criteria:**
-- [ ] Track highest completed level per difficulty
-- [ ] Save progress automatically
-- [ ] Load next available level for difficulty
-- [ ] Handle completion of all levels in difficulty
+- [x] Track highest completed level per difficulty
+- [x] Save progress automatically
+- [x] Load next available level for difficulty
+- [x] Handle completion of all levels in difficulty
 
 ---
 
@@ -219,17 +219,17 @@ This document breaks down all tasks required to implement the Cross Sums iOS app
 
 ### 7.1 Generate Puzzle Content
 **Acceptance Criteria:**
-- [ ] Create algorithm to generate valid puzzles
-- [ ] Ensure each puzzle has unique solution
-- [ ] Create puzzles across all difficulty levels
-- [ ] Validate puzzle solvability
+- [x] Create algorithm to generate valid puzzles
+- [x] Ensure each puzzle has unique solution
+- [x] Create puzzles across all difficulty levels
+- [x] Validate puzzle solvability
 
 ### 7.2 Design Visual Assets
 **Acceptance Criteria:**
-- [ ] Design app icon
-- [ ] Create color scheme for UI
-- [ ] Design cell states visual indicators
-- [ ] Create any additional UI graphics
+- [x] Design app icon
+- [x] Create color scheme for UI
+- [x] Design cell states visual indicators
+- [x] Create any additional UI graphics
 
 ---
 
@@ -237,7 +237,7 @@ This document breaks down all tasks required to implement the Cross Sums iOS app
 
 ### 8.1 Unit Tests
 **Acceptance Criteria:**
-- [ ] Test Puzzle model validation
+- [x] Test Puzzle model validation
 - [ ] Test GameViewModel logic
 - [ ] Test PersistenceService save/load
 - [ ] Test PuzzleService data loading
