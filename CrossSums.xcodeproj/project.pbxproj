@@ -19,6 +19,11 @@
 		AA0001010 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000012 /* GameView.swift */; };
 		AA0001011 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000013 /* HelpView.swift */; };
 		AA0001012 /* puzzles.json in Resources */ = {isa = PBXBuildFile; fileRef = AA0000014 /* puzzles.json */; };
+		AA0001013 /* PuzzleCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000015 /* PuzzleCellView.swift */; };
+		AA0001014 /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000016 /* GridView.swift */; };
+		AA0001015 /* HUDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000017 /* HUDView.swift */; };
+		AA0001016 /* ControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000018 /* ControlsView.swift */; };
+		AA0001017 /* LevelCompleteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000019 /* LevelCompleteView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +41,11 @@
 		AA0000012 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		AA0000013 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		AA0000014 /* puzzles.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = puzzles.json; sourceTree = "<group>"; };
+		AA0000015 /* PuzzleCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuzzleCellView.swift; sourceTree = "<group>"; };
+		AA0000016 /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
+		AA0000017 /* HUDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HUDView.swift; sourceTree = "<group>"; };
+		AA0000018 /* ControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsView.swift; sourceTree = "<group>"; };
+		AA0000019 /* LevelCompleteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelCompleteView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +148,9 @@
 			isa = PBXGroup;
 			children = (
 				AA0000012 /* GameView.swift */,
+				AA0000016 /* GridView.swift */,
+				AA0000017 /* HUDView.swift */,
+				AA0000018 /* ControlsView.swift */,
 			);
 			path = Game;
 			sourceTree = "<group>";
@@ -146,6 +159,7 @@
 			isa = PBXGroup;
 			children = (
 				AA0000013 /* HelpView.swift */,
+				AA0000019 /* LevelCompleteView.swift */,
 			);
 			path = Popups;
 			sourceTree = "<group>";
@@ -153,6 +167,7 @@
 		AA0003012 /* Reusable */ = {
 			isa = PBXGroup;
 			children = (
+				AA0000015 /* PuzzleCellView.swift */,
 			);
 			path = Reusable;
 			sourceTree = "<group>";
@@ -245,6 +260,11 @@
 				AA0001008 /* PersistenceService.swift in Sources */,
 				AA0001010 /* GameView.swift in Sources */,
 				AA0001011 /* HelpView.swift in Sources */,
+				AA0001013 /* PuzzleCellView.swift in Sources */,
+				AA0001014 /* GridView.swift in Sources */,
+				AA0001015 /* HUDView.swift in Sources */,
+				AA0001016 /* ControlsView.swift in Sources */,
+				AA0001017 /* LevelCompleteView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

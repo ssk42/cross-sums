@@ -124,11 +124,37 @@ class PuzzleService {
     
     /// Loads all puzzles from the JSON file
     private func loadAllPuzzles() {
-        guard let url = Bundle.main.url(forResource: Self.puzzleFileName.replacingOccurrences(of: ".json", with: ""), withExtension: "json"),
-              let data = try? Data(contentsOf: url) else {
-            print("❌ Failed to load puzzle file: \(Self.puzzleFileName)")
+        print("🔍 PuzzleService: Attempting to load \(Self.puzzleFileName)")
+        
+        let resourceName = Self.puzzleFileName.replacingOccurrences(of: ".json", with: "")
+        print("🔍 Looking for resource: '\(resourceName)' with extension: 'json'")
+        
+        guard let url = Bundle.main.url(forResource: resourceName, withExtension: "json") else {
+            print("❌ Failed to find puzzle file in bundle: \(Self.puzzleFileName)")
+            print("❌ Searched for: '\(resourceName).json'")
+            
+            // Debug: List all files in bundle
+            if let bundlePath = Bundle.main.resourcePath {
+                print("📂 Bundle path: \(bundlePath)")
+                let fileManager = FileManager.default
+                do {
+                    let files = try fileManager.contentsOfDirectory(atPath: bundlePath)
+                    print("📂 Files in bundle: \(files.filter { $0.contains("puzzle") || $0.contains("json") })")
+                } catch {
+                    print("❌ Could not list bundle contents: \(error)")
+                }
+            }
             return
         }
+        
+        print("✅ Found puzzle file at: \(url.path)")
+        
+        guard let data = try? Data(contentsOf: url) else {
+            print("❌ Failed to read data from puzzle file: \(url.path)")
+            return
+        }
+        
+        print("✅ Loaded \(data.count) bytes from puzzle file")
         
         do {
             let decoder = JSONDecoder()

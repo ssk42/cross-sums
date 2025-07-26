@@ -51,5 +51,6 @@ CrossSums/
 - Difficulty-based level progression
 
 ## Must-do's
-- Whenever a build is done, the build must succeed. If there's any failure, it must be corrected before anything else can continue. 
+- After any task is done, a build must be run. 
+- Whenever a build is run, the build must succeed. If there's any failure, it must be corrected before anything else can continue. 
 - When a test is run, the test must succeed. If there's a failure, or if there's any compilation failure, it must be corrected before anything else can con tinue.

@@ -4,7 +4,9 @@ import SwiftUI
 struct CrossSumsApp: App {
     var body: some Scene {
         WindowGroup {
-            MainMenuView()
+            NavigationStack {
+                MainMenuView()
+            }
         }
     }
 }
