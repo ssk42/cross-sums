@@ -25,7 +25,8 @@
       "Bash(__NEW_LINE__ echo \"🎉 iPhone Pro Max Screenshots Successfully Generated!\")",
       "Bash(__NEW_LINE__ echo \"\")",
       "Bash(git checkout:*)",
-      "Bash(swift test:*)"
+      "Bash(swift test:*)",
+      "Bash(timeout:*)"
     ],
     "deny": []
   }
