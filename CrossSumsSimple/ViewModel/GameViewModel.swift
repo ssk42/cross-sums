@@ -170,12 +170,14 @@ class GameViewModel: ObservableObject {
             return
         }
         
-        // Toggle the cell state
-        let newState = state.toggleCell(row: row, column: column)
-        guard newState != nil else {
+        // Check if position is valid first
+        guard state.isValidPosition(row: row, column: column) else {
             print("❌ Invalid cell position: (\(row), \(column))")
             return
         }
+        
+        // Toggle the cell state
+        let newState = state.toggleCell(row: row, column: column)
         
         // Update game state
         gameState = state
@@ -365,6 +367,7 @@ class GameViewModel: ObservableObject {
         if nextLevel <= maxLevel {
             loadPuzzle(difficulty: difficulty, level: nextLevel)
         } else {
+            errorMessage = "No more levels available for \(difficulty) difficulty"
             print("🏁 No more levels in \(difficulty) difficulty!")
             // Could trigger difficulty completion celebration
         }

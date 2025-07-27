@@ -33,8 +33,9 @@ class GameViewModelTests: XCTestCase {
         XCTAssertFalse(gameViewModel.isLoading)
         XCTAssertNil(gameViewModel.errorMessage)
         XCTAssertEqual(gameViewModel.currentPuzzle?.id, puzzle.id)
-        XCTAssertEqual(gameViewModel.currentRowSums, puzzle.rowSums)
-        XCTAssertEqual(gameViewModel.currentColumnSums, puzzle.columnSums)
+        // Current sums should be initialized to zeros since no cells are marked initially
+        XCTAssertEqual(gameViewModel.currentRowSums, [0, 0])
+        XCTAssertEqual(gameViewModel.currentColumnSums, [0, 0])
     }
 
     func testLoadPuzzle_puzzleNotFound() throws {
@@ -75,8 +76,8 @@ class GameViewModelTests: XCTestCase {
         XCTAssertEqual(gameViewModel.gameState?.getCellState(row: 0, column: 0), true)
         XCTAssertEqual(gameViewModel.gameState?.moveCount, (initialMoveCount ?? 0) + 1)
         // Verify sums are updated
-        XCTAssertEqual(gameViewModel.currentRowSums[0], 1) // Assuming grid[0][0] is 1
-        XCTAssertEqual(gameViewModel.currentColumnSums[0], 3) // Assuming grid[0][0] is 1, grid[1][0] is 2
+        XCTAssertEqual(gameViewModel.currentRowSums[0], 1) // grid[0][0] is 1
+        XCTAssertEqual(gameViewModel.currentColumnSums[0], 1) // grid[0][0] is 1, grid[1][0] is 3 but not marked
     }
 
     func testSetCellState_invalidPosition() throws {
@@ -241,17 +242,17 @@ class GameViewModelTests: XCTestCase {
     // MARK: - handleLevelComplete Tests
 
     func testHandleLevelComplete() throws {
-        let puzzle = createMockPuzzle()
+        let puzzle = createMockPuzzle(id: "easy-10", level: 10)
         mockPuzzleService.mockPuzzle = puzzle
-        gameViewModel.loadPuzzle(difficulty: "Easy", level: 1)
+        gameViewModel.loadPuzzle(difficulty: "Easy", level: 10)
         gameViewModel.playerProfile.totalHints = 0 // Reset hints for testing award
 
         gameViewModel.handleLevelComplete()
 
         XCTAssertTrue(gameViewModel.isLevelComplete)
         XCTAssertFalse(gameViewModel.isGameOver)
-        XCTAssertEqual(gameViewModel.playerProfile.getHighestLevel(for: "Easy"), 1) // Progress updated
-        XCTAssertTrue(gameViewModel.playerProfile.totalHints > 0) // Hints awarded
+        XCTAssertEqual(gameViewModel.playerProfile.getHighestLevel(for: "Easy"), 10) // Progress updated
+        XCTAssertTrue(gameViewModel.playerProfile.totalHints > 0) // Hints awarded (level 10 awards hints for Easy)
     }
 
     // MARK: - loadNextLevel Tests
@@ -448,8 +449,8 @@ class GameViewModelTests: XCTestCase {
     }
 
     func testLevelProgression_acrossDifficulties() throws {
-        let easyPuzzle = createMockPuzzle(id: "easy-1", level: 1)
-        let mediumPuzzle = createMockPuzzle(id: "medium-1", level: 1)
+        let easyPuzzle = createMockPuzzle(id: "easy-1", level: 1, difficulty: "Easy")
+        let mediumPuzzle = createMockPuzzle(id: "medium-1", level: 1, difficulty: "Medium")
         
         // Complete Easy level
         mockPuzzleService.mockPuzzle = easyPuzzle
@@ -467,15 +468,15 @@ class GameViewModelTests: XCTestCase {
     }
 
     func testHintAwarding_onLevelComplete() throws {
-        let puzzle = createMockPuzzle()
+        let puzzle = createMockPuzzle(id: "easy-10", level: 10)
         mockPuzzleService.mockPuzzle = puzzle
-        gameViewModel.loadPuzzle(difficulty: "Easy", level: 1)
+        gameViewModel.loadPuzzle(difficulty: "Easy", level: 10)
         gameViewModel.playerProfile.totalHints = 2
 
         let initialHints = gameViewModel.hintsAvailable
         gameViewModel.handleLevelComplete()
 
-        XCTAssertGreaterThan(gameViewModel.hintsAvailable, initialHints, "Should award hints on level completion")
+        XCTAssertGreaterThan(gameViewModel.hintsAvailable, initialHints, "Should award hints on level 10 completion for Easy difficulty")
     }
 
     func testErrorHandling_invalidCellPosition() throws {
@@ -524,6 +525,12 @@ class GameViewModelTests: XCTestCase {
         mockPuzzleService.mockPuzzle = puzzle
         gameViewModel.loadPuzzle(difficulty: "Easy", level: 1)
 
+        // Ensure puzzle is loaded and arrays are initialized
+        XCTAssertNotNil(gameViewModel.currentPuzzle)
+        XCTAssertNotNil(gameViewModel.gameState)
+        XCTAssertFalse(gameViewModel.currentRowSums.isEmpty)
+        XCTAssertFalse(gameViewModel.currentColumnSums.isEmpty)
+
         let initialRowSum = gameViewModel.currentRowSums[0]
         let initialColSum = gameViewModel.currentColumnSums[0]
 
@@ -542,10 +549,10 @@ class GameViewModelTests: XCTestCase {
 
     // MARK: - Helper Functions for Tests
 
-    private func createMockPuzzle(id: String = "easy-1", level: Int = 1) -> Puzzle {
+    private func createMockPuzzle(id: String = "easy-1", level: Int = 1, difficulty: String = "Easy") -> Puzzle {
         return Puzzle(
             id: id,
-            difficulty: "Easy",
+            difficulty: difficulty,
             grid: [[1, 2], [3, 4]],
             solution: [[true, false], [false, true]],
             rowSums: [1, 4],

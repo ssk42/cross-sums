@@ -97,7 +97,7 @@ public struct GameState {
     ///   - row: Row index
     ///   - column: Column index
     /// - Returns: The cell state (true=kept, false=removed, nil=unmarked), or nil if out of bounds
-    public func getCellState(row: Int, column: Int) -> Bool?? {
+    public func getCellState(row: Int, column: Int) -> Bool? {
         guard isValidPosition(row: row, column: column) else { return nil }
         return playerGridMask[row][column]
     }
