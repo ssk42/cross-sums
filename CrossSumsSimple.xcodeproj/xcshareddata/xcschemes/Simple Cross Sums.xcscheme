@@ -30,7 +30,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:../Simple Cross Sums.xctestplan">
+            reference = "container:Simple Cross Sums.xctestplan">
          </TestPlanReference>
       </TestPlans>
       <Testables>
