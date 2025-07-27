@@ -210,8 +210,7 @@ class GameViewModel: ObservableObject {
     
     /// Uses a hint to reveal a correct cell (US7)
     func useHint() {
-        guard canUseHint,
-              playerProfile.hasHintsAvailable,
+        guard playerProfile.hasHintsAvailable,
               let puzzle = currentPuzzle,
               var state = gameState else {
             print("❌ Cannot use hint: no hints available or game not active")

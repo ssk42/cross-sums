@@ -560,6 +560,39 @@ class GameViewModelTests: XCTestCase {
             columnSums: [1, 4]
         )
     }
+
+    func testHintSystem_debug() throws {
+        let puzzle = createMockPuzzle()
+        mockPuzzleService.mockPuzzle = puzzle
+        
+        // Load puzzle
+        gameViewModel.loadPuzzle(difficulty: "Easy", level: 1)
+        
+        // Verify puzzle is loaded
+        XCTAssertNotNil(gameViewModel.currentPuzzle)
+        XCTAssertNotNil(gameViewModel.gameState)
+        XCTAssertTrue(gameViewModel.isGameActive)
+        
+        // Set hints
+        gameViewModel.playerProfile.totalHints = 1
+        
+        // Verify hint availability
+        XCTAssertTrue(gameViewModel.playerProfile.hasHintsAvailable)
+        XCTAssertTrue(gameViewModel.canUseHint)
+        
+        // Check initial cell states
+        XCTAssertNil(gameViewModel.gameState?.getCellState(row: 0, column: 0))
+        XCTAssertNil(gameViewModel.gameState?.getCellState(row: 1, column: 1))
+        
+        // Use hint
+        gameViewModel.useHint()
+        
+        // Check if either cell is now true
+        let cell00State = gameViewModel.gameState?.getCellState(row: 0, column: 0)
+        let cell11State = gameViewModel.gameState?.getCellState(row: 1, column: 1)
+        
+        XCTAssertTrue(cell00State == true || cell11State == true, "Expected at least one cell to be marked as true after hint")
+    }
 }
 
 // MARK: - Mock Services
