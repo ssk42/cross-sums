@@ -2,6 +2,7 @@
 import XCTest
 @testable import Simple_Cross_Sums
 
+@MainActor
 class GameViewModelTests: XCTestCase {
 
     var gameViewModel: GameViewModel!

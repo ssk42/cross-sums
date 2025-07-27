@@ -1,5 +1,6 @@
 # CLAUDE.md
 
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
@@ -54,3 +55,4 @@ CrossSumsSimple/
 - After any task is done, a build must be run. 
 - Whenever a build is run, the build must succeed. If there's any failure, it must be corrected before anything else can continue. 
 - When a test is run, the test must succeed. If there's a failure, or if there's any compilation failure, it must be corrected before anything else can con tinue.
+- Treat this app like a high level enterprise app. This needs to be top notch quality. Well architected, well tested, well developed. Using first class principles. 

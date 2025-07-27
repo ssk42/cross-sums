@@ -23,7 +23,8 @@
       "Bash(-only-testing \"Simple Cross Sums UI Tests/AppStoreScreenshotTests/testIPhoneScreenshots\" )",
       "Bash(test)",
       "Bash(__NEW_LINE__ echo \"🎉 iPhone Pro Max Screenshots Successfully Generated!\")",
-      "Bash(__NEW_LINE__ echo \"\")"
+      "Bash(__NEW_LINE__ echo \"\")",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }

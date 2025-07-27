@@ -10,7 +10,8 @@ struct MainMenuView: View {
     private let difficulties = ["Easy", "Medium", "Hard", "Extra Hard"]
     
     var body: some View {
-        ZStack {
+        NavigationStack {
+            ZStack {
             // Background gradient
             LinearGradient(
                 gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)]),
@@ -165,15 +166,14 @@ struct MainMenuView: View {
                     .accessibilityLabel("Loading puzzle")
                     .accessibilityHint("Please wait while the puzzle is being prepared")
             }
+            }
         }
         .sheet(isPresented: $showHelp) {
             HelpView()
         }
-        .background(
-            NavigationLink(destination: GameView(gameViewModel: gameViewModel), isActive: $navigateToGame) {
-                EmptyView()
-            }
-        )
+        .navigationDestination(isPresented: $navigateToGame) {
+            GameView(gameViewModel: gameViewModel)
+        }
         .onAppear {
             // Load player profile when view appears
             // GameViewModel automatically loads profile in init

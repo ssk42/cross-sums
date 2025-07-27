@@ -1,11 +1,13 @@
 import Foundation
 import SwiftUI
+import GameKit
 
 /// The main ViewModel for game logic and state management
 /// 
 /// GameViewModel handles all game interactions, integrates with services,
 /// and manages the complete game flow from puzzle loading to completion.
 /// Conforms to ObservableObject for SwiftUI data binding.
+@MainActor
 class GameViewModel: ObservableObject {
     
     // MARK: - Published Properties
@@ -44,6 +46,8 @@ class GameViewModel: ObservableObject {
     
     private let puzzleService: PuzzleServiceProtocol
     private let persistenceService: PersistenceService
+    private let gameCenterManager: GameCenterManager
+    private let achievementTracker: AchievementTracker
     
     // MARK: - Computed Properties
     
@@ -79,15 +83,25 @@ class GameViewModel: ObservableObject {
     /// - Parameters:
     ///   - puzzleService: Service for loading puzzles (default: shared instance)
     ///   - persistenceService: Service for saving/loading data (default: shared instance)
-    init(puzzleService: PuzzleServiceProtocol = PuzzleService.shared, persistenceService: PersistenceService = .shared) {
+    ///   - gameCenterManager: Game Center manager (default: shared instance)
+    init(puzzleService: PuzzleServiceProtocol = PuzzleService.shared, 
+         persistenceService: PersistenceService = .shared,
+         gameCenterManager: GameCenterManager = .shared) {
         self.puzzleService = puzzleService
         self.persistenceService = persistenceService
+        self.gameCenterManager = gameCenterManager
+        self.achievementTracker = AchievementTracker(gameCenterManager: gameCenterManager)
         
         // Load player profile
         self.playerProfile = persistenceService.loadProfile()
         
         // Update hint availability
         updateHintAvailability()
+        
+        // Initialize Game Center
+        Task {
+            await initializeGameCenter()
+        }
     }
     
     // MARK: - Public Game Methods
@@ -242,6 +256,9 @@ class GameViewModel: ObservableObject {
         updateHintAvailability()
         updateCurrentSums()
         
+        // Reset Game Center achievement tracking
+        handleLevelReset()
+        
         print("🔄 Level restarted: \(puzzle.id)")
     }
     
@@ -332,12 +349,16 @@ class GameViewModel: ObservableObject {
     
     /// Handles successful level completion
     internal func handleLevelComplete() {
-        guard let puzzle = currentPuzzle else { return }
+        guard let puzzle = currentPuzzle,
+              let state = gameState else { return }
         
         isLevelComplete = true
         
         let levelNumber = currentLevel
         let difficulty = puzzle.difficulty
+        let completionTime = state.elapsedTime
+        let movesUsed = state.moveCount
+        let livesLost = 3 - state.livesRemaining // Assuming starting lives is 3
         
         // Update player progress
         let wasNewRecord = playerProfile.completeLevel(levelNumber, for: difficulty)
@@ -348,6 +369,18 @@ class GameViewModel: ObservableObject {
         // Save progress
         saveProgress()
         updateHintAvailability()
+        
+        // Game Center integration
+        Task {
+            await handleGameCenterSubmissions(
+                level: levelNumber,
+                difficulty: difficulty,
+                completionTime: completionTime,
+                movesUsed: movesUsed,
+                mistakesMade: livesLost,
+                wasNewRecord: wasNewRecord
+            )
+        }
         
         print("🎉 Level \(levelNumber) (\(difficulty)) completed!")
         if wasNewRecord {
@@ -434,5 +467,75 @@ class GameViewModel: ObservableObject {
             print("  - Move Count: \(state.moveCount)")
             print("  - Completion: \(state.completionPercentage * 100)%")
         }
+    }
+    
+    // MARK: - Game Center Methods
+    
+    /// Initializes Game Center authentication
+    private func initializeGameCenter() async {
+        gameCenterManager.authenticatePlayer()
+        
+        // Update achievement progress for existing player data
+        achievementTracker.updateIncrementalAchievements(playerProfile: playerProfile)
+    }
+    
+    /// Handles Game Center submissions when a level is completed
+    private func handleGameCenterSubmissions(
+        level: Int,
+        difficulty: String,
+        completionTime: TimeInterval,
+        movesUsed: Int,
+        mistakesMade: Int,
+        wasNewRecord: Bool
+    ) async {
+        // Submit leaderboard scores
+        if wasNewRecord {
+            // Submit highest level reached
+            await gameCenterManager.submitHighestLevel(level, difficulty: difficulty)
+        }
+        
+        // Always submit completion time for potential best time
+        await gameCenterManager.submitCompletionTime(completionTime, difficulty: difficulty)
+        
+        // Track achievements
+        await achievementTracker.trackLevelCompletion(
+            level: level,
+            difficulty: difficulty,
+            completionTime: completionTime,
+            movesUsed: movesUsed,
+            hintsUsed: 0, // Would need to track this during gameplay
+            mistakesMade: mistakesMade,
+            playerProfile: playerProfile
+        )
+    }
+    
+    /// Called when a level is restarted or failed
+    func handleLevelReset() {
+        achievementTracker.trackLevelReset()
+    }
+    
+    /// Shows Game Center leaderboards
+    func showLeaderboards() {
+        gameCenterManager.showLeaderboards()
+    }
+    
+    /// Shows Game Center achievements
+    func showAchievements() {
+        gameCenterManager.showAchievements()
+    }
+    
+    /// Shows Game Center dashboard
+    func showGameCenter() {
+        gameCenterManager.showGameCenter()
+    }
+    
+    /// Gets Game Center authentication status
+    var isGameCenterAuthenticated: Bool {
+        return gameCenterManager.isAuthenticated
+    }
+    
+    /// Gets Game Center availability status
+    var isGameCenterAvailable: Bool {
+        return gameCenterManager.isAvailable
     }
 }
