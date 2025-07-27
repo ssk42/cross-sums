@@ -22,6 +22,7 @@ public class PuzzleService: PuzzleServiceProtocol {
     private var isLoaded = false
     private var generatedPuzzleCache: [String: Puzzle] = [:]
     private let puzzleGenerator = EmbeddedPuzzleGenerator.shared
+    private let cacheQueue = DispatchQueue(label: "com.crosssums.puzzlecache", attributes: .concurrent)
     
     // MARK: - Singleton
     
@@ -39,17 +40,23 @@ public class PuzzleService: PuzzleServiceProtocol {
     public func getPuzzle(difficulty: String, level: Int) -> Puzzle? {
         let puzzleKey = "\(difficulty.lowercased())-\(level)"
         
-        // First, check if we have a generated puzzle cached
-        if let cachedGeneratedPuzzle = generatedPuzzleCache[puzzleKey] {
+        // Thread-safe cache check
+        let existingPuzzle = cacheQueue.sync {
+            return generatedPuzzleCache[puzzleKey]
+        }
+        
+        if let cachedGeneratedPuzzle = existingPuzzle {
             print("✅ Returning cached generated puzzle: \(puzzleKey)")
             return cachedGeneratedPuzzle
         }
         
-        // Always generate new puzzles for consistent experience
+        // Generate puzzle (this is the expensive operation)
         print("🎲 Generating new puzzle for \(difficulty) level \(level)")
         if let generatedPuzzle = puzzleGenerator.generatePuzzle(difficulty: difficulty, level: level) {
-            // Cache the generated puzzle
-            generatedPuzzleCache[puzzleKey] = generatedPuzzle
+            // Thread-safe cache write
+            cacheQueue.async(flags: .barrier) {
+                self.generatedPuzzleCache[puzzleKey] = generatedPuzzle
+            }
             print("✅ Generated and cached new puzzle: \(puzzleKey)")
             return generatedPuzzle
         }
