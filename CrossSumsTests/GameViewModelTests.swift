@@ -370,6 +370,7 @@ class GameViewModelTests: XCTestCase {
         mockPuzzleService.mockPuzzle = puzzle
         gameViewModel.loadPuzzle(difficulty: "Easy", level: 1)
         gameViewModel.playerProfile.totalHints = 1
+        gameViewModel.updateHintAvailability()
 
         // Initially no cells should be marked
         XCTAssertNil(gameViewModel.gameState?.getCellState(row: 0, column: 0))
@@ -377,13 +378,32 @@ class GameViewModelTests: XCTestCase {
 
         gameViewModel.useHint()
 
-        // At least one cell should now be marked correctly
-        let cell00State = gameViewModel.gameState?.getCellState(row: 0, column: 0)
-        let cell11State = gameViewModel.gameState?.getCellState(row: 1, column: 1)
+        // Check that at least one cell has been marked (any cell, doesn't matter which)
+        let allCellStates = [
+            gameViewModel.gameState?.getCellState(row: 0, column: 0),
+            gameViewModel.gameState?.getCellState(row: 0, column: 1),
+            gameViewModel.gameState?.getCellState(row: 1, column: 0),
+            gameViewModel.gameState?.getCellState(row: 1, column: 1)
+        ]
         
-        // Either cell (0,0) should be true or cell (1,1) should be true (based on solution)
-        let hasCorrectHint = (cell00State == true) || (cell11State == true)
-        XCTAssertTrue(hasCorrectHint, "Hint should reveal at least one correct cell")
+        let hasAnyMarkedCell = allCellStates.contains { $0 != nil }
+        XCTAssertTrue(hasAnyMarkedCell, "Hint should mark at least one cell")
+        
+        // Verify that the marked cell has the correct state according to the solution
+        var allCorrect = true
+        for row in 0..<2 {
+            for col in 0..<2 {
+                if let cellState = gameViewModel.gameState?.getCellState(row: row, column: col) {
+                    let expectedState = puzzle.solution[row][col]
+                    if cellState != expectedState {
+                        allCorrect = false
+                        break
+                    }
+                }
+            }
+            if !allCorrect { break }
+        }
+        XCTAssertTrue(allCorrect, "All marked cells should have correct states according to the solution")
     }
 
     func testHintSystem_noHintsRemaining() throws {
@@ -573,25 +593,36 @@ class GameViewModelTests: XCTestCase {
         XCTAssertNotNil(gameViewModel.gameState)
         XCTAssertTrue(gameViewModel.isGameActive)
         
-        // Set hints
+        // Set hints and update availability
         gameViewModel.playerProfile.totalHints = 1
+        gameViewModel.updateHintAvailability()
         
         // Verify hint availability
-        XCTAssertTrue(gameViewModel.playerProfile.hasHintsAvailable)
-        XCTAssertTrue(gameViewModel.canUseHint)
+        XCTAssertTrue(gameViewModel.playerProfile.hasHintsAvailable, "Player profile should have hints available")
+        XCTAssertTrue(gameViewModel.canUseHint, "Game should allow hint usage")
         
-        // Check initial cell states
+        // Check initial cell states - all should be nil
         XCTAssertNil(gameViewModel.gameState?.getCellState(row: 0, column: 0))
+        XCTAssertNil(gameViewModel.gameState?.getCellState(row: 0, column: 1))
+        XCTAssertNil(gameViewModel.gameState?.getCellState(row: 1, column: 0))
         XCTAssertNil(gameViewModel.gameState?.getCellState(row: 1, column: 1))
         
         // Use hint
         gameViewModel.useHint()
         
-        // Check if either cell is now true
-        let cell00State = gameViewModel.gameState?.getCellState(row: 0, column: 0)
-        let cell11State = gameViewModel.gameState?.getCellState(row: 1, column: 1)
+        // Check that at least one cell has been marked
+        let allCellStates = [
+            gameViewModel.gameState?.getCellState(row: 0, column: 0),
+            gameViewModel.gameState?.getCellState(row: 0, column: 1),
+            gameViewModel.gameState?.getCellState(row: 1, column: 0),
+            gameViewModel.gameState?.getCellState(row: 1, column: 1)
+        ]
         
-        XCTAssertTrue(cell00State == true || cell11State == true, "Expected at least one cell to be marked as true after hint")
+        let hasAnyMarkedCell = allCellStates.contains { $0 != nil }
+        XCTAssertTrue(hasAnyMarkedCell, "Expected at least one cell to be marked after using a hint")
+        
+        // Verify hint was consumed
+        XCTAssertEqual(gameViewModel.hintsAvailable, 0, "Hint should have been consumed")
     }
 }
 

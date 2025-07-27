@@ -411,7 +411,7 @@ class GameViewModel: ObservableObject {
     }
     
     /// Updates whether hints can be used
-    private func updateHintAvailability() {
+    internal func updateHintAvailability() {
         canUseHint = playerProfile.hasHintsAvailable && isGameActive
     }
     
