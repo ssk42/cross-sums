@@ -111,7 +111,8 @@ class PuzzleGenerator {
     /// Generates a deterministic seed for reproducible puzzles
     private func generateSeed(difficulty: String, level: Int) -> UInt64 {
         let difficultyHash = UInt64(difficulty.hashValue)
-        let levelHash = UInt64(level)
+        // Handle negative levels by using absolute value
+        let levelHash = UInt64(abs(level))
         return difficultyHash &+ (levelHash &* 31)
     }
     

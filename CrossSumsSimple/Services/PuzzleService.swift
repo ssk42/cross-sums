@@ -318,8 +318,9 @@ class EmbeddedPuzzleGenerator {
             return nil
         }
         
-        // Use level as seed for reproducible puzzles
-        let baseSeed = UInt64(abs(difficulty.hashValue)) &+ UInt64(level) &+ 1000
+        // Use level as seed for reproducible puzzles  
+        // Handle negative levels by using absolute value
+        let baseSeed = UInt64(abs(difficulty.hashValue)) &+ UInt64(abs(level)) &+ 1000
         
         for attempt in 1...config.maxAttempts {
             // Use different seed for each attempt to avoid getting stuck
