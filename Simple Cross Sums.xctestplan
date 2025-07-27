@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "DD24A7C9-05D1-4BF6-8C1E-3DF27AA02374",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:CrossSumsSimple.xcodeproj",
+      "identifier" : "AA0004001",
+      "name" : "Simple Cross Sums"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:CrossSumsSimple.xcodeproj",
+        "identifier" : "91A453AB2E3546C30013679A",
+        "name" : "Simple Cross Sums Tests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:CrossSumsSimple.xcodeproj",
+        "identifier" : "91A453BA2E3546D40013679A",
+        "name" : "Simple Cross Sums UI Tests"
+      }
+    }
+  ],
+  "version" : 1
+} 

@@ -15,10 +15,12 @@ final class CrossSumsSimpleUITests: XCTestCase {
         continueAfterFailure = false
         app = XCUIApplication()
         app.launch()
+        sleep(2) // Give the app time to launch and render initial UI
     }
 
     override func tearDownWithError() throws {
         app.terminate()
+        sleep(1) // Give the app time to fully quit
     }
 
     // MARK: - Main User Flow Tests
@@ -28,33 +30,47 @@ final class CrossSumsSimpleUITests: XCTestCase {
         // Test complete user journey from menu to game completion
         
         // Verify main menu elements exist
-        XCTAssertTrue(app.staticTexts["Cross Sums"].exists, "App title should be visible")
-        XCTAssertTrue(app.staticTexts["Select Difficulty"].exists, "Difficulty selector should be visible")
-        XCTAssertTrue(app.buttons["Play"].exists, "Play button should be visible")
+        let crossSumsTitle = app.staticTexts["Cross Sums"]
+        XCTAssertTrue(crossSumsTitle.waitForExistence(timeout: 5), "App title should be visible")
+        
+        let difficultySelector = app.staticTexts["Select Difficulty"]
+        XCTAssertTrue(difficultySelector.waitForExistence(timeout: 2), "Difficulty selector should be visible")
+        
+        let playButton = app.buttons["Play"]
+        XCTAssertTrue(playButton.waitForExistence(timeout: 2) && playButton.isHittable, "Play button should be visible and hittable")
         
         // Select Easy difficulty
         let difficultyPicker = app.segmentedControls.firstMatch
-        XCTAssertTrue(difficultyPicker.exists, "Difficulty picker should exist")
+        XCTAssertTrue(difficultyPicker.waitForExistence(timeout: 2), "Difficulty picker should exist")
         
-        if difficultyPicker.buttons["Easy"].exists {
-            difficultyPicker.buttons["Easy"].tap()
-        }
+        let easyButton = difficultyPicker.buttons["Easy"]
+        XCTAssertTrue(easyButton.waitForExistence(timeout: 2) && easyButton.isHittable, "Easy button should exist and be hittable")
+        easyButton.tap()
+        
+        // Verify the selection is reflected in the UI
+        let easySelectedPredicate = NSPredicate(format: "isSelected == TRUE")
+        let easySelectedExpectation = XCTNSPredicateExpectation(predicate: easySelectedPredicate, object: easyButton)
+        XCTWaiter().wait(for: [easySelectedExpectation], timeout: 1.0)
+        XCTAssertTrue(easyButton.isSelected, "Easy should be selected after tap")
         
         // Verify level information is displayed
-        XCTAssertTrue(app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Next Level:'")).firstMatch.exists,
+        let nextLevelText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Next Level:'")).firstMatch
+        XCTAssertTrue(nextLevelText.waitForExistence(timeout: 3),
                       "Next level information should be visible")
         
         // Tap Play button
-        app.buttons["Play"].tap()
+        playButton.tap()
         
         // Wait for game view to load
-        let gameViewLoaded = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch.waitForExistence(timeout: 5)
-        XCTAssertTrue(gameViewLoaded, "Game view should load after tapping Play")
+        let gameViewLoaded = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch
+        XCTAssertTrue(gameViewLoaded.waitForExistence(timeout: 5), "Game view should load after tapping Play")
         
         // Verify game elements are present
-        XCTAssertTrue(app.buttons["Hint"].exists || app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Hint'")).firstMatch.exists, 
+        let hintButton = app.buttons["Hint"]
+        let restartButton = app.buttons["Restart"]
+        XCTAssertTrue(hintButton.waitForExistence(timeout: 2) || app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Hint'")).firstMatch.waitForExistence(timeout: 2), 
                       "Hint button or hint count should be visible")
-        XCTAssertTrue(app.buttons["Restart"].exists || app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Restart'")).firstMatch.exists, 
+        XCTAssertTrue(restartButton.waitForExistence(timeout: 2) || app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Restart'")).firstMatch.waitForExistence(timeout: 2), 
                       "Restart button should be visible")
         
         // Verify grid is present (look for numeric buttons/text)
@@ -67,16 +83,16 @@ final class CrossSumsSimpleUITests: XCTestCase {
         XCTAssertGreaterThan(gridCells.count, 0, "Game grid with numbered cells should be visible")
         
         // Try to interact with grid cells
-        if let firstCell = gridCells.first {
+        if let firstCell = gridCells.first, firstCell.isHittable {
             firstCell.tap()
             // Cell should change state after tap
         }
         
         // Test navigation back to main menu
-        if app.navigationBars.buttons.firstMatch.exists {
-            app.navigationBars.buttons.firstMatch.tap()
-            XCTAssertTrue(app.staticTexts["Cross Sums"].waitForExistence(timeout: 3), "Should return to main menu")
-        }
+        let backButton = app.navigationBars.buttons.firstMatch
+        XCTAssertTrue(backButton.waitForExistence(timeout: 2) && backButton.isHittable, "Back button should exist and be hittable")
+        backButton.tap()
+        XCTAssertTrue(app.staticTexts["Cross Sums"].waitForExistence(timeout: 5), "Should return to main menu")
     }
 
     // MARK: - Difficulty Selection Tests
@@ -84,25 +100,25 @@ final class CrossSumsSimpleUITests: XCTestCase {
     @MainActor
     func testDifficultySelection() throws {
         let difficultyPicker = app.segmentedControls.firstMatch
-        XCTAssertTrue(difficultyPicker.exists, "Difficulty picker should exist")
+        XCTAssertTrue(difficultyPicker.waitForExistence(timeout: 5), "Difficulty picker should exist")
         
         let difficulties = ["Easy", "Medium", "Hard", "Extra Hard"]
         
         for difficulty in difficulties {
-            if difficultyPicker.buttons[difficulty].exists {
-                difficultyPicker.buttons[difficulty].tap()
-                
-                // Verify the selection is reflected in the UI
-                let selectedButton = difficultyPicker.buttons[difficulty]
-                XCTAssertTrue(selectedButton.isSelected, "\(difficulty) should be selected after tap")
-                
-                // Verify level information updates
-                let nextLevelText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Next Level:'")).firstMatch
-                XCTAssertTrue(nextLevelText.exists, "Next level info should be visible for \(difficulty)")
-                
-                // Small delay to allow UI updates
-                usleep(500000) // 0.5 seconds
-            }
+            let difficultyButton = difficultyPicker.buttons[difficulty]
+            XCTAssertTrue(difficultyButton.waitForExistence(timeout: 2) && difficultyButton.isHittable, "\(difficulty) button should exist and be hittable")
+            difficultyButton.tap()
+            
+            let predicate = NSPredicate(format: "isSelected == TRUE")
+            let expectation = XCTNSPredicateExpectation(predicate: predicate, object: difficultyButton)
+            XCTWaiter().wait(for: [expectation], timeout: 1.0)
+            
+            // Verify the selection is reflected in the UI
+            XCTAssertTrue(difficultyButton.isSelected, "\(difficulty) should be selected after tap")
+            
+            // Verify level information updates
+            let nextLevelText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Next Level:'")).firstMatch
+            XCTAssertTrue(nextLevelText.waitForExistence(timeout: 3), "Next level info should be visible for \(difficulty)")
         }
     }
 
@@ -110,22 +126,29 @@ final class CrossSumsSimpleUITests: XCTestCase {
     func testDifficultySelectionPersistence() throws {
         // Select a non-default difficulty
         let difficultyPicker = app.segmentedControls.firstMatch
-        if difficultyPicker.buttons["Hard"].exists {
-            difficultyPicker.buttons["Hard"].tap()
-            
-            // Navigate to game and back
-            app.buttons["Play"].tap()
-            
-            // Wait for game to load then go back
-            _ = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch.waitForExistence(timeout: 3)
-            
-            if app.navigationBars.buttons.firstMatch.exists {
-                app.navigationBars.buttons.firstMatch.tap()
-            }
-            
-            // Verify Hard is still selected
-            XCTAssertTrue(difficultyPicker.buttons["Hard"].isSelected, "Hard difficulty should remain selected")
-        }
+        XCTAssertTrue(difficultyPicker.waitForExistence(timeout: 5), "Difficulty picker should exist")
+
+        let hardButton = difficultyPicker.buttons["Hard"]
+        XCTAssertTrue(hardButton.waitForExistence(timeout: 2) && hardButton.isHittable, "Hard button should exist and be hittable")
+        hardButton.tap()
+        XCTAssertTrue(hardButton.isSelected, "Hard difficulty should be selected")
+
+        // Navigate to game and back
+        let playButton = app.buttons["Play"]
+        XCTAssertTrue(playButton.waitForExistence(timeout: 2) && playButton.isHittable, "Play button should be hittable")
+        playButton.tap()
+
+        // Wait for game to load then go back
+        let gameLevelText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch
+        XCTAssertTrue(gameLevelText.waitForExistence(timeout: 5), "Game view should load")
+
+        let backButton = app.navigationBars.buttons.firstMatch
+        XCTAssertTrue(backButton.waitForExistence(timeout: 2) && backButton.isHittable, "Back button should exist and be hittable")
+        backButton.tap()
+        XCTAssertTrue(app.staticTexts["Cross Sums"].waitForExistence(timeout: 5), "Should return to main menu")
+
+        // Verify Hard is still selected
+        XCTAssertTrue(hardButton.isSelected, "Hard difficulty should remain selected after returning to main menu")
     }
 
     // MARK: - Puzzle Interaction Tests
@@ -133,12 +156,14 @@ final class CrossSumsSimpleUITests: XCTestCase {
     @MainActor
     func testPuzzleInteraction() throws {
         // Navigate to game
-        app.buttons["Play"].tap()
-        
+        let playButton = app.buttons["Play"]
+        XCTAssertTrue(playButton.exists && playButton.isHittable, "Play button should be hittable")
+        playButton.tap()
+
         // Wait for game to load
         let gameLoaded = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch.waitForExistence(timeout: 5)
         XCTAssertTrue(gameLoaded, "Game should load")
-        
+
         // Find grid cells (buttons with numeric labels)
         let gridCells = app.buttons.allElementsBoundByIndex.filter { element in
             if let label = element.label.first, label.isNumber {
@@ -146,36 +171,54 @@ final class CrossSumsSimpleUITests: XCTestCase {
             }
             return false
         }
-        
+
         XCTAssertGreaterThan(gridCells.count, 0, "Should have interactive grid cells")
-        
+
         // Test cell interactions
-        if let firstCell = gridCells.first {
+        if let firstCell = gridCells.first, firstCell.isHittable {
             let initialAccessibilityValue = firstCell.value as? String
-            
+
             // Tap the cell
             firstCell.tap()
-            
+            usleep(250000) // Small delay for UI to react
+
             // Cell state should change (accessibility value might change)
-            usleep(500000) // Wait for state change
-            
-            let newAccessibilityValue = firstCell.value as? String
-            // Note: The actual state change verification depends on accessibility implementation
-            
+            var currentAccessibilityValue = firstCell.value as? String
+            let firstTapPredicate = NSPredicate(format: "value != %@", initialAccessibilityValue ?? "")
+            let firstTapExpectation = XCTNSPredicateExpectation(predicate: firstTapPredicate, object: firstCell)
+            XCTWaiter().wait(for: [firstTapExpectation], timeout: 1.0)
+            XCTAssertNotEqual(initialAccessibilityValue, currentAccessibilityValue, "Cell accessibility value should change after first tap")
+
             // Tap again to test state cycling
+            let secondTapInitialValue = currentAccessibilityValue
             firstCell.tap()
-            usleep(500000)
-            
+            usleep(250000) // Small delay for UI to react
+            currentAccessibilityValue = firstCell.value as? String
+            let secondTapPredicate = NSPredicate(format: "value != %@", secondTapInitialValue ?? "")
+            let secondTapExpectation = XCTNSPredicateExpectation(predicate: secondTapPredicate, object: firstCell)
+            XCTWaiter().wait(for: [secondTapExpectation], timeout: 1.0)
+            XCTAssertNotEqual(secondTapInitialValue, currentAccessibilityValue, "Cell accessibility value should change after second tap")
+
             // Tap a third time to complete the cycle
+            let thirdTapInitialValue = currentAccessibilityValue
             firstCell.tap()
-            usleep(500000)
+            usleep(250000) // Small delay for UI to react
+            currentAccessibilityValue = firstCell.value as? String
+            let thirdTapPredicate = NSPredicate(format: "value != %@", thirdTapInitialValue ?? "")
+            let thirdTapExpectation = XCTNSPredicateExpectation(predicate: thirdTapPredicate, object: firstCell)
+            XCTWaiter().wait(for: [thirdTapExpectation], timeout: 1.0)
+            XCTAssertNotEqual(thirdTapInitialValue, currentAccessibilityValue, "Cell accessibility value should change after third tap")
         }
-        
+
         // Test multiple cell interactions
         if gridCells.count > 1 {
             for i in 0..<min(3, gridCells.count) {
-                gridCells[i].tap()
-                usleep(250000) // Quarter second between taps
+                if gridCells[i].isHittable {
+                    gridCells[i].tap()
+                    let existsPredicate = NSPredicate(format: "exists == true")
+                    let existsExpectation = XCTNSPredicateExpectation(predicate: existsPredicate, object: gridCells[i])
+                    XCTWaiter().wait(for: [existsExpectation], timeout: 0.5)
+                }
             }
         }
     }
@@ -204,18 +247,21 @@ final class CrossSumsSimpleUITests: XCTestCase {
     @MainActor
     func testHintFunctionality() throws {
         // Navigate to game
-        app.buttons["Play"].tap()
+        let playButton = app.buttons["Play"]
+        XCTAssertTrue(playButton.waitForExistence(timeout: 2) && playButton.isHittable, "Play button should be hittable")
+        playButton.tap()
         
         // Wait for game to load
-        _ = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch.waitForExistence(timeout: 5)
+        let gameLevelText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch
+        XCTAssertTrue(gameLevelText.waitForExistence(timeout: 5), "Game view should load")
         
         // Find hint button or hint count display
         let hintButton = app.buttons["Hint"]
         let hintText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Hint'")).firstMatch
         
-        XCTAssertTrue(hintButton.exists || hintText.exists, "Hint functionality should be visible")
+        XCTAssertTrue(hintButton.waitForExistence(timeout: 2) || hintText.waitForExistence(timeout: 2), "Hint functionality should be visible")
         
-        if hintButton.exists && hintButton.isEnabled {
+        if hintButton.exists && hintButton.isHittable && hintButton.isEnabled {
             // Store initial state
             let gridCells = app.buttons.allElementsBoundByIndex.filter { element in
                 if let label = element.label.first, label.isNumber {
@@ -230,23 +276,28 @@ final class CrossSumsSimpleUITests: XCTestCase {
             hintButton.tap()
             
             // Check if grid state changed after hint
-            usleep(1000000) // 1 second for hint to apply
+            let stateChangedPredicate = NSPredicate(format: "SELF != %@", initialStates as CVarArg)
+            let stateChangedExpectation = XCTNSPredicateExpectation(predicate: stateChangedPredicate, object: gridCells)
+            XCTWaiter().wait(for: [stateChangedExpectation], timeout: 2.0) // Increased timeout for hint to apply
             
             let newStates = gridCells.map { $0.value as? String }
             
             // At least one cell should have changed state (received hint)
             let stateChanged = zip(initialStates, newStates).contains { $0 != $1 }
-            // Note: This test might need adjustment based on accessibility implementation
+            XCTAssertTrue(stateChanged, "At least one cell state should have changed after hint")
         }
     }
 
     @MainActor
     func testRestartFunctionality() throws {
         // Navigate to game
-        app.buttons["Play"].tap()
+        let playButton = app.buttons["Play"]
+        XCTAssertTrue(playButton.waitForExistence(timeout: 2) && playButton.isHittable, "Play button should be hittable")
+        playButton.tap()
         
         // Wait for game to load
-        _ = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch.waitForExistence(timeout: 5)
+        let gameLevelText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch
+        XCTAssertTrue(gameLevelText.waitForExistence(timeout: 5), "Game view should load")
         
         // Find grid cells and make some moves
         let gridCells = app.buttons.allElementsBoundByIndex.filter { element in
@@ -256,24 +307,30 @@ final class CrossSumsSimpleUITests: XCTestCase {
             return false
         }
         
+        XCTAssertGreaterThan(gridCells.count, 0, "Should have interactive grid cells")
+
         // Make some moves
-        for i in 0..<min(2, gridCells.count) {
-            gridCells[i].tap()
+        if gridCells.count > 0 && gridCells[0].isHittable {
+            gridCells[0].tap()
+            usleep(250000)
+        }
+        if gridCells.count > 1 && gridCells[1].isHittable {
+            gridCells[1].tap()
             usleep(250000)
         }
         
         // Find and tap restart button
         let restartButton = app.buttons["Restart"]
-        XCTAssertTrue(restartButton.exists, "Restart button should exist")
+        XCTAssertTrue(restartButton.waitForExistence(timeout: 2) && restartButton.isHittable, "Restart button should exist and be hittable")
         
         if restartButton.exists && restartButton.isEnabled {
             restartButton.tap()
             
-            // Wait for restart to complete
-            usleep(1000000)
+            // Wait for restart to complete (e.g., game level text reappears or changes)
+            XCTAssertTrue(gameLevelText.waitForExistence(timeout: 5), "Game should restart and level text should reappear")
             
-            // Verify game has restarted (cells should be in initial state)
-            // This verification depends on how cell states are represented in accessibility
+            // Verify game has restarted (cells should be in initial state - this might require more specific checks)
+            // For now, we'll just check if the game view is still present.
         }
     }
 
@@ -380,12 +437,17 @@ final class CrossSumsSimpleUITests: XCTestCase {
     func testGameLoadPerformance() throws {
         // Test puzzle loading performance
         measure {
-            app.buttons["Play"].tap()
-            _ = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch.waitForExistence(timeout: 10)
+            let playButton = app.buttons["Play"]
+            XCTAssertTrue(playButton.exists && playButton.isHittable, "Play button should be hittable")
+            playButton.tap()
+
+            let gameLevelText = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch
+            XCTAssertTrue(gameLevelText.waitForExistence(timeout: 10), "Game view should load")
             
-            if app.navigationBars.buttons.firstMatch.exists {
-                app.navigationBars.buttons.firstMatch.tap()
-                _ = app.staticTexts["Cross Sums"].waitForExistence(timeout: 5)
+            let backButton = app.navigationBars.buttons.firstMatch
+            if backButton.exists && backButton.isHittable {
+                backButton.tap()
+                XCTAssertTrue(app.staticTexts["Cross Sums"].waitForExistence(timeout: 5), "Should return to main menu")
             }
         }
     }
@@ -399,7 +461,9 @@ final class CrossSumsSimpleUITests: XCTestCase {
         for difficulty in difficulties {
             if difficultyPicker.buttons[difficulty].exists {
                 difficultyPicker.buttons[difficulty].tap()
-                usleep(500000)
+                let selectedPredicate = NSPredicate(format: "isSelected == TRUE")
+                let selectedExpectation = XCTNSPredicateExpectation(predicate: selectedPredicate, object: difficultyPicker.buttons[difficulty])
+                XCTWaiter().wait(for: [selectedExpectation], timeout: 1.0)
                 
                 app.buttons["Play"].tap()
                 let gameLoaded = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'Level'")).firstMatch.waitForExistence(timeout: 5)

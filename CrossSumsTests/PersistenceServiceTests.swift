@@ -1,6 +1,6 @@
 
 import XCTest
-@testable import CrossSumsSimple
+@testable import Simple_Cross_Sums
 
 class PersistenceServiceTests: XCTestCase {
 

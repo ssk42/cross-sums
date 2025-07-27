@@ -1,5 +1,5 @@
 import XCTest
-@testable import CrossSumsSimple
+@testable import Simple_Cross_Sums
 
 class PuzzleServiceTests: XCTestCase {
 

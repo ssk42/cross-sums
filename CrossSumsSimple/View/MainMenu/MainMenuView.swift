@@ -5,6 +5,7 @@ struct MainMenuView: View {
     @State private var selectedDifficulty: String = "Easy"
     @State private var isLoading: Bool = false
     @State private var showHelp: Bool = false
+    @State private var navigateToGame: Bool = false
     
     private let difficulties = ["Easy", "Medium", "Hard", "Extra Hard"]
     
@@ -98,7 +99,7 @@ struct MainMenuView: View {
                 // Action Buttons
                 VStack(spacing: 15) {
                     // Play Button
-                    NavigationLink(destination: GameView(gameViewModel: gameViewModel)) {
+                    Button(action: didTapPlay) {
                         HStack {
                             Image(systemName: "play.fill")
                                 .accessibilityHidden(true)
@@ -112,9 +113,6 @@ struct MainMenuView: View {
                         .cornerRadius(12)
                     }
                     .disabled(isLoading)
-                    .simultaneousGesture(TapGesture().onEnded {
-                        didTapPlay()
-                    })
                     .accessibilityIdentifier("playButton")
                     .accessibilityLabel("Play")
                     .accessibilityHint("Start playing the selected difficulty level")
@@ -171,6 +169,11 @@ struct MainMenuView: View {
         .sheet(isPresented: $showHelp) {
             HelpView()
         }
+        .background(
+            NavigationLink(destination: GameView(gameViewModel: gameViewModel), isActive: $navigateToGame) {
+                EmptyView()
+            }
+        )
         .onAppear {
             // Load player profile when view appears
             // GameViewModel automatically loads profile in init
@@ -196,21 +199,19 @@ struct MainMenuView: View {
         print("🎮 Calling gameViewModel.loadPuzzle(\(selectedDifficulty), \(nextLevel))")
         gameViewModel.loadPuzzle(difficulty: selectedDifficulty, level: nextLevel)
         
-        // Wait a moment for the puzzle to load
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            print("🎮 Checking puzzle loading result after delay...")
-            isLoading = false
-            
-            if let puzzle = gameViewModel.currentPuzzle {
-                print("✅ Puzzle loaded successfully: \(puzzle.id)")
-                print("🎮 Navigation will proceed via NavigationLink")
-            } else {
-                print("❌ Failed to load puzzle for \(selectedDifficulty) level \(nextLevel)")
-                if let errorMessage = gameViewModel.errorMessage {
-                    print("❌ Error message: \(errorMessage)")
-                }
-                print("🎮 Navigation will not work properly - no puzzle loaded")
+        // Puzzle loading is now synchronous, so we can navigate immediately
+        isLoading = false
+        
+        if let puzzle = gameViewModel.currentPuzzle {
+            print("✅ Puzzle loaded successfully: \(puzzle.id)")
+            print("🎮 Triggering navigation to game")
+            navigateToGame = true
+        } else {
+            print("❌ Failed to load puzzle for \(selectedDifficulty) level \(nextLevel)")
+            if let errorMessage = gameViewModel.errorMessage {
+                print("❌ Error message: \(errorMessage)")
             }
+            print("🎮 Navigation will not work - no puzzle loaded")
         }
     }
     

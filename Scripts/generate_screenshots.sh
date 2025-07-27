@@ -24,6 +24,10 @@ declare -a IPAD_DEVICES=(
     "iPad Pro 13-inch (M4)"
 )
 
+declare -a MACOS_DEVICES=(
+    "Mac" # Generic Mac device for macOS UI tests
+)
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -40,25 +44,45 @@ echo ""
 mkdir -p "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR/iPhone"
 mkdir -p "$OUTPUT_DIR/iPad"
+mkdir -p "$OUTPUT_DIR/macOS"
 
 # Clear previous screenshots
 rm -rf "$OUTPUT_DIR/iPhone"/*
 rm -rf "$OUTPUT_DIR/iPad"/*
+rm -rf "$OUTPUT_DIR/macOS"/*
 
 # Function to generate screenshots for a device
 generate_screenshots_for_device() {
     local device="$1"
     local device_type="$2"
+    local scheme_to_use="$3" # New argument for scheme name
+    local platform_name="$4" # New argument for platform name (e.g., iOS Simulator, macOS)
+    local only_testing_target="$5" # New argument for only-testing target
     
     echo -e "${YELLOW}📱 Generating screenshots for: $device${NC}"
     
     # Build and test with screenshots
+    local destination_string=""
+    if [ "$platform_name" == "macOS" ]; then
+        destination_string="platform=$platform_name"
+    else
+        destination_string="platform=$platform_name,name=$device"
+    fi
+
     xcodebuild \
         -project "${PROJECT_NAME}.xcodeproj" \
-        -scheme "$SCHEME_NAME" \
-        -destination "platform=iOS Simulator,name=$device" \
+        -scheme "$scheme_to_use" \
+        -destination "$destination_string" \
         -derivedDataPath "$DERIVED_DATA_PATH" \
-        -only-testing "Simple Cross Sums UI Tests/AppStoreScreenshotTests/test${device_type}Screenshots" \
+        -only-testing "$only_testing_target" \
+        test
+
+    xcodebuild \
+        -project "${PROJECT_NAME}.xcodeproj" \
+        -scheme "$scheme_to_use" \
+        -destination "$destination_string" \
+        -derivedDataPath "$DERIVED_DATA_PATH" \
+        -only-testing "$only_testing_target" \
         test
     
     # Extract screenshots from test results
@@ -91,7 +115,7 @@ extract_screenshots_from_results() {
             echo "  Renaming screenshots based on manifest..."
             
             # Use Python to parse JSON and rename files
-            python3 -c "
+            python3 -c '
 import json
 import os
 import shutil
@@ -100,13 +124,13 @@ import sys
 DEVICE_DIR = sys.argv[1]
 manifest_path = os.path.join(DEVICE_DIR, "manifest.json")
 if os.path.exists(manifest_path):
-    with open(manifest_path, 'r') as f:
+    with open(manifest_path, "r") as f:
         data = json.load(f)
     
     for test_data in data:
-        for attachment in test_data.get('attachments', []):
-            exported_name = attachment.get('exportedFileName')
-            suggested_name = attachment.get('suggestedHumanReadableName')
+        for attachment in test_data.get("attachments", []):
+            exported_name = attachment.get("exportedFileName")
+            suggested_name = attachment.get("suggestedHumanReadableName")
             
             if exported_name and suggested_name:
                 old_path = os.path.join(DEVICE_DIR, exported_name)
@@ -115,7 +139,7 @@ if os.path.exists(manifest_path):
                 if os.path.exists(old_path):
                     shutil.move(old_path, new_path)
                     print(f"    Renamed: {exported_name} -> {suggested_name}")
-" "$DEVICE_DIR"
+' "$DEVICE_DIR"
             echo "  ✅ Screenshots renamed!"
         else
             echo "  ⚠️  No manifest found, screenshots extracted with original names"
@@ -150,10 +174,17 @@ echo ""
 echo -e "${BLUE}📱 Generating iPad Screenshots${NC}"
 for device in "${IPAD_DEVICES[@]}"; do
     if xcrun simctl list devices | grep -q "$device"; then
-        generate_screenshots_for_device "$device" "iPad"
+        generate_screenshots_for_device "$device" "iPad" "Simple Cross Sums" "iOS Simulator" "Simple Cross Sums UI Tests/AppStoreScreenshotTests/testiPadScreenshots"
     else
         echo -e "${YELLOW}⚠️  Device not available: $device${NC}"
     fi
+done
+
+echo ""
+echo -e "${BLUE}💻 Generating macOS Screenshots${NC}"
+for device in "${MACOS_DEVICES[@]}"; do
+    # For macOS, we don't need a simulator name, just the platform
+    generate_screenshots_for_device "" "macOS" "CrossSumsMac" "macOS" "CrossSumsMacUITests/AppStoreScreenshotTestsMac/testmacOSScreenshots"
 done
 
 # Generate summary
@@ -165,12 +196,15 @@ echo "Output directory: $OUTPUT_DIR"
 # Count generated screenshots
 IPHONE_COUNT=$(find "$OUTPUT_DIR/iPhone" -type f -name "*.png" 2>/dev/null | wc -l)
 IPAD_COUNT=$(find "$OUTPUT_DIR/iPad" -type f -name "*.png" 2>/dev/null | wc -l)
+MACOS_COUNT=$(find "$OUTPUT_DIR/macOS" -type f -name "*.png" 2>/dev/null | wc -l)
 
 echo "iPhone screenshots: $IPHONE_COUNT"
 echo "iPad screenshots: $IPAD_COUNT"
-echo "Total screenshots: $((IPHONE_COUNT + IPAD_COUNT))"
+echo "macOS screenshots: $MACOS_COUNT"
+echo "Total screenshots: $((IPHONE_COUNT + IPAD_COUNT + MACOS_COUNT))"
 
 ls -R "$OUTPUT_DIR/iPad"
+ls -R "$OUTPUT_DIR/macOS"
 
 echo ""
 echo -e "${BLUE}📱 Next steps:${NC}"

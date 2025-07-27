@@ -1,6 +1,6 @@
 
 import XCTest
-@testable import CrossSumsSimple
+@testable import Simple_Cross_Sums
 
 class GameViewModelTests: XCTestCase {
 
@@ -183,6 +183,9 @@ class GameViewModelTests: XCTestCase {
             }
         }
         
+        // Ensure all cells are marked (not nil) for the win condition check
+        XCTAssertTrue(gameViewModel.gameState?.isGridFullyMarked == true)
+        
         gameViewModel.checkForWinCondition()
 
         XCTAssertTrue(gameViewModel.isLevelComplete)
@@ -221,7 +224,12 @@ class GameViewModelTests: XCTestCase {
         let puzzle = createMockPuzzle()
         mockPuzzleService.mockPuzzle = puzzle
         gameViewModel.loadPuzzle(difficulty: "Easy", level: 1)
-        gameViewModel.gameState?.livesRemaining = 1 // Set lives to 1 for easy game over
+        
+        // Create a new game state with 1 life
+        if var gameState = gameViewModel.gameState {
+            gameState.livesRemaining = 1
+            gameViewModel.gameState = gameState
+        }
 
         let initialLives = gameViewModel.livesRemaining
         gameViewModel.setCellState(row: 0, column: 0, targetState: false) // Incorrect move
@@ -286,7 +294,12 @@ class GameViewModelTests: XCTestCase {
         let puzzle = createMockPuzzle()
         mockPuzzleService.mockPuzzle = puzzle
         gameViewModel.loadPuzzle(difficulty: "Easy", level: 1)
-        gameViewModel.gameState?.livesRemaining = 3
+        
+        // Create a new game state with 3 lives
+        if var gameState = gameViewModel.gameState {
+            gameState.livesRemaining = 3
+            gameViewModel.gameState = gameState
+        }
 
         // Make multiple incorrect moves
         gameViewModel.setCellState(row: 0, column: 0, targetState: false) // Incorrect
@@ -306,7 +319,12 @@ class GameViewModelTests: XCTestCase {
         let puzzle = createMockPuzzle()
         mockPuzzleService.mockPuzzle = puzzle
         gameViewModel.loadPuzzle(difficulty: "Easy", level: 1)
-        gameViewModel.gameState?.livesRemaining = 2
+        
+        // Create a new game state with 2 lives
+        if var gameState = gameViewModel.gameState {
+            gameState.livesRemaining = 2
+            gameViewModel.gameState = gameState
+        }
 
         // Make incorrect move
         gameViewModel.setCellState(row: 0, column: 0, targetState: false) // Incorrect
@@ -389,7 +407,7 @@ class GameViewModelTests: XCTestCase {
         
         // Make some moves and lose a life
         gameViewModel.setCellState(row: 0, column: 0, targetState: false) // Incorrect
-        XCTAssertLess(gameViewModel.livesRemaining, initialLives)
+        XCTAssertLessThan(gameViewModel.livesRemaining, initialLives)
 
         gameViewModel.restartLevel()
 
@@ -531,7 +549,7 @@ class GameViewModelTests: XCTestCase {
             grid: [[1, 2], [3, 4]],
             solution: [[true, false], [false, true]],
             rowSums: [1, 4],
-            columnSums: [3, 2]
+            columnSums: [1, 4]
         )
     }
 }

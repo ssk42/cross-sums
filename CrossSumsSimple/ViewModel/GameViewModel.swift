@@ -100,33 +100,31 @@ class GameViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        DispatchQueue.main.async {
-            // Get puzzle from service
-            guard let puzzle = self.puzzleService.getPuzzle(difficulty: difficulty, level: level) else {
-                self.errorMessage = "Puzzle not found: \(difficulty) Level \(level)"
-                self.isLoading = false
-                return
-            }
-            
-            // Validate puzzle integrity
-            guard puzzle.isValid else {
-                self.errorMessage = "Invalid puzzle data for: \(difficulty) Level \(level)"
-                self.isLoading = false
-                return
-            }
-            
-            // Set up new game
-            self.currentPuzzle = puzzle
-            self.gameState = GameState(for: puzzle)
-            self.isLevelComplete = false
-            self.isGameOver = false
-            self.updateHintAvailability()
-            self.updateCurrentSums()
-            
-            self.isLoading = false
-            
-            print("✅ Loaded puzzle: \(puzzle.id) (\(puzzle.rowCount)x\(puzzle.columnCount))")
+        // Get puzzle from service
+        guard let puzzle = puzzleService.getPuzzle(difficulty: difficulty, level: level) else {
+            errorMessage = "Puzzle not found: \(difficulty) Level \(level)"
+            isLoading = false
+            return
         }
+        
+        // Validate puzzle integrity
+        guard puzzle.isValid else {
+            errorMessage = "Invalid puzzle data for: \(difficulty) Level \(level)"
+            isLoading = false
+            return
+        }
+        
+        // Set up new game
+        currentPuzzle = puzzle
+        gameState = GameState(for: puzzle)
+        isLevelComplete = false
+        isGameOver = false
+        updateHintAvailability()
+        updateCurrentSums()
+        
+        isLoading = false
+        
+        print("✅ Loaded puzzle: \(puzzle.id) (\(puzzle.rowCount)x\(puzzle.columnCount))")
     }
     
     /// Sets a cell to a specific state directly (US4, US5, US6)
@@ -273,6 +271,13 @@ class GameViewModel: ObservableObject {
     
     private func updateCurrentSums() {
         guard let puzzle = currentPuzzle, let state = gameState else {
+            currentRowSums = []
+            currentColumnSums = []
+            return
+        }
+        
+        // Check if grid is valid
+        guard !puzzle.grid.isEmpty && !puzzle.grid[0].isEmpty else {
             currentRowSums = []
             currentColumnSums = []
             return
