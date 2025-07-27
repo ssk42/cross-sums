@@ -39,16 +39,19 @@ class GameViewModelTests: XCTestCase {
         XCTAssertEqual(gameViewModel.currentColumnSums, [0, 0])
     }
 
-    func testLoadPuzzle_puzzleNotFound() throws {
-        mockPuzzleService.mockPuzzle = nil
-
-        gameViewModel.loadPuzzle(difficulty: "NonExistent", level: 1)
-
-        XCTAssertNil(gameViewModel.currentPuzzle)
-        XCTAssertNil(gameViewModel.gameState)
-        XCTAssertFalse(gameViewModel.isLoading)
-        XCTAssertNotNil(gameViewModel.errorMessage)
-        XCTAssertTrue(gameViewModel.errorMessage?.contains("Puzzle not found") ?? false)
+    func testLoadPuzzle_allDifficultiesWork() throws {
+        // Test that the new API works with all difficulties due to emergency fallback
+        let difficulties = ["Easy", "Medium", "Hard", "Extra Hard", "Expert", "NonExistent"]
+        
+        for difficulty in difficulties {
+            gameViewModel.loadPuzzle(difficulty: difficulty, level: 1)
+            
+            // Should always load successfully due to emergency fallback
+            XCTAssertNotNil(gameViewModel.currentPuzzle, "Should load puzzle for difficulty: \(difficulty)")
+            XCTAssertNotNil(gameViewModel.gameState, "Should create game state for difficulty: \(difficulty)")
+            XCTAssertFalse(gameViewModel.isLoading, "Should not be loading after puzzle load for difficulty: \(difficulty)")
+            XCTAssertNil(gameViewModel.errorMessage, "Should not have error for difficulty: \(difficulty)")
+        }
     }
 
     func testLoadPuzzle_invalidPuzzle() throws {
@@ -631,12 +634,19 @@ class GameViewModelTests: XCTestCase {
 class MockPuzzleService: PuzzleServiceProtocol {
     var mockPuzzle: Puzzle?
     var mockMaxLevel: Int = 10 // Default mock max level
-    var mockDifficulties: [String] = ["Easy"]
+    var mockDifficulties: [String] = ["Easy", "Medium", "Hard", "Extra Hard", "Expert"]
 
     init() {}
 
-    func getPuzzle(difficulty: String, level: Int) -> Puzzle? {
-        return mockPuzzle
+    func getPuzzle(difficulty: String, level: Int) -> Puzzle {
+        return mockPuzzle ?? Puzzle(
+            id: "test-1",
+            difficulty: difficulty,
+            grid: [[1, 2], [3, 4]],
+            solution: [[true, false], [false, true]],
+            rowSums: [1, 4],
+            columnSums: [1, 4]
+        )
     }
     
     func getMaxLevel(for difficulty: String) -> Int {

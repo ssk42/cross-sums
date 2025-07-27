@@ -2,12 +2,13 @@ import SwiftUI
 
 struct MainMenuView: View {
     @StateObject private var gameViewModel = GameViewModel()
+    @StateObject private var gameCenterManager = GameCenterManager.shared
     @State private var selectedDifficulty: String = "Easy"
     @State private var isLoading: Bool = false
     @State private var showHelp: Bool = false
     @State private var navigateToGame: Bool = false
     
-    private let difficulties = ["Easy", "Medium", "Hard", "Extra Hard"]
+    private let difficulties = ["Easy", "Medium", "Hard", "Extra Hard", "Expert"]
     
     var body: some View {
         NavigationStack {
@@ -137,6 +138,93 @@ struct MainMenuView: View {
                 }
                 .padding(.horizontal, 40)
                 
+                // Game Center Section
+                if gameCenterManager.isAuthenticated {
+                    VStack(spacing: 10) {
+                        HStack {
+                            Image(systemName: "gamecontroller.fill")
+                                .foregroundColor(.green)
+                                .accessibilityHidden(true)
+                            Text("Game Center")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                        }
+                        .accessibilityIdentifier("gameCenterTitle")
+                        .accessibilityLabel("Game Center")
+                        .accessibilityHint("Access Game Center features")
+                        
+                        HStack(spacing: 15) {
+                            // Leaderboards Button
+                            Button(action: {
+                                gameViewModel.showLeaderboards()
+                            }) {
+                                VStack(spacing: 4) {
+                                    Image(systemName: "list.number")
+                                        .font(.title2)
+                                        .accessibilityHidden(true)
+                                    Text("Leaderboards")
+                                        .font(.caption)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color(.systemGray6))
+                                .foregroundColor(.primary)
+                                .cornerRadius(8)
+                            }
+                            .accessibilityIdentifier("leaderboardsButton")
+                            .accessibilityLabel("Leaderboards")
+                            .accessibilityHint("View completion time and level rankings")
+                            
+                            // Achievements Button
+                            Button(action: {
+                                gameViewModel.showAchievements()
+                            }) {
+                                VStack(spacing: 4) {
+                                    Image(systemName: "trophy.fill")
+                                        .font(.title2)
+                                        .accessibilityHidden(true)
+                                    Text("Achievements")
+                                        .font(.caption)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color(.systemGray6))
+                                .foregroundColor(.primary)
+                                .cornerRadius(8)
+                            }
+                            .accessibilityIdentifier("achievementsButton")
+                            .accessibilityLabel("Achievements")
+                            .accessibilityHint("View your achievement progress")
+                            
+                            // Game Center Dashboard Button
+                            Button(action: {
+                                gameViewModel.showGameCenter()
+                            }) {
+                                VStack(spacing: 4) {
+                                    Image(systemName: "person.2.fill")
+                                        .font(.title2)
+                                        .accessibilityHidden(true)
+                                    Text("Dashboard")
+                                        .font(.caption)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color(.systemGray6))
+                                .foregroundColor(.primary)
+                                .cornerRadius(8)
+                            }
+                            .accessibilityIdentifier("gameCenterDashboardButton")
+                            .accessibilityLabel("Game Center Dashboard")
+                            .accessibilityHint("Open full Game Center interface")
+                        }
+                        .padding(.horizontal, 40)
+                    }
+                    .padding(.vertical, 10)
+                    .background(Color(.systemBackground).opacity(0.8))
+                    .cornerRadius(12)
+                    .padding(.horizontal, 20)
+                }
+                
                 Spacer()
                 
                 // Player Stats
@@ -147,6 +235,15 @@ struct MainMenuView: View {
                         .accessibilityIdentifier("hintsAvailable")
                         .accessibilityLabel("Hints Available: \(gameViewModel.hintsAvailable)")
                         .accessibilityHint("Number of hints you can use during gameplay")
+                    
+                    if gameCenterManager.isAuthenticated, let player = gameCenterManager.localPlayer {
+                        Text("Welcome, \(player.displayName)")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                            .accessibilityIdentifier("gameCenterPlayer")
+                            .accessibilityLabel("Game Center player: \(player.displayName)")
+                            .accessibilityHint("You are signed in to Game Center")
+                    }
                 }
                 .padding(.bottom)
             }
@@ -177,6 +274,9 @@ struct MainMenuView: View {
         .onAppear {
             // Load player profile when view appears
             // GameViewModel automatically loads profile in init
+            
+            // Initialize Game Center authentication
+            gameCenterManager.authenticatePlayer()
         }
         .onChange(of: selectedDifficulty) { _, newValue in
             didChangeDifficulty(to: newValue)

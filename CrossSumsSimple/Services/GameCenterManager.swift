@@ -30,11 +30,13 @@ class GameCenterManager: NSObject, ObservableObject {
         static let mediumFastest = "crosssums.medium.fastest"
         static let hardFastest = "crosssums.hard.fastest"
         static let extraHardFastest = "crosssums.extrahard.fastest"
+        static let expertFastest = "crosssums.expert.fastest"
         
         static let easyHighest = "crosssums.easy.highest"
         static let mediumHighest = "crosssums.medium.highest"
         static let hardHighest = "crosssums.hard.highest"
         static let extraHardHighest = "crosssums.extrahard.highest"
+        static let expertHighest = "crosssums.expert.highest"
     }
     
     /// Achievement identifiers
@@ -276,6 +278,7 @@ class GameCenterManager: NSObject, ObservableObject {
         case "medium": return LeaderboardIDs.mediumFastest
         case "hard": return LeaderboardIDs.hardFastest
         case "extra hard": return LeaderboardIDs.extraHardFastest
+        case "expert": return LeaderboardIDs.expertFastest
         default: return ""
         }
     }
@@ -286,6 +289,7 @@ class GameCenterManager: NSObject, ObservableObject {
         case "medium": return LeaderboardIDs.mediumHighest
         case "hard": return LeaderboardIDs.hardHighest
         case "extra hard": return LeaderboardIDs.extraHardHighest
+        case "expert": return LeaderboardIDs.expertHighest
         default: return ""
         }
     }

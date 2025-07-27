@@ -106,25 +106,22 @@ class GameViewModel: ObservableObject {
     
     // MARK: - Public Game Methods
     
-    /// Loads and starts a new puzzle
+    /// Loads and starts a new puzzle with robust fallback strategies
     /// - Parameters:
-    ///   - difficulty: The difficulty level (e.g., "Easy", "Medium", "Hard", "Extra Hard")
+    ///   - difficulty: The difficulty level (e.g., "Easy", "Medium", "Hard", "Extra Hard", "Expert")
     ///   - level: The level number within that difficulty
     func loadPuzzle(difficulty: String, level: Int) {
         isLoading = true
         errorMessage = nil
         
-        // Get puzzle from service
-        guard let puzzle = puzzleService.getPuzzle(difficulty: difficulty, level: level) else {
-            errorMessage = "Puzzle not found: \(difficulty) Level \(level)"
-            isLoading = false
-            return
-        }
+        // Get puzzle from service (now guaranteed to return a puzzle via fallback strategies)
+        let puzzle = puzzleService.getPuzzle(difficulty: difficulty, level: level)
         
-        // Validate puzzle integrity
+        // Validate puzzle integrity  
         guard puzzle.isValid else {
             errorMessage = "Invalid puzzle data for: \(difficulty) Level \(level)"
             isLoading = false
+            print("❌ Generated puzzle failed validation: \(puzzle.id)")
             return
         }
         

@@ -20,10 +20,9 @@ class PuzzleServiceTests: XCTestCase {
     func testGetPuzzle_success() throws {
         let puzzle = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
         
-        XCTAssertNotNil(puzzle, "Should generate a puzzle for Easy level 1")
-        XCTAssertEqual(puzzle?.difficulty, "Easy")
-        XCTAssertEqual(puzzle?.id, "easy-1")
-        XCTAssertTrue(puzzle?.isValid ?? false, "Generated puzzle should be valid")
+        XCTAssertEqual(puzzle.difficulty, "Easy")
+        XCTAssertEqual(puzzle.id, "easy-1")
+        XCTAssertTrue(puzzle.isValid, "Generated puzzle should be valid")
     }
 
     func testGetPuzzle_consistency() throws {
@@ -31,22 +30,18 @@ class PuzzleServiceTests: XCTestCase {
         let puzzle1 = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
         let puzzle2 = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
         
-        XCTAssertNotNil(puzzle1)
-        XCTAssertNotNil(puzzle2)
-        XCTAssertEqual(puzzle1?.id, puzzle2?.id)
-        XCTAssertEqual(puzzle1?.grid, puzzle2?.grid)
-        XCTAssertEqual(puzzle1?.solution, puzzle2?.solution)
+        XCTAssertEqual(puzzle1.id, puzzle2.id)
+        XCTAssertEqual(puzzle1.grid, puzzle2.grid)
+        XCTAssertEqual(puzzle1.solution, puzzle2.solution)
     }
 
     func testGetPuzzle_differentLevels() throws {
         let puzzle1 = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
         let puzzle2 = puzzleService.getPuzzle(difficulty: "Easy", level: 2)
         
-        XCTAssertNotNil(puzzle1)
-        XCTAssertNotNil(puzzle2)
-        XCTAssertNotEqual(puzzle1?.id, puzzle2?.id)
-        XCTAssertEqual(puzzle1?.id, "easy-1")
-        XCTAssertEqual(puzzle2?.id, "easy-2")
+        XCTAssertNotEqual(puzzle1.id, puzzle2.id)
+        XCTAssertEqual(puzzle1.id, "easy-1")
+        XCTAssertEqual(puzzle2.id, "easy-2")
     }
 
     func testGetPuzzle_differentDifficulties() throws {
@@ -54,23 +49,29 @@ class PuzzleServiceTests: XCTestCase {
         let mediumPuzzle = puzzleService.getPuzzle(difficulty: "Medium", level: 1)
         let hardPuzzle = puzzleService.getPuzzle(difficulty: "Hard", level: 1)
         let extraHardPuzzle = puzzleService.getPuzzle(difficulty: "Extra Hard", level: 1)
+        let expertPuzzle = puzzleService.getPuzzle(difficulty: "Expert", level: 1)
         
-        XCTAssertNotNil(easyPuzzle)
-        XCTAssertNotNil(mediumPuzzle)
-        XCTAssertNotNil(hardPuzzle)
-        XCTAssertNotNil(extraHardPuzzle)
+        XCTAssertTrue(easyPuzzle.isValid)
+        XCTAssertTrue(mediumPuzzle.isValid)
+        XCTAssertTrue(hardPuzzle.isValid)
+        XCTAssertTrue(extraHardPuzzle.isValid)
+        XCTAssertTrue(expertPuzzle.isValid)
         
         // Verify grid sizes match difficulty expectations
-        XCTAssertEqual(easyPuzzle?.rowCount, 3, "Easy puzzles should be 3x3")
-        XCTAssertEqual(mediumPuzzle?.rowCount, 4, "Medium puzzles should be 4x4")
-        XCTAssertEqual(hardPuzzle?.rowCount, 4, "Hard puzzles should be 4x4")
-        XCTAssertEqual(extraHardPuzzle?.rowCount, 5, "Extra Hard puzzles should be 5x5")
+        XCTAssertEqual(easyPuzzle.rowCount, 3, "Easy puzzles should be 3x3")
+        XCTAssertEqual(mediumPuzzle.rowCount, 4, "Medium puzzles should be 4x4")
+        XCTAssertEqual(hardPuzzle.rowCount, 4, "Hard puzzles should be 4x4")
+        XCTAssertEqual(extraHardPuzzle.rowCount, 5, "Extra Hard puzzles should be 5x5")
+        XCTAssertEqual(expertPuzzle.rowCount, 6, "Expert puzzles should be 6x6")
     }
 
     func testGetPuzzle_invalidDifficulty() throws {
+        // With robust fallback, even invalid difficulties get emergency puzzle
         let puzzle = puzzleService.getPuzzle(difficulty: "Invalid", level: 1)
         
-        XCTAssertNil(puzzle, "Should return nil for invalid difficulty")
+        // Should not be nil due to emergency fallback
+        XCTAssertEqual(puzzle.id, "invalid-1")
+        XCTAssertTrue(puzzle.isValid, "Emergency fallback should be valid")
     }
 
     // MARK: - Available Difficulties Tests
@@ -78,11 +79,12 @@ class PuzzleServiceTests: XCTestCase {
     func testGetAvailableDifficulties() throws {
         let difficulties = puzzleService.getAvailableDifficulties()
         
-        XCTAssertEqual(difficulties.count, 4)
+        XCTAssertEqual(difficulties.count, 5)
         XCTAssertTrue(difficulties.contains("Easy"))
         XCTAssertTrue(difficulties.contains("Medium"))
         XCTAssertTrue(difficulties.contains("Hard"))
         XCTAssertTrue(difficulties.contains("Extra Hard"))
+        XCTAssertTrue(difficulties.contains("Expert"))
     }
 
     // MARK: - Max Level Tests
@@ -122,22 +124,21 @@ class PuzzleServiceTests: XCTestCase {
     func testPuzzleStructureValidation() throws {
         let puzzle = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
         
-        XCTAssertNotNil(puzzle)
-        XCTAssertFalse(puzzle!.id.isEmpty, "Puzzle ID should not be empty")
-        XCTAssertFalse(puzzle!.difficulty.isEmpty, "Difficulty should not be empty")
-        XCTAssertFalse(puzzle!.grid.isEmpty, "Grid should not be empty")
-        XCTAssertFalse(puzzle!.solution.isEmpty, "Solution should not be empty")
-        XCTAssertFalse(puzzle!.rowSums.isEmpty, "Row sums should not be empty")
-        XCTAssertFalse(puzzle!.columnSums.isEmpty, "Column sums should not be empty")
+        XCTAssertFalse(puzzle.id.isEmpty, "Puzzle ID should not be empty")
+        XCTAssertFalse(puzzle.difficulty.isEmpty, "Difficulty should not be empty")
+        XCTAssertFalse(puzzle.grid.isEmpty, "Grid should not be empty")
+        XCTAssertFalse(puzzle.solution.isEmpty, "Solution should not be empty")
+        XCTAssertFalse(puzzle.rowSums.isEmpty, "Row sums should not be empty")
+        XCTAssertFalse(puzzle.columnSums.isEmpty, "Column sums should not be empty")
         
         // Verify dimensions match
-        XCTAssertEqual(puzzle!.grid.count, puzzle!.solution.count, "Grid and solution should have same row count")
-        XCTAssertEqual(puzzle!.grid.count, puzzle!.rowSums.count, "Grid and row sums should have same count")
-        XCTAssertEqual(puzzle!.grid[0].count, puzzle!.columnSums.count, "Grid and column sums should have same count")
+        XCTAssertEqual(puzzle.grid.count, puzzle.solution.count, "Grid and solution should have same row count")
+        XCTAssertEqual(puzzle.grid.count, puzzle.rowSums.count, "Grid and row sums should have same count")
+        XCTAssertEqual(puzzle.grid[0].count, puzzle.columnSums.count, "Grid and column sums should have same count")
     }
 
     func testPuzzleSumValidation() throws {
-        let puzzle = puzzleService.getPuzzle(difficulty: "Easy", level: 1)!
+        let puzzle = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
         
         // Verify that applying the solution gives the correct sums
         for (rowIndex, expectedSum) in puzzle.rowSums.enumerated() {
@@ -156,28 +157,24 @@ class PuzzleServiceTests: XCTestCase {
     func testClearCache() throws {
         // Generate a puzzle to populate cache
         let puzzle1 = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
-        XCTAssertNotNil(puzzle1)
         
         // Clear cache
         puzzleService.clearCache()
         
         // Getting the same puzzle should still work (regenerated)
         let puzzle2 = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
-        XCTAssertNotNil(puzzle2)
-        XCTAssertEqual(puzzle1?.id, puzzle2?.id, "Puzzle ID should be the same for same difficulty/level")
+        XCTAssertEqual(puzzle1.id, puzzle2.id, "Puzzle ID should be the same for same difficulty/level")
     }
 
     func testForceRegeneration() throws {
         let puzzle1 = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
-        XCTAssertNotNil(puzzle1)
         
         // Force regeneration
         puzzleService.forceRegeneration()
         
         // Should get a new puzzle (though it may be the same due to seeded generation)
         let puzzle2 = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
-        XCTAssertNotNil(puzzle2)
-        XCTAssertEqual(puzzle1?.id, puzzle2?.id, "ID should be the same for same level")
+        XCTAssertEqual(puzzle1.id, puzzle2.id, "ID should be the same for same level")
     }
 
     // MARK: - Performance Tests
@@ -207,22 +204,19 @@ class PuzzleServiceTests: XCTestCase {
     func testGetPuzzle_highLevel() throws {
         let puzzle = puzzleService.getPuzzle(difficulty: "Easy", level: 999)
         
-        XCTAssertNotNil(puzzle, "Should be able to generate high level puzzles")
-        XCTAssertEqual(puzzle?.id, "easy-999")
+        XCTAssertEqual(puzzle.id, "easy-999")
     }
 
     func testGetPuzzle_levelZero() throws {
         let puzzle = puzzleService.getPuzzle(difficulty: "Easy", level: 0)
         
-        XCTAssertNotNil(puzzle, "Should handle level 0")
-        XCTAssertEqual(puzzle?.id, "easy-0")
+        XCTAssertEqual(puzzle.id, "easy-0")
     }
 
     func testGetPuzzle_negativeLevel() throws {
         let puzzle = puzzleService.getPuzzle(difficulty: "Easy", level: -1)
         
-        XCTAssertNotNil(puzzle, "Should handle negative levels")
-        XCTAssertEqual(puzzle?.id, "easy--1")
+        XCTAssertEqual(puzzle.id, "easy--1")
     }
 
     func testGetPuzzle_caseSensitivity() throws {
@@ -231,9 +225,9 @@ class PuzzleServiceTests: XCTestCase {
         let puzzle3 = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
         
         // All should return valid puzzles (case handled internally)
-        XCTAssertNotNil(puzzle1)
-        XCTAssertNotNil(puzzle2)
-        XCTAssertNotNil(puzzle3)
+        XCTAssertTrue(puzzle1.isValid)
+        XCTAssertTrue(puzzle2.isValid)
+        XCTAssertTrue(puzzle3.isValid)
     }
 
     // MARK: - Memory Tests
@@ -263,7 +257,7 @@ class PuzzleServiceTests: XCTestCase {
         for level in 1...10 {
             queue.async {
                 let puzzle = self.puzzleService.getPuzzle(difficulty: "Easy", level: level)
-                XCTAssertNotNil(puzzle, "Should generate puzzle in concurrent access")
+                XCTAssertTrue(puzzle.isValid, "Should generate valid puzzle in concurrent access")
                 expectation.fulfill()
             }
         }
@@ -274,7 +268,7 @@ class PuzzleServiceTests: XCTestCase {
     // MARK: - Puzzle Quality Tests
 
     func testPuzzleHasMinimumKeptCells() throws {
-        let puzzle = puzzleService.getPuzzle(difficulty: "Easy", level: 1)!
+        let puzzle = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
         
         let totalCells = puzzle.rowCount * puzzle.columnCount
         let keptCells = puzzle.solution.flatMap { $0 }.filter { $0 }.count
@@ -285,8 +279,8 @@ class PuzzleServiceTests: XCTestCase {
     }
 
     func testPuzzleNumberRanges() throws {
-        let easyPuzzle = puzzleService.getPuzzle(difficulty: "Easy", level: 1)!
-        let hardPuzzle = puzzleService.getPuzzle(difficulty: "Hard", level: 1)!
+        let easyPuzzle = puzzleService.getPuzzle(difficulty: "Easy", level: 1)
+        let hardPuzzle = puzzleService.getPuzzle(difficulty: "Hard", level: 1)
         
         let easyMax = easyPuzzle.grid.flatMap { $0 }.max()!
         let hardMax = hardPuzzle.grid.flatMap { $0 }.max()!
@@ -299,13 +293,15 @@ class PuzzleServiceTests: XCTestCase {
 
     func testEmptyDifficultyString() throws {
         let puzzle = puzzleService.getPuzzle(difficulty: "", level: 1)
-        XCTAssertNil(puzzle, "Should return nil for empty difficulty")
+        // With emergency fallback, even empty difficulty gets a puzzle
+        XCTAssertTrue(puzzle.isValid, "Should return valid emergency puzzle for empty difficulty")
+        XCTAssertEqual(puzzle.id, "-1")
     }
 
     func testWhitespaceDifficulty() throws {
         let puzzle = puzzleService.getPuzzle(difficulty: "  Easy  ", level: 1)
-        // This might work depending on how the service handles whitespace
-        // The test documents the current behavior
-        XCTAssertNil(puzzle, "Should handle whitespace in difficulty appropriately")
+        // With emergency fallback, even whitespace difficulty gets a puzzle
+        XCTAssertTrue(puzzle.isValid, "Should return valid emergency puzzle for whitespace difficulty")
+        XCTAssertEqual(puzzle.id, "  easy  -1")
     }
 }
