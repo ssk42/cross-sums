@@ -310,10 +310,10 @@ class EmbeddedPuzzleGenerator {
         let numberRange: ClosedRange<Int>
         let maxAttempts: Int
         
-        static let easy = DifficultyConfig(gridSize: 3, numberRange: 1...9, maxAttempts: 50)
-        static let medium = DifficultyConfig(gridSize: 4, numberRange: 1...12, maxAttempts: 50)
-        static let hard = DifficultyConfig(gridSize: 4, numberRange: 1...15, maxAttempts: 50)
-        static let extraHard = DifficultyConfig(gridSize: 5, numberRange: 1...18, maxAttempts: 50)
+        static let easy = DifficultyConfig(gridSize: 3, numberRange: 1...9, maxAttempts: 5)
+        static let medium = DifficultyConfig(gridSize: 4, numberRange: 1...12, maxAttempts: 5)
+        static let hard = DifficultyConfig(gridSize: 4, numberRange: 1...15, maxAttempts: 5)
+        static let extraHard = DifficultyConfig(gridSize: 5, numberRange: 1...18, maxAttempts: 5)
     }
     
     /// Generates a new puzzle for the specified difficulty and level
