@@ -21,7 +21,9 @@ struct HelpView: View {
                             .font(.headline)
                         
                         VStack(alignment: .leading, spacing: 5) {
-                            Text("• Tap numbers to keep them (green) or remove them (red)")
+                            Text("• **Tap** numbers to keep them (green)")
+                            Text("• **Long press** numbers to remove them (red)")
+                            Text("• **Drag** numbers to clear markings (back to unmarked)")
                             Text("• Each row must sum to its target number")
                             Text("• Each column must sum to its target number")
                             Text("• You have limited lives - wrong moves cost a life")
@@ -39,6 +41,7 @@ struct HelpView: View {
                             Text("• Start with rows/columns that have obvious solutions")
                             Text("• Look for large numbers that must be kept")
                             Text("• Use process of elimination")
+                            Text("• Drag on cells to quickly reset them if you change your mind")
                             Text("• Save hints for difficult puzzles")
                         }
                         .font(.body)

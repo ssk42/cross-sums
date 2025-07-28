@@ -114,17 +114,17 @@ struct SumLabel: View {
             
             VStack(spacing: 2) {
                 Text("\(current)")
-                    .font(.system(size: fontSize * 0.7, weight: .semibold, design: .rounded))
+                    .font(.system(size: fontSize * 0.9, weight: .semibold, design: .rounded))
                     .foregroundColor(currentColor)
                 
                 Rectangle()
-                    .fill(Color.primary.opacity(0.3))
+                    .fill(Color.primary.opacity(0.5))
                     .frame(height: 1)
                     .padding(.horizontal, 4)
                 
                 Text("\(target)")
-                    .font(.system(size: fontSize * 0.6, weight: .medium, design: .rounded))
-                    .foregroundColor(.secondary)
+                    .font(.system(size: fontSize * 0.8, weight: .medium, design: .rounded))
+                    .foregroundColor(.primary.opacity(0.7))
             }
         }
         .frame(width: size, height: size)
@@ -133,11 +133,11 @@ struct SumLabel: View {
     
     private var backgroundColor: Color {
         if current == target && current > 0 {
-            return Color.green.opacity(0.1)
+            return Color.green.opacity(0.2)
         } else if current > target {
-            return Color.red.opacity(0.1)
+            return Color.red.opacity(0.2)
         } else {
-            return Color(.systemGray6)
+            return Color(.systemGray5)
         }
     }
     
@@ -147,7 +147,7 @@ struct SumLabel: View {
         } else if current > target {
             return Color.red
         } else {
-            return Color(.systemGray4)
+            return Color(.systemGray3)
         }
     }
     
@@ -162,7 +162,7 @@ struct SumLabel: View {
     }
     
     private var fontSize: CGFloat {
-        return min(size * 0.25, 16)
+        return min(size * 0.35, 20)
     }
 }
 

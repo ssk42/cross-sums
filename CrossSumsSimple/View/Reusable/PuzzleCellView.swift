@@ -9,6 +9,8 @@ struct PuzzleCellView: View {
     let onDrag: (Bool) -> Void
     
     @State private var isPressed: Bool = false
+    @State private var isLongPressing: Bool = false
+    @State private var longPressTimer: Timer?
     
     // Accessibility properties
     private var accessibilityStateDescription: String {
@@ -56,6 +58,21 @@ struct PuzzleCellView: View {
                     .opacity(0.3)
                     .scaleEffect(0.85)
             }
+            
+            // Long press feedback overlay
+            if isLongPressing {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(Color.red)
+                    .opacity(0.4)
+                    .scaleEffect(0.9)
+                    .overlay(
+                        Image(systemName: "minus.circle.fill")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                            .scaleEffect(isLongPressing ? 1.2 : 0.8)
+                    )
+                    .animation(.easeInOut(duration: 0.2).repeatForever(autoreverses: true), value: isLongPressing)
+            }
         }
         .aspectRatio(1.0, contentMode: .fit)
         .scaleEffect(isPressed ? 0.98 : 1.0)
@@ -75,16 +92,40 @@ struct PuzzleCellView: View {
             impactFeedback.impactOccurred()
             
             withAnimation(.easeInOut(duration: 0.15)) {
+                longPressTimer?.invalidate()
+                longPressTimer = nil
+                isLongPressing = false
                 onLongPress()
             }
         } onPressingChanged: { pressing in
             withAnimation(.easeInOut(duration: 0.1)) {
                 isPressed = pressing
+                
+                if pressing {
+                    // Start timer to show long press visual after delay
+                    longPressTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: false) { _ in
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            isLongPressing = true
+                        }
+                    }
+                } else {
+                    // Cancel timer and hide long press visual
+                    longPressTimer?.invalidate()
+                    longPressTimer = nil
+                    withAnimation(.easeInOut(duration: 0.1)) {
+                        isLongPressing = false
+                    }
+                }
             }
         }
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
+                    // Cancel long press timer if drag starts
+                    longPressTimer?.invalidate()
+                    longPressTimer = nil
+                    isLongPressing = false
+                    
                     // This is called when the drag starts or changes
                     // We can use this to indicate a drag is in progress
                     onDrag(true)

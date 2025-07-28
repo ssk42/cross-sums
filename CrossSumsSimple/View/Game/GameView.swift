@@ -25,6 +25,10 @@ struct GameView: View {
                             )
                             .padding(.horizontal)
                         
+                        // Controls instruction panel
+                        ControlsInstructionView()
+                            .padding(.horizontal)
+                        
                         // Optional progress indicator
                         if gameViewModel.gameState != nil {
                             GameProgressView(gameViewModel: gameViewModel)
@@ -93,6 +97,51 @@ struct GameView: View {
                 Text(errorMessage)
             }
         }
+    }
+}
+
+// MARK: - Controls Instruction View
+
+struct ControlsInstructionView: View {
+    var body: some View {
+        HStack(spacing: 20) {
+            // Tap instruction
+            HStack(spacing: 6) {
+                Image(systemName: "hand.tap.fill")
+                    .foregroundColor(.green)
+                    .font(.system(size: 14, weight: .medium))
+                Text("Tap to keep")
+                    .font(.caption)
+                    .foregroundColor(.green)
+            }
+            
+            // Long press instruction
+            HStack(spacing: 6) {
+                Image(systemName: "hand.point.up.left.fill")
+                    .foregroundColor(.red)
+                    .font(.system(size: 14, weight: .medium))
+                Text("Hold to remove")
+                    .font(.caption)
+                    .foregroundColor(.red)
+            }
+            
+            // Drag instruction
+            HStack(spacing: 6) {
+                Image(systemName: "hand.draw.fill")
+                    .foregroundColor(.secondary)
+                    .font(.system(size: 14, weight: .medium))
+                Text("Drag to unmark")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.systemGray6))
+                .stroke(Color(.systemGray4), lineWidth: 1)
+        )
     }
 }
 
