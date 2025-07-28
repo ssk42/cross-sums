@@ -72,10 +72,13 @@ struct GameView: View {
             }
         }
         .sheet(isPresented: $showLevelComplete) {
-            LevelCompleteView(gameViewModel: gameViewModel) {
+            LevelCompleteView(gameViewModel: gameViewModel, onDismiss: {
                 // On dismiss, stay in game or navigate based on user choice
                 showLevelComplete = false
-            }
+            }, onNavigateToMainMenu: {
+                // Navigate to main menu - same behavior as GameView's Menu button
+                dismiss()
+            })
         }
         .alert("Game Over", isPresented: $showGameOver) {
             Button("Restart Level") {

@@ -3,6 +3,7 @@ import SwiftUI
 struct LevelCompleteView: View {
     @ObservedObject var gameViewModel: GameViewModel
     let onDismiss: () -> Void
+    let onNavigateToMainMenu: () -> Void
     
     @State private var showCelebration = false
     @State private var confettiCount = 0
@@ -221,6 +222,7 @@ struct LevelCompleteView: View {
     private func didTapMainMenu() {
         onDismiss()
         dismiss()
+        onNavigateToMainMenu()
     }
     
     // MARK: - Helper Methods
@@ -320,9 +322,11 @@ struct ConfettiView: View {
     gameState.moveCount = 12
     gameViewModel.gameState = gameState
     
-    return LevelCompleteView(gameViewModel: gameViewModel) {
+    return LevelCompleteView(gameViewModel: gameViewModel, onDismiss: {
         print("Level complete dismissed")
-    }
+    }, onNavigateToMainMenu: {
+        print("Navigate to main menu")
+    })
 }
 
 #Preview("Perfect Score") {
@@ -343,7 +347,9 @@ struct ConfettiView: View {
     // Keep all 3 lives for perfect score
     gameViewModel.gameState = gameState
     
-    return LevelCompleteView(gameViewModel: gameViewModel) {
+    return LevelCompleteView(gameViewModel: gameViewModel, onDismiss: {
         print("Perfect level complete dismissed")
-    }
+    }, onNavigateToMainMenu: {
+        print("Navigate to main menu from perfect")
+    })
 }
