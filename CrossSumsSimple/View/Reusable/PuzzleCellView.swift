@@ -48,6 +48,8 @@ struct PuzzleCellView: View {
             Text("\(number)")
                 .font(.system(size: fontSize, weight: .semibold, design: .rounded))
                 .foregroundColor(textColor)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
                 .scaleEffect(isPressed ? 0.95 : 1.0)
             
             // State indicator overlay
@@ -204,9 +206,9 @@ struct PuzzleCellView: View {
         case 1:
             return 20 // Original size for single digits
         case 2:
-            return 16 // Slightly smaller for double digits
+            return 20 // Better readability for double digits with automatic scaling fallback
         default:
-            return 12 // Even smaller for three or more digits
+            return 11 // Better readability for three or more digits with automatic scaling fallback
         }
     }
 }
