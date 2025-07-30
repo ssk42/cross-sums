@@ -2,10 +2,10 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# Apple support - required for iOS builds (newer version)
+# Apple support - required for iOS builds
 http_archive(
     name = "build_bazel_apple_support",
-    sha256 = "100d12617a84ebc7ee7a10ecf3b3e2fdadaebc167ad93a21f820a6cb60158ffe",
+    sha256 = "100d12617a84ebc7ee7a10ecf3b3e2fdadaebc167ad93a21f820a6cb60158ead",
     urls = ["https://github.com/bazelbuild/apple_support/releases/download/1.12.0/apple_support.1.12.0.tar.gz"],
 )
 
@@ -16,10 +16,10 @@ load(
 
 apple_support_dependencies()
 
-# Apple's build rules for Bazel (newer version)
+# Apple's build rules for Bazel
 http_archive(
     name = "build_bazel_rules_apple",
-    sha256 = "9e26307516c4d5f2ad4aee90ac01eb8cd31f9b8d6c5206d3023bf2e2a09025d6",
+    sha256 = "b4df908ec14868369021182ab191dbd1f40830c9b300650d5dc389e0b9266c8d",
     urls = ["https://github.com/bazelbuild/rules_apple/releases/download/3.5.1/rules_apple.3.5.1.tar.gz"],
 )
 
@@ -30,10 +30,10 @@ load(
 
 apple_rules_dependencies()
 
-# Swift's build rules for Bazel (newer version)
+# Swift's build rules for Bazel
 http_archive(
     name = "build_bazel_rules_swift",
-    sha256 = "9919ed1d8dae509645bfd380537ae6501528d8de8a99099e5f1e3f2530628cd0",
+    sha256 = "bb01097c7c7a1407f8ad49a1a0b1960655cf823c26ad2782d0b7d15b323838e2",
     urls = ["https://github.com/bazelbuild/rules_swift/releases/download/1.18.0/rules_swift.1.18.0.tar.gz"],
 )
 

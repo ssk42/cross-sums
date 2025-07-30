@@ -16,6 +16,11 @@ build --host_crosstool_top=@local_config_apple_cc//:toolchain
 build --host_force_python=PY3
 build --incompatible_enable_cc_toolchain_resolution
 
-# Specific settings for te 'ios_release' configuration used in the workflow.
+# Specific settings for the 'ios_release' configuration used in the workflow.
 build:ios_release --compilation_mode=opt
 build:ios_release --ios_multi_cpus=arm64,sim_arm64
+
+# Additional settings for better CI compatibility
+build --verbose_failures
+build --show_timestamps
+build --progress_report_interval=30

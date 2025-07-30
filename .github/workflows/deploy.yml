@@ -36,14 +36,19 @@ jobs:
         with:
           xcode-version: '15.2'
 
-      # 4. Build IPA with Bazel
+      # 4. Clean Bazel cache to avoid stale dependencies
+      - name: Clean Bazel cache
+        run: bazel clean --expunge
+
+      # 5. Build IPA with Bazel
       # The 'Install Bazel' step has been removed. The GitHub runner has 'bazelisk'
       # pre-installed, which will read the .bazelversion file and automatically
       # use the correct version of Bazel for the build.
       - name: Build IPA with Bazel
-        run: bazel build //CrossSumsSimple:CrossSumsSimple_ipa --config=ios_release
+        run: |
+          bazel build //CrossSumsSimple:CrossSumsSimple_ipa --config=ios_release --verbose_failures
 
-      # 5. Setup Ruby and Fastlane
+      # 6. Setup Ruby and Fastlane
       # This installs Ruby and your project's gems (like fastlane) from the Gemfile.
       # The `bundler-cache: true` option enables caching for gems, speeding up runs.
       - name: Setup Ruby
@@ -53,7 +58,7 @@ jobs:
           bundler-cache: true
           working-directory: ./fastlane # Specifies where to find the Gemfile
 
-      # 6. Run Fastlane to Deploy
+      # 7. Run Fastlane to Deploy
       # This step runs inside the `./fastlane` directory.
       - name: Upload to TestFlight
         working-directory: ./fastlane
