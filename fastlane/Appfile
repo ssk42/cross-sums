@@ -1,0 +1,22 @@
+# fastlane/Appfile
+
+# This file contains the core configuration for your app.
+# Fastlane actions will automatically use these values.
+
+# The bundle identifier of your app, found from your Xcode project.
+app_identifier("com.skatekey.CrossSumsSimple")
+
+# -------------------
+# Fill these in
+# -------------------
+
+# Your Apple ID email address.
+apple_id("sthreitz@gmail.com") # <-- Uncomment and fill this in
+
+# Your Apple Developer Portal Team ID.
+# Find it at: https://developer.apple.com/account/#/membership/
+team_id("J4QUKKF6V3") # <-- Uncomment and fill this in
+
+# Your App Store Connect Team ID (only needed if your account is on multiple teams).
+# Find it in App Store Connect under "Sales and Trends" -> "Reports". It's the "Vendor" number.
+itc_team_id("93173619") # <-- Uncomment and fill this in if you have multiple teams

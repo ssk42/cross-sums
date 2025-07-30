@@ -26,7 +26,12 @@
       "Bash(__NEW_LINE__ echo \"\")",
       "Bash(git checkout:*)",
       "Bash(swift test:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(xcrun simctl boot:*)",
+      "Bash(xcrun simctl list:*)",
+      "Bash(xcrun simctl create:*)",
+      "Bash(xcrun simctl shutdown:*)",
+      "Bash(xcrun simctl delete:*)"
     ],
     "deny": []
   }

@@ -1,0 +1,28 @@
+# fastlane/Fastfile
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Upload a build from Bazel to TestFlight"
+  lane :beta do
+    # 1. Authenticate and Upload to TestFlight
+    # Fastlane will automatically use the API Key from your GitHub secrets
+    # and the app configuration (like app_identifier) from your Appfile.
+    #
+    # The 'build_app' step is GONE. We just upload the IPA from the path
+    # that we received from the GitHub Actions environment variable.
+    upload_to_testflight(
+      ipa: "../" + ENV['BAZEL_IPA_PATH'], # <-- Path to the Bazel-built IPA
+      skip_waiting_for_build_processing: true,
+      changelog: "New build uploaded automatically from GitHub Actions."
+    )
+
+    # You can add other steps here after the upload is complete.
+    # For example, send a notification to a Slack channel.
+    # slack(
+    #   message: "Successfully uploaded new build of Cross Sums to TestFlight! 🎉"
+    # )
+
+    puts "Build successfully uploaded to TestFlight!"
+  end
+end

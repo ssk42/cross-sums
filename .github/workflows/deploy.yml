@@ -1,0 +1,63 @@
+# .github/workflows/deploy.yml
+
+name: Build with Bazel, Deploy with Fastlane
+
+# Trigger this workflow on every push to the 'main' branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy to TestFlight
+    runs-on: macos-latest
+
+    steps:
+      # 1. Checkout the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Select the version of Xcode to use
+      # This is required by Bazel's iOS build rules.
+      - name: Select Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.4' # <-- Change to your project's Xcode version if needed
+
+      # 3. Setup Bazel
+      # This action installs and caches the Bazel binary.
+      - name: Setup Bazel
+        uses: bazelbuild/setup-bazel@v1
+        with:
+          version: '7.1.1' # <-- Change to your project's Bazel version if needed
+
+      # 4. Run Bazel Build
+      # This command tells Bazel to build the IPA target for CrossSumsSimple.
+      - name: Build IPA with Bazel
+        run: |
+          bazel build //CrossSumsSimple:CrossSumsSimple_ipa --config=ios_release
+
+      # 5. Setup Ruby and Fastlane
+      # Installs the dependencies from your Gemfile (i.e., fastlane).
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2' # Using a more recent Ruby version
+          bundler-cache: true
+          working-directory: 'fastlane'
+
+      # 6. Run Fastlane to Deploy
+      # Executes the 'beta' lane from your Fastfile.
+      # We pass the path to the IPA that Bazel built.
+      - name: Upload to TestFlight
+        env:
+          # These secrets are required for App Store Connect authentication
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          # Pass the correct IPA path to Fastlane
+          BAZEL_IPA_PATH: "bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa"
+        run: |
+          cd fastlane
+          bundle exec fastlane beta
