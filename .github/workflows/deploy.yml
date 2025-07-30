@@ -50,12 +50,12 @@ jobs:
 
       # 6. Setup Ruby and Fastlane
       # This installs Ruby and your project's gems (like fastlane) from the Gemfile.
-      # The `bundler-cache: true` option enables caching for gems, speeding up runs.
+      # Using a more recent Ruby setup action for better compatibility.
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-          bundler-cache: true
+          bundler: '2.4'
           working-directory: ./fastlane # Specifies where to find the Gemfile
 
       # 7. Run Fastlane to Deploy

@@ -7,7 +7,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>Simple Cross Sums</string>
 	<key>CFBundleExecutable</key>
-	<string>CrossSumsSimple</string>
+	<string>Simple Cross Sums</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.crosssumssimple.app</string>
 	<key>CFBundleInfoDictionaryVersion</key>
