@@ -54,7 +54,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-          bundler-cache: true
+          bundler: '2.4'
           working-directory: ./fastlane # Specifies where to find the Gemfile
 
       # 7. Install Fastlane gems (explicit step to ensure they're available)
