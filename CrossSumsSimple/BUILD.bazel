@@ -1,17 +1,6 @@
 # CrossSumsSimple/BUILD.bazel
 
 load("@build_bazel_rules_apple//apple:ios.bzl", "ios_application")
-load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
-
-# This rule defines a library containing all your Swift source code.
-swift_library(
-    name = "CrossSumsSimple_lib",
-    srcs = glob(["**/*.swift"]),
-    data = glob([
-        "Resources/**",
-    ]),
-    visibility = ["//visibility:public"],
-)
 
 # This rule defines the final iOS application.
 ios_application(
@@ -23,6 +12,5 @@ ios_application(
     ],
     infoplists = ["Info.plist"],
     minimum_os_version = "15.0",
-    deps = [":CrossSumsSimple_lib"],
     visibility = ["//visibility:public"],
 )
