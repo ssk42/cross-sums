@@ -71,17 +71,66 @@ jobs:
         working-directory: ./fastlane
         run: bundle install
 
-      # 7.5. Find and set IPA path dynamically
+      # 7.5. Find and set IPA path dynamically with robust fallback
       - name: Find IPA file and set path
         id: find_ipa
         run: |
-          IPA_FILE=$(find bazel-bin -name "*.ipa" -type f | head -1)
-          if [ -z "$IPA_FILE" ]; then
-            echo "Error: No IPA file found in bazel-bin"
-            exit 1
+          echo "=== IPA File Discovery Debug ==="
+          echo "Current directory: $(pwd)"
+          echo "Checking if bazel-bin is a symlink:"
+          ls -la bazel-bin 2>/dev/null || echo "bazel-bin not found"
+          
+          # Method 1: Try the known direct path first
+          DIRECT_PATH="bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa"
+          if [ -f "$DIRECT_PATH" ]; then
+            echo "✅ Found IPA using direct path: $DIRECT_PATH"
+            echo "IPA_PATH=$DIRECT_PATH" >> $GITHUB_OUTPUT
+            exit 0
           fi
-          echo "Found IPA file: $IPA_FILE"
-          echo "IPA_PATH=$IPA_FILE" >> $GITHUB_OUTPUT
+          
+          # Method 2: Use find with symlink following
+          echo "Direct path failed, trying find with -L flag..."
+          IPA_FILE=$(find bazel-bin -L -name "*.ipa" -type f 2>/dev/null | head -1)
+          if [ -n "$IPA_FILE" ]; then
+            echo "✅ Found IPA using find -L: $IPA_FILE"
+            echo "IPA_PATH=$IPA_FILE" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Method 3: Manual directory traversal
+          echo "Find command failed, trying manual discovery..."
+          if [ -d "bazel-bin/CrossSumsSimple" ]; then
+            echo "Contents of bazel-bin/CrossSumsSimple:"
+            ls -la bazel-bin/CrossSumsSimple/
+            
+            # Look for any .ipa files in the directory
+            for file in bazel-bin/CrossSumsSimple/*.ipa; do
+              if [ -f "$file" ]; then
+                echo "✅ Found IPA using manual discovery: $file"
+                echo "IPA_PATH=$file" >> $GITHUB_OUTPUT
+                exit 0
+              fi
+            done
+          fi
+          
+          # Method 4: Last resort - search entire bazel output
+          echo "Manual discovery failed, searching entire bazel output..."
+          for file in bazel-bin/**/*.ipa bazel-out/**/*.ipa; do
+            if [ -f "$file" ]; then
+              echo "✅ Found IPA in bazel output: $file"
+              echo "IPA_PATH=$file" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          done
+          
+          # All methods failed - provide detailed error information
+          echo "❌ All IPA discovery methods failed!"
+          echo "=== Debug Information ==="
+          echo "bazel-bin structure:"
+          find bazel-bin -type f -name "*ipa*" 2>/dev/null || echo "No files with 'ipa' in name found"
+          echo "Available files:"
+          find bazel-bin -type f | head -20
+          exit 1
 
       # 8. Run Fastlane to Deploy
       # This step runs inside the `./fastlane` directory.
