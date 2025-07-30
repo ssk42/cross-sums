@@ -25,7 +25,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/bazel
-          key: ${{ runner.os }}-bazel-${{ hashFiles('**/MODULE.bazel', '**/WORKSPACE') }}
+          key: ${{ runner.os }}-bazel-${{ hashFiles('**/MODULE.bazel', '**/WORKSPACE', '.bazelversion') }}
           restore-keys: |
             ${{ runner.os }}-bazel-
 
@@ -36,19 +36,14 @@ jobs:
         with:
           xcode-version: '15.2'
 
-      # 4. Install Bazel manually
-      # We are using Homebrew (pre-installed on macOS runners) to install Bazel
-      # directly. This bypasses the need for the setup-bazel action, which
-      # appears to be blocked in your environment.
-      - name: Install Bazel
-        run: brew install bazel
-
-      # 5. Build IPA with Bazel
-      # This command builds the iOS application archive.
+      # 4. Build IPA with Bazel
+      # The 'Install Bazel' step has been removed. The GitHub runner has 'bazelisk'
+      # pre-installed, which will read the .bazelversion file and automatically
+      # use the correct version of Bazel for the build.
       - name: Build IPA with Bazel
         run: bazel build //CrossSumsSimple:CrossSumsSimple_ipa --config=ios_release
 
-      # 6. Setup Ruby and Fastlane
+      # 5. Setup Ruby and Fastlane
       # This installs Ruby and your project's gems (like fastlane) from the Gemfile.
       # The `bundler-cache: true` option enables caching for gems, speeding up runs.
       - name: Setup Ruby
@@ -58,7 +53,7 @@ jobs:
           bundler-cache: true
           working-directory: ./fastlane # Specifies where to find the Gemfile
 
-      # 7. Run Fastlane to Deploy
+      # 6. Run Fastlane to Deploy
       # This step runs inside the `./fastlane` directory.
       - name: Upload to TestFlight
         working-directory: ./fastlane
