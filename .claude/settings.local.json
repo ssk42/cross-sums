@@ -31,7 +31,9 @@
       "Bash(xcrun simctl list:*)",
       "Bash(xcrun simctl create:*)",
       "Bash(xcrun simctl shutdown:*)",
-      "Bash(xcrun simctl delete:*)"
+      "Bash(xcrun simctl delete:*)",
+      "mcp__puppeteer__puppeteer_navigate",
+      "mcp__puppeteer__puppeteer_screenshot"
     ],
     "deny": []
   }
