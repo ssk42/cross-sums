@@ -29,7 +29,7 @@ swift_library(
     visibility = ["//visibility:public"],
 )
 
-# This rule defines the final iOS application.
+# This rule defines the final iOS application for simulator builds.
 ios_application(
     name = "CrossSumsSimple_ipa",
     bundle_id = "com.crosssumssimple.app",
@@ -42,5 +42,21 @@ ios_application(
     deps = [":CrossSumsSimple_lib"],
     # Add support for simulator builds
     provisioning_profile = None,  # Explicitly set to None for simulator builds
+    visibility = ["//visibility:public"],
+)
+
+# Device build target for TestFlight uploads
+ios_application(
+    name = "CrossSumsSimple_device_ipa", 
+    bundle_id = "com.crosssumssimple.app",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    infoplists = ["Info.plist"],
+    minimum_os_version = "18.0",
+    deps = [":CrossSumsSimple_lib"],
+    # Provisioning profile will be set when available
+    # provisioning_profile = "CrossSumsSimple_AppStore.mobileprovision",
     visibility = ["//visibility:public"],
 )

@@ -33,7 +33,13 @@
       "Bash(xcrun simctl shutdown:*)",
       "Bash(xcrun simctl delete:*)",
       "mcp__puppeteer__puppeteer_navigate",
-      "mcp__puppeteer__puppeteer_screenshot"
+      "mcp__puppeteer__puppeteer_screenshot",
+      "mcp__puppeteer__puppeteer_click",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.fastlane.tools)"
     ],
     "deny": []
   }

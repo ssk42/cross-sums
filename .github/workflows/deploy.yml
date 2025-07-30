@@ -40,13 +40,13 @@ jobs:
       - name: Clean Bazel cache
         run: bazel clean --expunge
 
-      # 5. Build IPA with Bazel (for simulator, not device)
+      # 5. Build IPA with Bazel (for device deployment to TestFlight)
       # The 'Install Bazel' step has been removed. The GitHub runner has 'bazelisk'
       # pre-installed, which will read the .bazelversion file and automatically
       # use the correct version of Bazel for the build.
       - name: Build IPA with Bazel
         run: |
-          bazel build //CrossSumsSimple:CrossSumsSimple_ipa --config=ios_release --xcode_version=16.2.0 --ios_multi_cpus=sim_arm64 --apple_platform_type=ios --cpu=ios_sim_arm64 --verbose_failures
+          bazel build //CrossSumsSimple:CrossSumsSimple_device_ipa --config=ios_device --xcode_version=16.2.0 --verbose_failures
 
       # 5.5. Debug - List bazel-bin contents to verify IPA location
       - name: Debug - List bazel-bin contents
@@ -81,7 +81,7 @@ jobs:
           ls -la bazel-bin 2>/dev/null || echo "bazel-bin not found"
           
           # Method 1: Try the known direct path first
-          DIRECT_PATH="bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa"
+          DIRECT_PATH="bazel-bin/CrossSumsSimple/CrossSumsSimple_device_ipa.ipa"
           if [ -f "$DIRECT_PATH" ]; then
             echo "✅ Found IPA using direct path: $DIRECT_PATH"
             echo "IPA_PATH=$DIRECT_PATH" >> $GITHUB_OUTPUT
@@ -103,8 +103,8 @@ jobs:
             echo "Contents of bazel-bin/CrossSumsSimple:"
             ls -la bazel-bin/CrossSumsSimple/
             
-            # Look for any .ipa files in the directory
-            for file in bazel-bin/CrossSumsSimple/*.ipa; do
+            # Look for device IPA files in the directory
+            for file in bazel-bin/CrossSumsSimple/*device_ipa*.ipa; do
               if [ -f "$file" ]; then
                 echo "✅ Found IPA using manual discovery: $file"
                 echo "IPA_PATH=$file" >> $GITHUB_OUTPUT
