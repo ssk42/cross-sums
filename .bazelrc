@@ -18,7 +18,9 @@ build --incompatible_enable_cc_toolchain_resolution
 
 # Specific settings for the 'ios_release' configuration used in the workflow.
 build:ios_release --compilation_mode=opt
-build:ios_release --ios_multi_cpus=arm64,sim_arm64
+build:ios_release --ios_multi_cpus=sim_arm64
+build:ios_release --apple_platform_type=ios
+build:ios_release --cpu=ios_sim_arm64
 
 # Additional settings for better CI compatibility
 build --verbose_failures
