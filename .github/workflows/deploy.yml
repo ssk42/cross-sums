@@ -142,7 +142,6 @@ jobs:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
           
-          # Pass the dynamically found IPA path. Since this step runs inside
-          # the `./fastlane` directory, we prefix with `../` to go up one level.
-          FASTLANE_IPA_PATH: ../${{ steps.find_ipa.outputs.IPA_PATH }}
+          # Pass the dynamically found IPA path as absolute path to avoid relative path issues
+          FASTLANE_IPA_PATH: ${{ github.workspace }}/${{ steps.find_ipa.outputs.IPA_PATH }}
         run: bundle exec fastlane beta

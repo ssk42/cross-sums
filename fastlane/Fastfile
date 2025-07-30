@@ -12,7 +12,7 @@ platform :ios do
     if ipa_path.nil? || ipa_path.empty?
       UI.message("FASTLANE_IPA_PATH not set, searching for IPA files...")
       
-      # Search in common Bazel output locations
+      # Search in common Bazel output locations (relative to fastlane directory)
       search_paths = [
         '../bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa',
         '../bazel-bin/**/CrossSumsSimple_ipa.ipa',
@@ -27,6 +27,12 @@ platform :ios do
           break
         end
       end
+    else
+      # If path is provided, expand it to absolute path if it's not already
+      unless ipa_path.start_with?('/')
+        ipa_path = File.expand_path(ipa_path, __dir__)
+      end
+      UI.message("Using provided IPA path (expanded): #{ipa_path}")
     end
     
     # 2. Validate that the IPA file exists
