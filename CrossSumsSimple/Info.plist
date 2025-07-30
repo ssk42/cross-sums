@@ -59,5 +59,7 @@
 	<array>
 		<string>gamekit</string>
 	</array>
+	<key>MinimumOSVersion</key>
+	<string>18.0</string>
 </dict>
 </plist>
