@@ -6,6 +6,10 @@ build --apple_platform_type=ios
 build --enable_bzlmod=false
 # Help Bazel find the correct Xcode C++ toolchain for the Swift rules.
 build --xcode_version=15.2
+# Force Bazel to use the C++ toolchain from the selected Xcode version.
+build --action_env=BAZEL_USE_CPP_ONLY_TOOLCHAIN=1
+# Enable modern C++ toolchain resolution. This often fixes complex toolchain issues.
+build --incompatible_enable_cc_toolchain_resolution
 
 # Specific settings for the 'ios_release' configuration used in the workflow.
 build:ios_release --compilation_mode=opt
