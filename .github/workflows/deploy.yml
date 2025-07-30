@@ -46,7 +46,16 @@ jobs:
       # use the correct version of Bazel for the build.
       - name: Build IPA with Bazel
         run: |
-          bazel build //CrossSumsSimple:CrossSumsSimple_ipa.ipa --config=ios_release --xcode_version=16.2.0 --ios_multi_cpus=sim_arm64 --apple_platform_type=ios --cpu=ios_sim_arm64 --verbose_failures
+          bazel build //CrossSumsSimple:CrossSumsSimple_ipa --config=ios_release --xcode_version=16.2.0 --ios_multi_cpus=sim_arm64 --apple_platform_type=ios --cpu=ios_sim_arm64 --verbose_failures
+
+      # 5.5. Debug - List bazel-bin contents to verify IPA location
+      - name: Debug - List bazel-bin contents
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Contents of bazel-bin:"
+          find bazel-bin -name "*.ipa" -type f 2>/dev/null || echo "No .ipa files found in bazel-bin"
+          echo "Contents of bazel-bin/CrossSumsSimple (if exists):"
+          ls -la bazel-bin/CrossSumsSimple/ 2>/dev/null || echo "bazel-bin/CrossSumsSimple directory not found"
 
       # 6. Setup Ruby and Fastlane
       # This installs Ruby and your project's gems (like fastlane) from the Gemfile.
@@ -62,6 +71,18 @@ jobs:
         working-directory: ./fastlane
         run: bundle install
 
+      # 7.5. Find and set IPA path dynamically
+      - name: Find IPA file and set path
+        id: find_ipa
+        run: |
+          IPA_FILE=$(find bazel-bin -name "*.ipa" -type f | head -1)
+          if [ -z "$IPA_FILE" ]; then
+            echo "Error: No IPA file found in bazel-bin"
+            exit 1
+          fi
+          echo "Found IPA file: $IPA_FILE"
+          echo "IPA_PATH=$IPA_FILE" >> $GITHUB_OUTPUT
+
       # 8. Run Fastlane to Deploy
       # This step runs inside the `./fastlane` directory.
       - name: Upload to TestFlight
@@ -72,8 +93,7 @@ jobs:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
           
-          # Pass the correct relative path to the IPA. Since this step runs inside
-          # the `./fastlane` directory, we use `../` to go up one level.
-          # Your Fastfile should use `ENV['FASTLANE_IPA_PATH']` to get this value.
-          FASTLANE_IPA_PATH: ../bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa
+          # Pass the dynamically found IPA path. Since this step runs inside
+          # the `./fastlane` directory, we prefix with `../` to go up one level.
+          FASTLANE_IPA_PATH: ../${{ steps.find_ipa.outputs.IPA_PATH }}
         run: bundle exec fastlane beta

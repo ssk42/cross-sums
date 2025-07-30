@@ -5,12 +5,42 @@ default_platform(:ios)
 platform :ios do
   desc "Upload a build from Bazel to TestFlight"
   lane :beta do
-    # 1. Determine the IPA path
-    ipa_path = ENV['FASTLANE_IPA_PATH'] || File.expand_path('../bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa', __dir__)
+    # 1. Determine the IPA path with multiple fallback options
+    ipa_path = ENV['FASTLANE_IPA_PATH']
+    
+    # If not provided via environment, search for IPA files
+    if ipa_path.nil? || ipa_path.empty?
+      UI.message("FASTLANE_IPA_PATH not set, searching for IPA files...")
+      
+      # Search in common Bazel output locations
+      search_paths = [
+        '../bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa',
+        '../bazel-bin/**/CrossSumsSimple_ipa.ipa',
+        '../bazel-bin/**/*.ipa'
+      ]
+      
+      search_paths.each do |pattern|
+        found_files = Dir.glob(File.expand_path(pattern, __dir__))
+        unless found_files.empty?
+          ipa_path = found_files.first
+          UI.message("Found IPA file using pattern '#{pattern}': #{ipa_path}")
+          break
+        end
+      end
+    end
     
     # 2. Validate that the IPA file exists
-    unless File.exist?(ipa_path)
-      UI.user_error!("IPA file not found at path: #{ipa_path}")
+    if ipa_path.nil? || ipa_path.empty? || !File.exist?(ipa_path)
+      # List available files for debugging
+      UI.message("Available files in bazel-bin:")
+      bazel_bin_path = File.expand_path('../bazel-bin', __dir__)
+      if Dir.exist?(bazel_bin_path)
+        Dir.glob("#{bazel_bin_path}/**/*.ipa").each do |file|
+          UI.message("  - #{file}")
+        end
+      end
+      
+      UI.user_error!("IPA file not found. Searched path: #{ipa_path}")
     end
     
     UI.message("Using IPA file at: #{ipa_path}")
