@@ -2,6 +2,13 @@
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# Bazel features - required by Swift rules
+http_archive(
+    name = "bazel_features",
+    sha256 = "0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5",
+    urls = ["https://github.com/bazelbuild/bazel_features/releases/download/1.0.0/bazel_features-1.0.0.tar.gz"],
+)
+
 # Apple support - required for iOS builds
 http_archive(
     name = "build_bazel_apple_support",
