@@ -57,6 +57,6 @@ ios_application(
     minimum_os_version = "18.0",
     deps = [":CrossSumsSimple_lib"],
     # Provisioning profile will be set when available
-    # provisioning_profile = "CrossSumsSimple_AppStore.mobileprovision",
+    provisioning_profile = "CrossSumsSimple_AppStore.mobileprovision",
     visibility = ["//visibility:public"],
 )
