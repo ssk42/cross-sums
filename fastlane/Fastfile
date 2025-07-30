@@ -73,7 +73,7 @@ platform :ios do
     
     UI.message("✅ All API Key credentials are present")
     
-    # Handle API key content format (decode base64 if needed)
+    # Process API key content format
     UI.message("Processing API key content...")
     
     # Add detailed validation and debugging for key content
@@ -81,88 +81,45 @@ platform :ios do
     UI.message("Debug: Key content preview (first 50 chars): #{key_content[0..49]}...")
     UI.message("Debug: Key content preview (last 50 chars): ...#{key_content[-50..-1]}")
     
-    # Check for and handle GitHub masking markers
-    if key_content.include?('***')
-      UI.message("⚠️  GitHub masking markers detected in API key content, attempting to clean...")
-      # Strip GitHub masking markers (*** at beginning and end of lines)
-      key_content = key_content.gsub(/^\*{3}\s*/, '').gsub(/\s*\*{3}$/, '').strip
-      UI.message("✅ Cleaned GitHub masking markers from API key content")
-      UI.message("Debug: Cleaned key content length: #{key_content.length} characters")
-      UI.message("Debug: Cleaned key content preview (first 50 chars): #{key_content[0..49]}...")
-      
-      if key_content.empty?
-        UI.user_error!("❌ API key content is empty after cleaning GitHub masking markers. Check your APP_STORE_CONNECT_API_KEY_CONTENT secret.")
-      end
-    end
-    
     if key_content.empty?
       UI.user_error!("❌ API key content is empty. Check your APP_STORE_CONNECT_API_KEY_CONTENT secret.")
     end
     
-    # Check if key content is base64 encoded (common in CI environments)
-    key_content_processed = if key_content.include?("\n") || key_content.start_with?("-----BEGIN")
+    # Detect if key content is base64 encoded or raw PEM format
+    is_base64_encoded = !key_content.include?("\n") && !key_content.start_with?("-----BEGIN")
+    
+    if is_base64_encoded
+      UI.message("🔄 API key content appears to be base64 encoded")
+      # Fastlane will handle base64 decoding automatically with is_key_content_base64: true
+    else
       UI.message("✅ API key content appears to be in raw PEM format")
-      
       # Validate PEM format
       unless key_content.include?('-----BEGIN PRIVATE KEY-----') || 
              key_content.include?('-----BEGIN EC PRIVATE KEY-----') ||
              key_content.include?('-----BEGIN RSA PRIVATE KEY-----')
         UI.user_error!("❌ API key content doesn't appear to be a valid .p8 key file format. Expected PEM format with -----BEGIN PRIVATE KEY----- header.")
       end
-      
-      key_content
-    else
-      UI.message("🔄 API key content appears to be base64 encoded, decoding...")
-      require 'base64'
-      begin
-        decoded = Base64.decode64(key_content)
-        
-        # Validate decoded content
-        unless decoded.include?('-----BEGIN PRIVATE KEY-----') || 
-               decoded.include?('-----BEGIN EC PRIVATE KEY-----') ||
-               decoded.include?('-----BEGIN RSA PRIVATE KEY-----')
-          UI.user_error!("❌ Decoded API key content doesn't appear to be a valid .p8 key file format.")
-        end
-        
-        UI.message("✅ Successfully decoded base64 API key content")
-        decoded
-      rescue => e
-        UI.user_error!("❌ Failed to decode base64 key content: #{e.message}. Check your APP_STORE_CONNECT_API_KEY_CONTENT secret format.")
-      end
     end
     
-    UI.message("✅ API key content validation passed")
+    # 4. Configure App Store Connect API Key using Fastlane's built-in action
+    UI.message("Setting up App Store Connect API Key...")
+    app_store_connect_api_key(
+      key_id: api_key_id,
+      issuer_id: issuer_id,
+      key_content: key_content,
+      is_key_content_base64: is_base64_encoded
+    )
     
-    # Create temporary file for API key (Fastlane prefers file-based keys)
-    UI.message("Creating temporary API key file...")
-    require 'tempfile'
+    UI.message("✅ App Store Connect API Key configured successfully")
     
-    temp_key_file = Tempfile.new(['api_key', '.p8'])
-    temp_key_file.write(key_content_processed)
-    temp_key_file.close
-    
-    UI.message("✅ API key file created at: #{temp_key_file.path}")
-    
-    begin
-      # 4. Upload to TestFlight using file-based API Key authentication
-      UI.message("Uploading to TestFlight...")
-      UI.message("Debug: Using API key file at: #{temp_key_file.path}")
-      UI.message("Debug: File exists: #{File.exist?(temp_key_file.path)}")
-      UI.message("Debug: File size: #{File.size(temp_key_file.path)} bytes") if File.exist?(temp_key_file.path)
-      
-      # Try the simple api_key_path approach first
-      upload_to_testflight(
-        ipa: ipa_path,
-        api_key_path: temp_key_file.path,
-        skip_waiting_for_build_processing: true,
-        changelog: "New build uploaded automatically from GitHub Actions.",
-        app_platform: "ios"
-      )
-    ensure
-      # Clean up temporary file
-      temp_key_file.unlink if temp_key_file
-      UI.message("🗑️ Cleaned up temporary API key file")
-    end
+    # 5. Upload to TestFlight (API key is now set globally)
+    UI.message("Uploading to TestFlight...")
+    upload_to_testflight(
+      ipa: ipa_path,
+      skip_waiting_for_build_processing: true,
+      changelog: "New build uploaded automatically from GitHub Actions.",
+      app_platform: "ios"
+    )
 
     # You can add other steps here after the upload is complete.
     # For example, send a notification to a Slack channel.
