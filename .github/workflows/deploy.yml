@@ -2,7 +2,6 @@
 
 name: Build with Bazel, Deploy with Fastlane
 
-# Trigger this workflow on every push to the 'main' branch
 on:
   push:
     branches:
@@ -18,46 +17,55 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Select the version of Xcode to use
-      # This is required by Bazel's iOS build rules.
+      # 2. Cache Bazel build artifacts
+      # This step caches Bazel's repository and output directories to dramatically
+      # speed up subsequent workflow runs. The cache is invalidated when your
+      # Bazel module or workspace files change.
+      - name: Cache Bazel
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/bazel
+          key: ${{ runner.os }}-bazel-${{ hashFiles('**/MODULE.bazel', '**/WORKSPACE.bzlmod', '**/WORKSPACE') }}
+          restore-keys: |
+            ${{ runner.os }}-bazel-
+
+      # 3. Select the version of Xcode to use
       - name: Select Xcode version
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.2' # <-- Change to your project's Xcode version if needed
+          xcode-version: '15.2'
 
-      # 3. Setup Bazel
-      # This action installs and caches the Bazel binary.
+      # 4. Setup Bazel
+      # Note: The input is `bazel-version` for this action version.
       - name: Setup Bazel
-        uses: bazelbuild/setup-bazel@v3 # <-- Corrected version to v3
+        uses: bazelbuild/setup-bazel@v3
         with:
-          version: '7.1.1' # <-- Change to your project's Bazel version if needed
+          bazel-version: '7.1.1'
 
-      # 4. Run Bazel Build
-      # This command tells Bazel to build the IPA target for CrossSumsSimple.
+      # 5. Build IPA with Bazel
       - name: Build IPA with Bazel
-        run: |
-          bazel build //CrossSumsSimple:CrossSumsSimple_ipa --config=ios_release
+        run: bazel build //CrossSumsSimple:CrossSumsSimple_ipa --config=ios_release
 
-      # 5. Setup Ruby and Fastlane
-      # Installs the dependencies from your Gemfile (i.e., fastlane).
+      # 6. Setup Ruby and Fastlane
+      # Installs dependencies from the Gemfile located in the 'fastlane' directory.
+      # The `bundler-cache: true` option enables caching for Ruby gems.
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2' # Using a more recent Ruby version
+          ruby-version: '3.2'
           bundler-cache: true
-          working-directory: 'fastlane'
+          working-directory: ./fastlane # Specifies where to find the Gemfile
 
-      # 6. Run Fastlane to Deploy
-      # Executes the 'beta' lane from your Fastfile.
-      # We pass the path to the IPA that Bazel built.
+      # 7. Run Fastlane to Deploy
+      # Executes the 'beta' lane from inside the `fastlane` directory.
       - name: Upload to TestFlight
+        working-directory: ./fastlane # Executes commands within this directory
         env:
-          # These secrets are required for App Store Connect authentication
           APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
-          # Pass the correct IPA path to Fastlane
-          BAZEL_IPA_PATH: "bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa"
-        run: |
-          cd fastlane
-          bundle exec fastlane beta
+          # Pass the correct relative path to the IPA. Since this step runs inside
+          # the `./fastlane` directory, the path to the bazel-bin output is `../`.
+          # Your Fastfile should use `ENV['FASTLANE_IPA_PATH']` to get this value.
+          FASTLANE_IPA_PATH: ../bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa
+        run: bundle exec fastlane beta
