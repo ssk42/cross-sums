@@ -118,8 +118,11 @@ class PuzzleGenerator {
     
     /// Attempts to generate a valid puzzle
     private func attemptGeneration(config: DifficultyConfig, difficulty: String, level: Int, seed: UInt64, attempt: Int) -> Puzzle? {
+        // Create seeded random number generator
+        var rng = SeededRandomNumberGenerator(seed: seed &+ UInt64(attempt))
+        
         // Generate random grid
-        let grid = generateRandomGrid(size: config.gridSize, numberRange: config.numberRange, seed: seed &+ UInt64(attempt))
+        let grid = generateRandomGrid(size: config.gridSize, numberRange: config.numberRange, using: &rng)
         
         // Find all possible solutions
         let solutions = findAllSolutions(grid: grid, numberRange: config.numberRange)

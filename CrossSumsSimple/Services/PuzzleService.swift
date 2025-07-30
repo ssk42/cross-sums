@@ -376,7 +376,7 @@ public class PuzzleService: PuzzleServiceProtocol {
 // MARK: - Supporting Types
 
 /// Root structure for puzzle JSON data
-private struct PuzzleData: Codable {
+struct PuzzleData: Codable {
     let puzzles: [Puzzle]
 }
 
@@ -1053,19 +1053,5 @@ class EmbeddedPuzzleGenerator {
         }
         
         return columnSums
-    }
-}
-
-/// A simple seeded random number generator
-struct SeededRandomNumberGenerator: RandomNumberGenerator {
-    private var state: UInt64
-    
-    init(seed: UInt64) {
-        self.state = seed
-    }
-    
-    mutating func next() -> UInt64 {
-        state = state &* 1103515245 &+ 12345
-        return state
     }
 }
