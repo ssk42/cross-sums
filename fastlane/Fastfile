@@ -73,19 +73,51 @@ platform :ios do
     
     UI.message("✅ All API Key credentials are present")
     
-    # 4. Upload to TestFlight with explicit API Key authentication
-    UI.message("Uploading to TestFlight...")
-    upload_to_testflight(
-      ipa: ipa_path,
-      api_key: {
-        key_id: api_key_id,
-        issuer_id: issuer_id,
-        key_content: key_content
-      },
-      skip_waiting_for_build_processing: true,
-      changelog: "New build uploaded automatically from GitHub Actions.",
-      app_platform: "ios"
-    )
+    # Handle API key content format (decode base64 if needed)
+    UI.message("Processing API key content...")
+    
+    # Check if key content is base64 encoded (common in CI environments)
+    key_content_processed = if key_content.include?("\n") || key_content.start_with?("-----BEGIN")
+      UI.message("API key content appears to be in raw format")
+      key_content
+    else
+      UI.message("API key content appears to be base64 encoded, decoding...")
+      require 'base64'
+      begin
+        Base64.decode64(key_content)
+      rescue => e
+        UI.error("Failed to decode base64 key content: #{e.message}")
+        key_content  # Fallback to original content
+      end
+    end
+    
+    # Create temporary file for API key (Fastlane prefers file-based keys)
+    UI.message("Creating temporary API key file...")
+    require 'tempfile'
+    
+    temp_key_file = Tempfile.new(['api_key', '.p8'])
+    temp_key_file.write(key_content_processed)
+    temp_key_file.close
+    
+    UI.message("✅ API key file created at: #{temp_key_file.path}")
+    
+    begin
+      # 4. Upload to TestFlight using file-based API Key authentication
+      UI.message("Uploading to TestFlight...")
+      upload_to_testflight(
+        ipa: ipa_path,
+        api_key_path: temp_key_file.path,
+        api_key_id: api_key_id,
+        api_key_issuer_id: issuer_id,
+        skip_waiting_for_build_processing: true,
+        changelog: "New build uploaded automatically from GitHub Actions.",
+        app_platform: "ios"
+      )
+    ensure
+      # Clean up temporary file
+      temp_key_file.unlink if temp_key_file
+      UI.message("🗑️ Cleaned up temporary API key file")
+    end
 
     # You can add other steps here after the upload is complete.
     # For example, send a notification to a Slack channel.
