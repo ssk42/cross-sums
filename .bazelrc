@@ -2,9 +2,11 @@
 
 # Common settings for all builds
 build --apple_platform_type=ios
-# The problematic '--host_platform' flag has been removed. Bazel will auto-detect this.
 # Disable bzlmod to resolve conflicts with the WORKSPACE setup in the CI environment.
 build --enable_bzlmod=false
+# Help Bazel find the correct Xcode C++ toolchain for the Swift rules.
+build --xcode_version=15.2
+build --macos_show_xcode_path_warning
 
 # Specific settings for the 'ios_release' configuration used in the workflow.
 build:ios_release --compilation_mode=opt
