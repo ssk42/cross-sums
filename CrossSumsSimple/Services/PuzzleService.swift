@@ -82,33 +82,62 @@ public class PuzzleService: PuzzleServiceProtocol {
     private func createEmergencyPuzzle(difficulty: String, level: Int) -> Puzzle {
         print("🚨 Creating emergency puzzle for \(difficulty) level \(level)")
         
-        // Create a simple but valid puzzle that will always work
-        let size = 3 // Keep it simple
-        let grid = [
-            [1, 2, 3],
-            [4, 5, 6], 
-            [7, 8, 9]
-        ]
+        // Determine appropriate size based on difficulty
+        let size: Int
+        switch difficulty.lowercased() {
+        case "easy": size = 3
+        case "medium": size = 4
+        case "hard": size = 4
+        case "extra hard", "extrahard": size = 5
+        case "expert": size = 6
+        default: size = 3
+        }
         
-        // Create a valid solution pattern
-        let solution = [
-            [true, false, true],
-            [false, true, false],
-            [true, false, true]
-        ]
+        // Generate a simple grid with sequential numbers
+        var grid: [[Int]] = []
+        var number = 1
+        for _ in 0..<size {
+            var row: [Int] = []
+            for _ in 0..<size {
+                row.append(number)
+                number += 1
+            }
+            grid.append(row)
+        }
         
-        // Calculate sums
-        let rowSums = [
-            1 + 3,  // Row 0: 1 + 3 = 4
-            5,      // Row 1: 5 = 5
-            7 + 9   // Row 2: 7 + 9 = 16
-        ]
+        // Create a simple diagonal solution pattern that works for any size
+        var solution: [[Bool]] = []
+        for row in 0..<size {
+            var solutionRow: [Bool] = []
+            for col in 0..<size {
+                // Simple diagonal pattern with some variety
+                solutionRow.append((row + col) % 2 == 0)
+            }
+            solution.append(solutionRow)
+        }
         
-        let columnSums = [
-            1 + 7,  // Col 0: 1 + 7 = 8
-            5,      // Col 1: 5 = 5
-            3 + 9   // Col 2: 3 + 9 = 12
-        ]
+        // Calculate the actual sums based on the pattern
+        var rowSums: [Int] = []
+        for row in 0..<size {
+            var sum = 0
+            for col in 0..<size {
+                if solution[row][col] {
+                    sum += grid[row][col]
+                }
+            }
+            rowSums.append(sum)
+        }
+        
+        var columnSums: [Int] = []
+        for col in 0..<size {
+            var sum = 0
+            for row in 0..<size {
+                if solution[row][col] {
+                    sum += grid[row][col]
+                }
+            }
+            columnSums.append(sum)
+        }
         
         let puzzleId = "\(difficulty.lowercased())-\(level)"
         
@@ -126,7 +155,7 @@ public class PuzzleService: PuzzleServiceProtocol {
             self.generatedPuzzleCache[puzzleId] = emergencyPuzzle
         }
         
-        print("✅ Created and cached emergency puzzle: \(puzzleId)")
+        print("✅ Created and cached \(size)x\(size) emergency puzzle: \(puzzleId)")
         return emergencyPuzzle
     }
     
@@ -384,8 +413,8 @@ class EmbeddedPuzzleGenerator {
         static let hard = DifficultyConfig(
             baseGridSize: 4, 
             numberRange: 1...15, 
-            maxAttempts: 8,
-            keptCellsPercentage: 0.3...0.5,
+            maxAttempts: 15,  // Increased from 8 to 15 for better reliability
+            keptCellsPercentage: 0.25...0.55,  // Slightly relaxed from 0.3...0.5
             usesAdvancedPatterns: true
         )
         static let extraHard = DifficultyConfig(
