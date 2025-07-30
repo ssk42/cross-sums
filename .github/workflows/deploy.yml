@@ -34,7 +34,7 @@ jobs:
       - name: Select Xcode version
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.4.0'
+          xcode-version: '16.2.0'
 
       # 4. Clean Bazel cache to avoid stale dependencies
       - name: Clean Bazel cache
@@ -46,7 +46,7 @@ jobs:
       # use the correct version of Bazel for the build.
       - name: Build IPA with Bazel
         run: |
-          bazel build //CrossSumsSimple:CrossSumsSimple_ipa --config=ios_release --xcode_version=16.4.0 --ios_multi_cpus=sim_arm64 --apple_platform_type=ios --cpu=ios_sim_arm64 --verbose_failures
+          bazel build //CrossSumsSimple:CrossSumsSimple_ipa --config=ios_release --xcode_version=16.2.0 --ios_multi_cpus=sim_arm64 --apple_platform_type=ios --cpu=ios_sim_arm64 --verbose_failures
 
       # 6. Setup Ruby and Fastlane
       # This installs Ruby and your project's gems (like fastlane) from the Gemfile.
