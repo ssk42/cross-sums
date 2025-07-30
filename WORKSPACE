@@ -37,9 +37,23 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_swift/releases/download/1.17.0/rules_swift.1.17.0.tar.gz"],
 )
 
+# Repository providing Bazel feature detection utilities
+http_archive(
+    name = "bazel_features",
+    sha256 = "53182a68f172a2af4ad37051f82201e222bc19f7a40825b877da3ff4c922b9e0",
+    strip_prefix = "bazel_features-1.3.0",
+    urls = ["https://github.com/bazel-contrib/bazel_features/releases/download/v1.3.0/bazel_features-v1.3.0.tar.gz"],
+)
+
 load(
     "@build_bazel_rules_swift//swift:repositories.bzl",
     "swift_rules_dependencies",
 )
 
+load(
+    "@bazel_features//:deps.bzl",
+    "bazel_features_deps",
+)
+
 swift_rules_dependencies()
+bazel_features_deps()
