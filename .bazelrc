@@ -6,7 +6,6 @@ build --apple_platform_type=ios
 build --enable_bzlmod=false
 # Help Bazel find the correct Xcode C++ toolchain for the Swift rules.
 build --xcode_version=15.2
-build --macos_show_xcode_path_warning
 
 # Specific settings for the 'ios_release' configuration used in the workflow.
 build:ios_release --compilation_mode=opt
