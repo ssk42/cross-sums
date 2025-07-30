@@ -30,11 +30,11 @@ load(
 
 apple_rules_dependencies()
 
-# Swift's build rules for Bazel
+# Swift's build rules for Bazel - using older version for compatibility
 http_archive(
     name = "build_bazel_rules_swift",
-    sha256 = "bb01097c7c7a1407f8ad49a1a0b1960655cf823c26ad2782d0b7d15b323838e2",
-    urls = ["https://github.com/bazelbuild/rules_swift/releases/download/1.18.0/rules_swift.1.18.0.tar.gz"],
+    sha256 = "9bc9dc949062405412404c0f07f7323ba310f3f91f42af414ac27e338ba7bb8c",
+    urls = ["https://github.com/bazelbuild/rules_swift/releases/download/1.17.0/rules_swift.1.17.0.tar.gz"],
 )
 
 load(
@@ -43,8 +43,3 @@ load(
 )
 
 swift_rules_dependencies()
-
-# Setup Apple toolchain resolution
-load("@build_bazel_apple_support//lib:apple_support.bzl", "apple_common_setup")
-
-apple_common_setup()
