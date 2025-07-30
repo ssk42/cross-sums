@@ -5,14 +5,24 @@ default_platform(:ios)
 platform :ios do
   desc "Upload a build from Bazel to TestFlight"
   lane :beta do
-    # 1. Authenticate and Upload to TestFlight
+    # 1. Determine the IPA path
+    ipa_path = ENV['FASTLANE_IPA_PATH'] || File.expand_path('../bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa', __dir__)
+    
+    # 2. Validate that the IPA file exists
+    unless File.exist?(ipa_path)
+      UI.user_error!("IPA file not found at path: #{ipa_path}")
+    end
+    
+    UI.message("Using IPA file at: #{ipa_path}")
+    
+    # 3. Authenticate and Upload to TestFlight
     # Fastlane will automatically use the API Key from your GitHub secrets
     # and the app configuration (like app_identifier) from your Appfile.
     #
     # The 'build_app' step is GONE. We just upload the IPA from the path
     # that we received from the GitHub Actions environment variable.
     upload_to_testflight(
-      ipa: ENV['FASTLANE_IPA_PATH'] || File.expand_path('../bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa', __dir__), # <-- Path to the Bazel-built IPA
+      ipa: ipa_path,
       skip_waiting_for_build_processing: true,
       changelog: "New build uploaded automatically from GitHub Actions.",
       app_platform: "ios"
