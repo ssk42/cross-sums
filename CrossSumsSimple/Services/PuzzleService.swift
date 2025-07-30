@@ -1055,3 +1055,19 @@ class EmbeddedPuzzleGenerator {
         return columnSums
     }
 }
+
+// MARK: - Seeded Random Number Generator
+
+/// A simple seeded random number generator
+struct SeededRandomNumberGenerator: RandomNumberGenerator {
+    private var state: UInt64
+    
+    init(seed: UInt64) {
+        self.state = seed
+    }
+    
+    mutating func next() -> UInt64 {
+        state = state &* 1103515245 &+ 12345
+        return state
+    }
+}
