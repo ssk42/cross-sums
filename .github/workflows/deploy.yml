@@ -98,14 +98,41 @@ jobs:
           echo "📥 Installing certificate into system keychain..."
           sudo security import $CERTIFICATE_PATH -k /Library/Keychains/System.keychain -P "$IOS_DIST_SIGNING_KEY_PASSWORD" -T /usr/bin/codesign
           
-          # Verify certificate installation in system keychain
-          echo "✅ Verifying certificate installation..."
+          # Verify certificate installation and show detailed certificate information
+          echo "✅ Verifying certificate installation and type..."
+          
+          # Show all codesigning identities with full details
+          echo "📋 All available codesigning identities:"
           security find-identity -v -p codesigning
           
-          # Clean up certificate file
-          rm -f $CERTIFICATE_PATH
+          # Extract certificate details to check type
+          echo "🔍 Analyzing installed certificate type..."
+          TEMP_CERT_PATH=$RUNNER_TEMP/cert_for_analysis.pem
+          openssl pkcs12 -in $CERTIFICATE_PATH -clcerts -nokeys -out $TEMP_CERT_PATH -passin pass:"$IOS_DIST_SIGNING_KEY_PASSWORD"
+          INSTALLED_CERT_SUBJECT=$(openssl x509 -in $TEMP_CERT_PATH -noout -subject)
+          INSTALLED_CERT_TYPE=$(echo "$INSTALLED_CERT_SUBJECT" | sed -n 's/.*CN=\([^,/]*\).*/\1/p')
           
-          echo "🎉 Certificate installed successfully in system keychain!"
+          echo "📄 Installed Certificate Details:"
+          echo "Subject: $INSTALLED_CERT_SUBJECT"
+          echo "Certificate Type: $INSTALLED_CERT_TYPE"
+          
+          # Check if it's the correct type for TestFlight
+          if echo "$INSTALLED_CERT_TYPE" | grep -q "iPhone Distribution"; then
+            echo "✅ SUCCESS: Certificate type is 'iPhone Distribution' - correct for TestFlight"
+          elif echo "$INSTALLED_CERT_TYPE" | grep -q "iPhone Developer"; then
+            echo "❌ ERROR: Certificate type is 'iPhone Developer' - TestFlight requires 'iPhone Distribution'"
+            echo "Please export the iOS Distribution certificate from Keychain Access, not the Developer certificate"
+            exit 1
+          elif echo "$INSTALLED_CERT_TYPE" | grep -q "Apple Distribution"; then
+            echo "✅ SUCCESS: Certificate type is 'Apple Distribution' - correct for TestFlight"
+          else
+            echo "⚠️  WARNING: Unrecognized certificate type: $INSTALLED_CERT_TYPE"
+          fi
+          
+          # Clean up certificate files
+          rm -f $CERTIFICATE_PATH $TEMP_CERT_PATH
+          
+          echo "🎉 Certificate type verification completed!"
 
       # 7.2. Analyze provisioning profile and verify certificate compatibility
       - name: Verify certificate and provisioning profile compatibility
