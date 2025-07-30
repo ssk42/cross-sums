@@ -2,7 +2,7 @@
 
 # Common settings for all builds
 build --apple_platform_type=ios
-build --host_platform=@bazel_tools//platforms:mac
+# The problematic '--host_platform' flag has been removed. Bazel will auto-detect this.
 # Disable bzlmod to resolve conflicts with the WORKSPACE setup in the CI environment.
 build --enable_bzlmod=false
 
