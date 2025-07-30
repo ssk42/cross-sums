@@ -50,15 +50,19 @@ jobs:
 
       # 6. Setup Ruby and Fastlane
       # This installs Ruby and your project's gems (like fastlane) from the Gemfile.
-      # Using a more recent Ruby setup action for better compatibility.
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-          bundler: '2.4'
+          bundler-cache: true
           working-directory: ./fastlane # Specifies where to find the Gemfile
 
-      # 7. Run Fastlane to Deploy
+      # 7. Install Fastlane gems (explicit step to ensure they're available)
+      - name: Install Fastlane gems
+        working-directory: ./fastlane
+        run: bundle install
+
+      # 8. Run Fastlane to Deploy
       # This step runs inside the `./fastlane` directory.
       - name: Upload to TestFlight
         working-directory: ./fastlane
