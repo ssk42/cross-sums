@@ -46,6 +46,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		91117D852E3997DA00B7B0F3 /* Simple Cross Sums.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Simple Cross Sums.entitlements"; sourceTree = "<group>"; };
 		91A453AC2E3546C30013679A /* CrossSumsSimpleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = CrossSumsSimpleTests.xctest; path = "Simple Cross Sums Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		91A453BB2E3546D40013679A /* CrossSumsSimpleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = CrossSumsSimpleUITests.xctest; path = "Simple Cross Sums UI Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000001 /* CrossSumsSimpleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossSumsSimpleApp.swift; sourceTree = "<group>"; };
@@ -102,13 +103,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		91117D762E36D1AD00B7B0F3 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000022 /* GameKit.framework */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		AA0003001 = {
 			isa = PBXGroup;
 			children = (
+				91117D852E3997DA00B7B0F3 /* Simple Cross Sums.entitlements */,
 				AA0003002 /* CrossSumsSimple */,
 				91A453AD2E3546C30013679A /* CrossSumsTests */,
 				91A453BC2E3546D40013679A /* CrossSumsUITests */,
 				AA0003003 /* Products */,
+				91117D762E36D1AD00B7B0F3 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -616,6 +627,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = "Simple Cross Sums.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = J4QUKKF6V3;
@@ -649,6 +661,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = "Simple Cross Sums.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = J4QUKKF6V3;
