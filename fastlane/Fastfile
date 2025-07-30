@@ -14,7 +14,8 @@ platform :ios do
     upload_to_testflight(
       ipa: ENV['FASTLANE_IPA_PATH'], # <-- Path to the Bazel-built IPA
       skip_waiting_for_build_processing: true,
-      changelog: "New build uploaded automatically from GitHub Actions."
+      changelog: "New build uploaded automatically from GitHub Actions.",
+      app_platform: "ios"
     )
 
     # You can add other steps here after the upload is complete.
