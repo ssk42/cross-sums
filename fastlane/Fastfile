@@ -104,13 +104,14 @@ platform :ios do
     begin
       # 4. Upload to TestFlight using file-based API Key authentication
       UI.message("Uploading to TestFlight...")
+      UI.message("Debug: Using API key file at: #{temp_key_file.path}")
+      UI.message("Debug: File exists: #{File.exist?(temp_key_file.path)}")
+      UI.message("Debug: File size: #{File.size(temp_key_file.path)} bytes") if File.exist?(temp_key_file.path)
+      
+      # Try the simple api_key_path approach first
       upload_to_testflight(
         ipa: ipa_path,
-        api_key: {
-          key_id: api_key_id,
-          issuer_id: issuer_id,
-          key_filepath: temp_key_file.path
-        },
+        api_key_path: temp_key_file.path,
         skip_waiting_for_build_processing: true,
         changelog: "New build uploaded automatically from GitHub Actions.",
         app_platform: "ios"
