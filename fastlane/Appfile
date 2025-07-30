@@ -4,7 +4,7 @@
 # Fastlane actions will automatically use these values.
 
 # The bundle identifier of your app, found from your Xcode project.
-app_identifier("com.skatekey.CrossSumsSimple")
+app_identifier("com.crosssumssimple.app")
 
 # -------------------
 # Fill these in
