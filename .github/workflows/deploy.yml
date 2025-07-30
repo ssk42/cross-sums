@@ -23,12 +23,12 @@ jobs:
       - name: Select Xcode version
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.4' # <-- Change to your project's Xcode version if needed
+          xcode-version: '15.2' # <-- Change to your project's Xcode version if needed
 
       # 3. Setup Bazel
       # This action installs and caches the Bazel binary.
       - name: Setup Bazel
-        uses: bazelbuild/setup-bazel@v1
+        uses: bazelbuild/setup-bazel@v2 # <-- Updated from v1 to v2 to fix the error
         with:
           version: '7.1.1' # <-- Change to your project's Bazel version if needed
 
@@ -61,4 +61,3 @@ jobs:
         run: |
           cd fastlane
           bundle exec fastlane beta
-          
