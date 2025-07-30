@@ -1,0 +1,10 @@
+# .bazelrc
+
+# Common settings for all builds
+build --apple_platform_type=ios
+build --host_platform=@bazel_tools//platforms:mac
+
+# Specific settings for the 'ios_release' configuration used in the workflow
+build:ios_release --compilation_mode=opt
+build:ios_release --apple_enable_auto_dsym_upload=true
+build:ios_release --ios_multi_cpus=arm64,sim_arm64

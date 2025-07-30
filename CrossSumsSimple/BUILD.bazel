@@ -3,37 +3,30 @@
 load("@build_bazel_rules_apple//apple:ios.bzl", "ios_application")
 load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
 
-# This target compiles all your Swift source files for the app.
-# The glob function finds all .swift files within the CrossSumsSimple directory.
+# This rule defines a library containing all your Swift source code.
+# The 'data' attribute is added to include all your resources, such as
+# asset catalogs (.xcassets) and JSON puzzle files.
 swift_library(
-    name = "CrossSumsSimpleSources",
-    srcs = glob([
-        "Model/**/*.swift",
-        "Services/**/*.swift",
-        "View/**/*.swift",
-        "ViewModel/**/*.swift",
-        "CrossSumsSimpleApp.swift",
+    name = "CrossSumsSimple_lib",
+    srcs = glob(["**/*.swift"]),
+    data = glob([
+        "Resources/**",
     ]),
-    # Add dependencies on other libraries here if needed in the future
-    deps = [],
+    visibility = ["//visibility:public"],
 )
 
-# This is the main target that defines your iOS application.
+# This rule defines the final iOS application.
 ios_application(
-    name = "CrossSumsSimple",
-    bundle_id = "com.skatekey.CrossSumsSimple",
-    families = ["iphone", "ipad"],
-    infoplists = [":Info.plist"],
-    minimum_os_version = "15.0", # <-- You can adjust this if needed
-    # IMPORTANT: You must create and reference your App Store provisioning profile here.
-    provisioning_profile = "//CrossSumsSimple/Provisioning:CrossSumsSimple_AppStore.mobileprovision",
-    # This links your compiled Swift code into the final app.
-    deps = [":CrossSumsSimpleSources"],
-)
-
-# This target packages the compiled .app into a distributable .ipa file.
-# This is the specific target our GitHub Actions workflow will build.
-ios_application_ipa(
     name = "CrossSumsSimple_ipa",
-    app = ":CrossSumsSimple",
+    bundle_id = "com.crosssums.simple",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    infoplists = [":Info.plist"],
+    minimum_os_version = "15.0",
+    # The problematic 'provisioning_profile' attribute has been removed.
+    # Fastlane will handle code signing during the deployment step.
+    deps = [":CrossSumsSimple_lib"],
+    visibility = ["//visibility:public"],
 )
