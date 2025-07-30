@@ -46,7 +46,14 @@ jobs:
       # use the correct version of Bazel for the build.
       - name: Build IPA with Bazel
         run: |
-          bazel build //CrossSumsSimple:CrossSumsSimple_device_ipa --config=ios_device --xcode_version=16.2.0 --verbose_failures
+          # Use specific certificate identity if available
+          if [ -n "$CERTIFICATE_IDENTITY" ]; then
+            echo "🔐 Building with specific certificate identity: $CERTIFICATE_IDENTITY"
+            bazel build //CrossSumsSimple:CrossSumsSimple_device_ipa --config=ios_device --xcode_version=16.2.0 --ios_signing_cert_name="$CERTIFICATE_IDENTITY" --verbose_failures
+          else
+            echo "🔐 Building with default certificate selection"
+            bazel build //CrossSumsSimple:CrossSumsSimple_device_ipa --config=ios_device --xcode_version=16.2.0 --verbose_failures
+          fi
 
       # 5.5. Debug - List bazel-bin contents to verify IPA location
       - name: Debug - List bazel-bin contents
@@ -112,6 +119,51 @@ jobs:
           security find-identity -v -p codesigning
           
           echo "🎉 Certificate installation completed!"
+
+      # 7.2. Analyze provisioning profile and verify certificate compatibility
+      - name: Verify certificate and provisioning profile compatibility
+        run: |
+          echo "🔍 Analyzing provisioning profile and certificate compatibility..."
+          
+          PROVISIONING_PROFILE_PATH="CrossSumsSimple/CrossSumsSimple_AppStore.mobileprovision"
+          
+          # Extract provisioning profile contents
+          echo "📄 Extracting provisioning profile contents..."
+          security cms -D -i "$PROVISIONING_PROFILE_PATH" > /tmp/profile.plist
+          
+          # Show provisioning profile details
+          echo "📋 Provisioning Profile Details:"
+          echo "Name: $(/usr/libexec/PlistBuddy -c 'Print Name' /tmp/profile.plist)"
+          echo "Team ID: $(/usr/libexec/PlistBuddy -c 'Print TeamIdentifier:0' /tmp/profile.plist)"
+          echo "Bundle ID: $(/usr/libexec/PlistBuddy -c 'Print Entitlements:application-identifier' /tmp/profile.plist)"
+          echo "Expiry: $(/usr/libexec/PlistBuddy -c 'Print ExpirationDate' /tmp/profile.plist)"
+          
+          # Extract certificate identity from provisioning profile
+          echo "🔐 Expected Certificate Identity from Provisioning Profile:"
+          /usr/libexec/PlistBuddy -c 'Print DeveloperCertificates:0' /tmp/profile.plist > /tmp/cert.der
+          EXPECTED_IDENTITY=$(openssl x509 -inform DER -noout -subject -in /tmp/cert.der | sed 's/.*CN=\([^\/]*\).*/\1/')
+          echo "Expected: $EXPECTED_IDENTITY"
+          
+          # Show available certificates in keychain
+          echo "🔑 Available Signing Identities in Keychain:"
+          security find-identity -v -p codesigning
+          
+          # Check if expected identity is available
+          echo "✅ Checking certificate compatibility..."
+          if security find-identity -v -p codesigning | grep -q "$EXPECTED_IDENTITY"; then
+            echo "✅ SUCCESS: Found matching certificate identity in keychain!"
+            echo "CERTIFICATE_IDENTITY=$EXPECTED_IDENTITY" >> $GITHUB_ENV
+          else
+            echo "❌ ERROR: Expected certificate identity not found in keychain!"
+            echo "Expected: $EXPECTED_IDENTITY"
+            echo "Available identities:"
+            security find-identity -v -p codesigning
+            exit 1
+          fi
+          
+          # Clean up temporary files
+          rm -f /tmp/profile.plist /tmp/cert.der
+          echo "🎯 Certificate verification completed successfully!"
 
       # 7.5. Find and set IPA path dynamically with robust fallback
       - name: Find IPA file and set path
