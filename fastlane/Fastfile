@@ -12,7 +12,7 @@ platform :ios do
     # The 'build_app' step is GONE. We just upload the IPA from the path
     # that we received from the GitHub Actions environment variable.
     upload_to_testflight(
-      ipa: ENV['FASTLANE_IPA_PATH'] || '../bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa', # <-- Path to the Bazel-built IPA
+      ipa: ENV['FASTLANE_IPA_PATH'] || File.expand_path('../bazel-bin/CrossSumsSimple/CrossSumsSimple_ipa.ipa', __dir__), # <-- Path to the Bazel-built IPA
       skip_waiting_for_build_processing: true,
       changelog: "New build uploaded automatically from GitHub Actions.",
       app_platform: "ios"
