@@ -79,46 +79,33 @@ jobs:
         run: bundle install
 
       # 7.1. Install iOS Distribution Certificate for Code Signing
-      # This step manually installs the distribution certificate needed for device builds
+      # This step installs the certificate directly into the system keychain for Bazel sandbox access
       - name: Install iOS Distribution Certificate
         env:
           IOS_DIST_SIGNING_KEY: ${{ secrets.IOS_DIST_SIGNING_KEY }}
           IOS_DIST_SIGNING_KEY_PASSWORD: ${{ secrets.IOS_DIST_SIGNING_KEY_PASSWORD }}
-          KEYCHAIN_PASSWORD: "temp-keychain-password-12345"
         run: |
-          echo "🔐 Setting up code signing certificate..."
+          echo "🔐 Installing certificate into system keychain for Bazel sandbox access..."
           
-          # Create variables for paths
+          # Create variable for certificate path
           CERTIFICATE_PATH=$RUNNER_TEMP/ios_distribution.p12
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           
           # Decode base64 certificate and save to file
           echo "📄 Decoding certificate from secrets..."
           echo -n "$IOS_DIST_SIGNING_KEY" | base64 --decode -o $CERTIFICATE_PATH
           
-          # Create temporary keychain
-          echo "🔑 Creating temporary keychain..."
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          # Import certificate directly into system keychain with codesign tool access
+          echo "📥 Installing certificate into system keychain..."
+          sudo security import $CERTIFICATE_PATH -k /Library/Keychains/System.keychain -P "$IOS_DIST_SIGNING_KEY_PASSWORD" -T /usr/bin/codesign
           
-          # Import certificate into keychain
-          echo "📥 Importing certificate into keychain..."
-          security import $CERTIFICATE_PATH -k $KEYCHAIN_PATH -P "$IOS_DIST_SIGNING_KEY_PASSWORD" -T /usr/bin/codesign
-          
-          # Set the keychain as default
-          echo "⚙️  Setting keychain as default..."
-          security list-keychains -d user -s $KEYCHAIN_PATH login.keychain
-          
-          # Allow codesign to access the certificate
-          echo "🔓 Setting certificate access permissions..."
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          
-          # Verify certificate installation
+          # Verify certificate installation in system keychain
           echo "✅ Verifying certificate installation..."
           security find-identity -v -p codesigning
           
-          echo "🎉 Certificate installation completed!"
+          # Clean up certificate file
+          rm -f $CERTIFICATE_PATH
+          
+          echo "🎉 Certificate installed successfully in system keychain!"
 
       # 7.2. Analyze provisioning profile and verify certificate compatibility
       - name: Verify certificate and provisioning profile compatibility
