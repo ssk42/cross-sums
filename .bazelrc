@@ -5,14 +5,8 @@ build --apple_platform_type=ios
 # Disable bzlmod to resolve conflicts with the WORKSPACE setup in the CI environment.
 build --enable_bzlmod=false
 
-# Xcode and toolchain configuration
+# Xcode version for CI compatibility
 build --xcode_version=15.2
-# Enable modern C++ toolchain resolution
-build --incompatible_enable_cc_toolchain_resolution
-
-# Apple-specific configuration for CI
-build --host_force_python=PY3
-build --macos_cpus=arm64
 
 # Specific settings for the 'ios_release' configuration used in the workflow.
 build:ios_release --compilation_mode=opt
