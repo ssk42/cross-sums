@@ -8,6 +8,14 @@ build --enable_bzlmod=false
 # Xcode version for CI compatibility
 build --xcode_version=15.2
 
+# Explicit toolchain configuration for iOS builds
+build --crosstool_top=@local_config_apple_cc//:toolchain
+build --host_crosstool_top=@local_config_apple_cc//:toolchain
+
+# Additional configuration for CI stability
+build --host_force_python=PY3
+build --incompatible_enable_cc_toolchain_resolution
+
 # Specific settings for the 'ios_release' configuration used in the workflow.
 build:ios_release --compilation_mode=opt
 build:ios_release --ios_multi_cpus=arm64,sim_arm64
