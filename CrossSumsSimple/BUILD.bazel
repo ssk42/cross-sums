@@ -38,7 +38,7 @@ ios_application(
         "ipad",
     ],
     infoplists = ["Info.plist"],
-    minimum_os_version = "15.0",
+    minimum_os_version = "18.0",
     deps = [":CrossSumsSimple_lib"],
     # Add support for simulator builds
     provisioning_profile = None,  # Explicitly set to None for simulator builds
