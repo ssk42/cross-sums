@@ -10,8 +10,8 @@ app_identifier("com.crosssumssimple.app")
 # Fill these in
 # -------------------
 
-# Your Apple ID email address.
-apple_id("sthreitz@gmail.com") # <-- Uncomment and fill this in
+# Your Apple ID email address (commented out when using API Key authentication)
+# apple_id("sthreitz@gmail.com") # <-- Used for username/password auth, disabled for API Key auth
 
 # Your Apple Developer Portal Team ID.
 # Find it at: https://developer.apple.com/account/#/membership/

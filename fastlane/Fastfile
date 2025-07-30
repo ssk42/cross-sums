@@ -51,14 +51,37 @@ platform :ios do
     
     UI.message("Using IPA file at: #{ipa_path}")
     
-    # 3. Authenticate and Upload to TestFlight
-    # Fastlane will automatically use the API Key from your GitHub secrets
-    # and the app configuration (like app_identifier) from your Appfile.
-    #
-    # The 'build_app' step is GONE. We just upload the IPA from the path
-    # that we received from the GitHub Actions environment variable.
+    # 3. Configure App Store Connect API Key Authentication
+    UI.message("Configuring App Store Connect API Key authentication...")
+    
+    # Verify that all required API Key environment variables are present
+    api_key_id = ENV['APP_STORE_CONNECT_API_KEY_ID']
+    issuer_id = ENV['APP_STORE_CONNECT_ISSUER_ID'] 
+    key_content = ENV['APP_STORE_CONNECT_API_KEY_CONTENT']
+    
+    if api_key_id.nil? || api_key_id.empty?
+      UI.user_error!("APP_STORE_CONNECT_API_KEY_ID environment variable is missing")
+    end
+    
+    if issuer_id.nil? || issuer_id.empty?
+      UI.user_error!("APP_STORE_CONNECT_ISSUER_ID environment variable is missing")
+    end
+    
+    if key_content.nil? || key_content.empty?
+      UI.user_error!("APP_STORE_CONNECT_API_KEY_CONTENT environment variable is missing")
+    end
+    
+    UI.message("✅ All API Key credentials are present")
+    
+    # 4. Upload to TestFlight with explicit API Key authentication
+    UI.message("Uploading to TestFlight...")
     upload_to_testflight(
       ipa: ipa_path,
+      api_key: {
+        key_id: api_key_id,
+        issuer_id: issuer_id,
+        key_content: key_content
+      },
       skip_waiting_for_build_processing: true,
       changelog: "New build uploaded automatically from GitHub Actions.",
       app_platform: "ios"
