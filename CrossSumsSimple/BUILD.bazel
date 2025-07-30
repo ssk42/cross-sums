@@ -32,7 +32,7 @@ swift_library(
 # This rule defines the final iOS application.
 ios_application(
     name = "CrossSumsSimple_ipa",
-    bundle_id = "com.crosssums.simple",
+    bundle_id = "com.crosssumssimple.app",
     families = [
         "iphone",
         "ipad",
