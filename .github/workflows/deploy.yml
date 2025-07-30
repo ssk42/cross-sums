@@ -28,7 +28,7 @@ jobs:
       # 3. Setup Bazel
       # This action installs and caches the Bazel binary.
       - name: Setup Bazel
-        uses: bazelbuild/setup-bazel@v4 # <-- Updated from v2 to v4 to fix the error
+        uses: bazelbuild/setup-bazel@v3 # <-- Corrected version to v3
         with:
           version: '7.1.1' # <-- Change to your project's Bazel version if needed
 
