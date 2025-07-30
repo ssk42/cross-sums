@@ -325,17 +325,3 @@ class PuzzleGenerator {
 
 // MARK: - Seeded Random Number Generator
 
-/// A random number generator that uses a seed for reproducible results
-struct SeededRandomNumberGenerator: RandomNumberGenerator {
-    private var state: UInt64
-    
-    init(seed: UInt64) {
-        self.state = seed
-    }
-    
-    mutating func next() -> UInt64 {
-        // Linear congruential generator
-        state = state &* 1103515245 &+ 12345
-        return state
-    }
-}

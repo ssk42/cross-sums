@@ -19,12 +19,12 @@ swift_library(
         "View/Popups/LevelCompleteView.swift",
         "View/MainMenu/MainMenuView.swift",
         "View/Reusable/PuzzleCellView.swift",
-        "Services/PuzzleGenerator.swift",
         "Services/PuzzleService.swift",
         "Services/AchievementTracker.swift",
         "Services/PersistenceService.swift",
         "Services/GameCenterManager.swift",
         "ViewModel/GameViewModel.swift",
+        
     ],
     visibility = ["//visibility:public"],
 )
