@@ -30,11 +30,11 @@ load(
 
 apple_rules_dependencies()
 
-# Swift's build rules for Bazel - using stable version 1.15.0
+# Swift's build rules for Bazel - using a different version
 http_archive(
     name = "build_bazel_rules_swift",
-    sha256 = "7a9f6b16ef71d54485b1f7a0c8d58815461c4d5ba356c0108b8dbe92d354ff7b",
-    urls = ["https://github.com/bazelbuild/rules_swift/releases/download/1.15.0/rules_swift.1.15.0.tar.gz"],
+    sha256 = "28a66ff5d97500f0304f4e8945d936fe0584e0d5b7a6f83258298007a93190ba",
+    urls = ["https://github.com/bazelbuild/rules_swift/releases/download/1.13.0/rules_swift.1.13.0.tar.gz"],
 )
 
 load(
