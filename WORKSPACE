@@ -30,7 +30,7 @@ load(
 
 apple_rules_dependencies()
 
-# Swift's build rules for Bazel - using older version for compatibility
+# Swift's build rules for Bazel
 http_archive(
     name = "build_bazel_rules_swift",
     sha256 = "9bc9dc949062405412404c0f07f7323ba310f3f91f42af414ac27e338ba7bb8c",
