@@ -6,7 +6,7 @@ build --apple_platform_type=ios
 build --enable_bzlmod=false
 
 # Xcode version for CI compatibility
-build --xcode_version=16.4.0.16F6
+build --xcode_version=16.4.0
 
 # Explicit toolchain configuration for iOS builds
 build --crosstool_top=@local_config_apple_cc//:toolchain
