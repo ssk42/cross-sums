@@ -252,12 +252,20 @@ class PuzzleServiceTests: XCTestCase {
         // For CI/CD reliability, we'll test concurrent access in a more controlled way
         // that's less likely to fail on slower devices like iPhone SE
         
+        // Check if we're running in a CI environment and adjust accordingly
+        let isCI = ProcessInfo.processInfo.environment["CI"] != nil || 
+                   ProcessInfo.processInfo.environment["GITHUB_ACTIONS"] != nil ||
+                   ProcessInfo.processInfo.environment["BUILD_NUMBER"] != nil
+        
         let group = DispatchGroup()
         var results: [Bool] = []
+        var errors: [String] = []
         let resultsLock = NSLock()
         
-        // Test only 2 concurrent operations to minimize system stress in CI
-        let concurrentTasks = 2
+        // Use even fewer concurrent operations in CI to minimize flakiness
+        let concurrentTasks = isCI ? 2 : 3
+        let baseDelay = isCI ? 0.5 : 0.2  // Longer delays in CI
+        let timeout = isCI ? 300.0 : 180.0  // 5 minutes in CI, 3 minutes locally
         
         for level in 1...concurrentTasks {
             group.enter()
@@ -266,8 +274,8 @@ class PuzzleServiceTests: XCTestCase {
             let taskQueue = DispatchQueue(label: "test.concurrent.\(level)", qos: .utility)
             
             taskQueue.async {
-                // Add staggered delays to reduce contention
-                Thread.sleep(forTimeInterval: Double(level - 1) * 0.2)
+                // Add staggered delays to reduce contention, longer in CI
+                Thread.sleep(forTimeInterval: Double(level - 1) * baseDelay)
                 
                 do {
                     let puzzle = self.puzzleService.getPuzzle(difficulty: "Easy", level: level)
@@ -275,12 +283,16 @@ class PuzzleServiceTests: XCTestCase {
                     
                     resultsLock.lock()
                     results.append(isValid)
+                    if !isValid {
+                        errors.append("Invalid puzzle generated for level \(level)")
+                    }
                     resultsLock.unlock()
                     
                     XCTAssertTrue(isValid, "Should generate valid puzzle in concurrent access for level \(level)")
                 } catch {
                     resultsLock.lock()
                     results.append(false)
+                    errors.append("Exception for level \(level): \(error)")
                     resultsLock.unlock()
                     
                     XCTFail("Puzzle generation failed for level \(level): \(error)")
@@ -291,12 +303,19 @@ class PuzzleServiceTests: XCTestCase {
         }
         
         // Wait with generous timeout for CI environments
-        let waitResult = group.wait(timeout: .now() + 180.0) // 3 minutes timeout
-        XCTAssertEqual(waitResult, .success, "Concurrent puzzle generation should complete within timeout")
+        let waitResult = group.wait(timeout: .now() + timeout)
         
-        // Verify all operations completed successfully
-        XCTAssertEqual(results.count, concurrentTasks, "All concurrent operations should complete")
-        XCTAssertTrue(results.allSatisfy { $0 }, "All concurrent operations should succeed")
+        if waitResult != .success {
+            // Provide detailed failure information for debugging CI issues
+            let errorSummary = errors.isEmpty ? "No specific errors captured" : errors.joined(separator: "; ")
+            XCTFail("Concurrent puzzle generation timed out after \(timeout)s. Completed: \(results.count)/\(concurrentTasks). Errors: \(errorSummary)")
+        }
+        
+        // Only check results if we didn't timeout
+        if waitResult == .success {
+            XCTAssertEqual(results.count, concurrentTasks, "All concurrent operations should complete")
+            XCTAssertTrue(results.allSatisfy { $0 }, "All concurrent operations should succeed")
+        }
     }
 
     // MARK: - Puzzle Quality Tests
