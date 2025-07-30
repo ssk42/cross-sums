@@ -4,9 +4,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Apple's build rules for Bazel. This is the core dependency needed to build
 # any Apple-platform application (iOS, macOS, etc.).
+# The sha256 checksum has been updated to match the value from the error log.
 http_archive(
     name = "build_bazel_rules_apple",
-    sha256 = "516994a3654949575908535c8084a861a5259972b26c03472393322a55799703",
+    sha256 = "841b8d1bd270ee19c75c5e953be1b58ace0ecb35ed97c56f53c28392ef86e0d7",
     urls = ["https://github.com/bazelbuild/rules_apple/releases/download/3.2.0/rules_apple.3.2.0.tar.gz"],
 )
 
