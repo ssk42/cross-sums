@@ -37,10 +37,10 @@ jobs:
           xcode-version: '15.2'
 
       # 4. Setup Bazel
-      # This is the official and current action for installing Bazel on a runner.
-      # The version has been corrected to @v4.
+      # Using the full commit hash instead of the @v4 tag to prevent resolution issues.
+      # This points directly to the v4.0.0 release.
       - name: Setup Bazel
-        uses: bazelbuild/setup-bazel@v4
+        uses: bazelbuild/setup-bazel@39e06972a5333159b1d2493310053a4e76a6d56f
         with:
           bazel-version: '7.1.1'
 
