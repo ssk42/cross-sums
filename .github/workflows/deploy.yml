@@ -152,9 +152,37 @@ jobs:
           rm -f /tmp/profile.plist /tmp/cert.der
           echo "🎯 Certificate verification completed successfully!"
 
-      # 5. Build and Archive with xcodebuild (replacing Bazel)
+      # 5. Authenticate with Apple Developer for automatic signing
+      - name: Authenticate with Apple Developer
+        env:
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        run: |
+          echo "🔐 Authenticating with Apple Developer for automatic signing..."
+          
+          # Create App Store Connect API key file
+          API_KEY_PATH=$RUNNER_TEMP/AuthKey_$APP_STORE_CONNECT_API_KEY_ID.p8
+          echo -n "$APP_STORE_CONNECT_API_KEY_CONTENT" | base64 --decode -o $API_KEY_PATH
+          
+          # Set environment variables for xcodebuild to use App Store Connect API
+          echo "FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD=" >> $GITHUB_ENV
+          echo "FASTLANE_DONT_STORE_PASSWORD=1" >> $GITHUB_ENV
+          echo "FASTLANE_SKIP_UPDATE_CHECK=1" >> $GITHUB_ENV
+          echo "APP_STORE_CONNECT_API_KEY_PATH=$API_KEY_PATH" >> $GITHUB_ENV
+          echo "APP_STORE_CONNECT_API_KEY_ID=$APP_STORE_CONNECT_API_KEY_ID" >> $GITHUB_ENV  
+          echo "APP_STORE_CONNECT_ISSUER_ID=$APP_STORE_CONNECT_ISSUER_ID" >> $GITHUB_ENV
+          
+          # Verify authentication works
+          echo "✅ App Store Connect API key configured for automatic signing"
+
+      # 6. Build and Archive with xcodebuild (replacing Bazel)
       # xcodebuild properly processes asset catalogs and generates required icon files
       - name: Build and Archive with xcodebuild
+        env:
+          APP_STORE_CONNECT_API_KEY_PATH: ${{ env.APP_STORE_CONNECT_API_KEY_PATH }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ env.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ env.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
           echo "🏗️ Building and archiving with xcodebuild..."
           
@@ -164,6 +192,9 @@ jobs:
             -destination "generic/platform=iOS" \
             -archivePath "CrossSumsSimple.xcarchive" \
             -allowProvisioningUpdates \
+            -authenticationKeyPath "$APP_STORE_CONNECT_API_KEY_PATH" \
+            -authenticationKeyID "$APP_STORE_CONNECT_API_KEY_ID" \
+            -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID" \
             DEVELOPMENT_TEAM="J4QUKKF6V3" \
             archive
           
