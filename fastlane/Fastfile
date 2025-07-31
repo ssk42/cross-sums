@@ -112,48 +112,18 @@ platform :ios do
     
     UI.message("✅ App Store Connect API Key configured successfully")
     
-    # 5. Upload to TestFlight and add testers
+    # 5. Upload to TestFlight with internal testers
     UI.message("Uploading to TestFlight...")
     upload_to_testflight(
       ipa: ipa_path,
       skip_waiting_for_build_processing: true,
       changelog: "New build uploaded automatically from GitHub Actions.",
-      app_platform: "ios"
+      app_platform: "ios",
+      beta_testers: ["sthreitz@gmail.com"]  # Add internal testers during upload
     )
 
-    # 6. Add internal testers
-    UI.message("Adding internal testers...")
-    internal_testers = [
-      "sthreitz@gmail.com"
-    ]
-    
-    internal_testers.each do |email|
-      UI.message("Adding internal tester: #{email}")
-      pilot(
-        distribute_external: false,  # Internal testers only
-        notify_external_testers: false,
-        email: email
-      )
-    end
-
-    # 7. Add external testers (fan group)
-    UI.message("Adding external testers...")
-    external_testers = [
-      "seserwom@gmail.com",
-      "spludking@gmail.com", 
-      "kelly.maranch@gmail.com"
-    ]
-    
-    external_testers.each do |email|
-      UI.message("Adding external tester: #{email}")
-      pilot(
-        distribute_external: true,
-        notify_external_testers: true,
-        email: email
-      )
-    end
-
-    puts "Build successfully uploaded to TestFlight and testers added!"
+    puts "Build successfully uploaded to TestFlight with internal testers!"
+    puts "Note: External testers require manual addition through App Store Connect"
   end
 
   desc "Add internal testers to TestFlight"
