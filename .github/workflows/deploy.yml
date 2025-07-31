@@ -210,7 +210,10 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath "CrossSumsSimple.xcarchive" \
             -exportPath "." \
-            -exportOptionsPlist "exportOptions.plist"
+            -exportOptionsPlist "exportOptions.plist" \
+            -authenticationKeyPath "$API_KEY_PATH" \
+            -authenticationKeyID "$APP_STORE_CONNECT_API_KEY_ID" \
+            -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID"
           
           echo "✅ IPA export completed"
 
