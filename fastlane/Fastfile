@@ -121,16 +121,10 @@ platform :ios do
       app_platform: "ios"
     )
 
-    # 6. Add internal testers automatically
+    # 6. Add internal testers automatically (no need to re-upload)
     UI.message("Adding internal testers...")
-    pilot(
-      ipa: ipa_path,
-      skip_waiting_for_build_processing: true,
-      distribute_external: false,  # Internal testers only
-      notify_external_testers: false,
-      changelog: "New build uploaded automatically from GitHub Actions.",
-      app_platform: "ios"
-    )
+    # Note: upload_to_testflight already handles internal distribution
+    # No need for additional pilot upload
 
     puts "Build successfully uploaded to TestFlight and added to internal testers!"
   end
