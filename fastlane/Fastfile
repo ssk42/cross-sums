@@ -134,4 +134,24 @@ platform :ios do
 
     puts "Build successfully uploaded to TestFlight and added to internal testers!"
   end
+
+  desc "Add internal testers to TestFlight"
+  lane :add_internal_testers do
+    # Add internal testers by email
+    # Replace these with your actual team member emails
+    internal_testers = [
+      "sthreitz@gmail.com"
+    ]
+    
+    internal_testers.each do |email|
+      UI.message("Adding internal tester: #{email}")
+      pilot(
+        distribute_external: false,
+        notify_external_testers: false,
+        email: email
+      )
+    end
+    
+    puts "Internal testers added successfully!"
+  end
 end
