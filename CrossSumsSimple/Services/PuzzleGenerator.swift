@@ -4,7 +4,7 @@ import Foundation
 ///
 /// PuzzleGenerator creates valid Cross Sums puzzles algorithmically, ensuring each puzzle
 /// has exactly one unique solution and appropriate difficulty scaling.
-class PuzzleGenerator {
+public class PuzzleGenerator {
     
     // MARK: - Constants
     
@@ -41,7 +41,7 @@ class PuzzleGenerator {
     ///   - difficulty: The difficulty level (Easy, Medium, Hard, Extra Hard)
     ///   - level: The level number (used for seeding)
     /// - Returns: A generated Puzzle, or nil if generation failed
-    func generatePuzzle(difficulty: String, level: Int) -> Puzzle? {
+    public func generatePuzzle(difficulty: String, level: Int) -> Puzzle? {
         print("🎲 Generating puzzle for \(difficulty) level \(level)")
         
         guard let config = getDifficultyConfig(for: difficulty) else {
