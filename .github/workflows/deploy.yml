@@ -165,7 +165,7 @@ jobs:
           # Create App Store Connect API key file for authentication
           echo "🔐 Setting up Apple Developer authentication..."
           API_KEY_PATH=$RUNNER_TEMP/AuthKey.p8
-          echo -n "$APP_STORE_CONNECT_API_KEY_CONTENT" | base64 --decode -o $API_KEY_PATH
+          echo -n "$APP_STORE_CONNECT_API_KEY_CONTENT" > $API_KEY_PATH
           
           # Set proper permissions on the API key file
           chmod 600 $API_KEY_PATH
