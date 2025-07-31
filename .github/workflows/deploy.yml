@@ -40,45 +40,7 @@ jobs:
       - name: Clean Bazel cache
         run: bazel clean --expunge
 
-      # 5. Build IPA with Bazel (for device deployment to TestFlight)
-      # The 'Install Bazel' step has been removed. The GitHub runner has 'bazelisk'
-      # pre-installed, which will read the .bazelversion file and automatically
-      # use the correct version of Bazel for the build.
-      - name: Build IPA with Bazel
-        run: |
-          # Use specific certificate identity if available
-          if [ -n "$CERTIFICATE_IDENTITY" ]; then
-            echo "🔐 Building with specific certificate identity: $CERTIFICATE_IDENTITY"
-            bazel build //CrossSumsSimple:CrossSumsSimple_device_ipa --config=ios_device --xcode_version=16.2.0 --ios_signing_cert_name="$CERTIFICATE_IDENTITY" --verbose_failures
-          else
-            echo "🔐 Building with default certificate selection"
-            bazel build //CrossSumsSimple:CrossSumsSimple_device_ipa --config=ios_device --xcode_version=16.2.0 --verbose_failures
-          fi
-
-      # 5.5. Debug - List bazel-bin contents to verify IPA location
-      - name: Debug - List bazel-bin contents
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Contents of bazel-bin:"
-          find bazel-bin -name "*.ipa" -type f 2>/dev/null || echo "No .ipa files found in bazel-bin"
-          echo "Contents of bazel-bin/CrossSumsSimple (if exists):"
-          ls -la bazel-bin/CrossSumsSimple/ 2>/dev/null || echo "bazel-bin/CrossSumsSimple directory not found"
-
-      # 6. Setup Ruby and Fastlane
-      # This installs Ruby and your project's gems (like fastlane) from the Gemfile.
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-          bundler: '2.4'
-          working-directory: ./fastlane # Specifies where to find the Gemfile
-
-      # 7. Install Fastlane gems (explicit step to ensure they're available)
-      - name: Install Fastlane gems
-        working-directory: ./fastlane
-        run: bundle install
-
-      # 7.1. Install iOS Distribution Certificate for Code Signing
+      # 4.1. Install iOS Distribution Certificate for Code Signing
       # This step installs the certificate directly into the system keychain for Bazel sandbox access
       - name: Install iOS Distribution Certificate
         env:
@@ -134,7 +96,7 @@ jobs:
           
           echo "🎉 Certificate type verification completed!"
 
-      # 7.2. Analyze provisioning profile and verify certificate compatibility
+      # 4.2. Analyze provisioning profile and verify certificate compatibility
       - name: Verify certificate and provisioning profile compatibility
         run: |
           echo "🔍 Analyzing provisioning profile and certificate compatibility..."
@@ -179,7 +141,45 @@ jobs:
           rm -f /tmp/profile.plist /tmp/cert.der
           echo "🎯 Certificate verification completed successfully!"
 
-      # 7.5. Find and set IPA path dynamically with robust fallback
+      # 5. Build IPA with Bazel (for device deployment to TestFlight)
+      # The 'Install Bazel' step has been removed. The GitHub runner has 'bazelisk'
+      # pre-installed, which will read the .bazelversion file and automatically
+      # use the correct version of Bazel for the build.
+      - name: Build IPA with Bazel
+        run: |
+          # Use specific certificate identity if available
+          if [ -n "$CERTIFICATE_IDENTITY" ]; then
+            echo "🔐 Building with specific certificate identity: $CERTIFICATE_IDENTITY"
+            bazel build //CrossSumsSimple:CrossSumsSimple_device_ipa --config=ios_device --xcode_version=16.2.0 --ios_signing_cert_name="$CERTIFICATE_IDENTITY" --verbose_failures
+          else
+            echo "🔐 Building with default certificate selection"
+            bazel build //CrossSumsSimple:CrossSumsSimple_device_ipa --config=ios_device --xcode_version=16.2.0 --verbose_failures
+          fi
+
+      # 5.1. Debug - List bazel-bin contents to verify IPA location
+      - name: Debug - List bazel-bin contents
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Contents of bazel-bin:"
+          find bazel-bin -name "*.ipa" -type f 2>/dev/null || echo "No .ipa files found in bazel-bin"
+          echo "Contents of bazel-bin/CrossSumsSimple (if exists):"
+          ls -la bazel-bin/CrossSumsSimple/ 2>/dev/null || echo "bazel-bin/CrossSumsSimple directory not found"
+
+      # 6. Setup Ruby and Fastlane
+      # This installs Ruby and your project's gems (like fastlane) from the Gemfile.
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler: '2.4'
+          working-directory: ./fastlane # Specifies where to find the Gemfile
+
+      # 7. Install Fastlane gems (explicit step to ensure they're available)
+      - name: Install Fastlane gems
+        working-directory: ./fastlane
+        run: bundle install
+
+      # 7.1. Find and set IPA path dynamically with robust fallback
       - name: Find IPA file and set path
         id: find_ipa
         run: |
@@ -240,7 +240,7 @@ jobs:
           find bazel-bin -type f | head -20
           exit 1
 
-      # 8. Run Fastlane to Deploy
+      # 7.2. Run Fastlane to Deploy
       # This step runs inside the `./fastlane` directory.
       - name: Upload to TestFlight
         working-directory: ./fastlane
