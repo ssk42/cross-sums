@@ -62,6 +62,9 @@
 			<key>CFBundleIconFiles</key>
 			<array>
 				<string>AppIcon</string>
+				<string>Icon-60@2x.png</string>
+				<string>Icon-76@2x.png</string>
+				<string>Icon-1024.png</string>
 			</array>
 			<key>CFBundleIconName</key>
 			<string>AppIcon</string>

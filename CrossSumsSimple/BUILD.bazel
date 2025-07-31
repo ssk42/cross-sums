@@ -43,6 +43,9 @@ ios_application(
     resources = [
         "Resources/Assets.xcassets",
         "Resources/Puzzles/puzzles.json",
+        "Resources/Icons/Icon-60@2x.png",
+        "Resources/Icons/Icon-76@2x.png", 
+        "Resources/Icons/Icon-1024.png",
     ],
     # Add support for simulator builds
     provisioning_profile = None,  # Explicitly set to None for simulator builds
@@ -63,6 +66,9 @@ ios_application(
     resources = [
         "Resources/Assets.xcassets",
         "Resources/Puzzles/puzzles.json",
+        "Resources/Icons/Icon-60@2x.png",
+        "Resources/Icons/Icon-76@2x.png", 
+        "Resources/Icons/Icon-1024.png",
     ],
     # Provisioning profile will be set when available
     provisioning_profile = "CrossSumsSimple_AppStore.mobileprovision",
