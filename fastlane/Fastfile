@@ -146,8 +146,8 @@ platform :ios do
     internal_testers.each do |email|
       UI.message("Adding internal tester: #{email}")
       pilot(
-        distribute_external: false,
-        notify_external_testers: false,
+        distribute_external: true,
+        notify_external_testers: true,
         email: email
       )
     end
@@ -161,8 +161,9 @@ platform :ios do
     # Replace these with your actual fan group emails
     external_testers = [
       # Add fan group emails here
-      # "fan1@example.com",
-      # "fan2@example.com"
+      "seserwom@gmail.com",
+      "spludking@gmail.com",
+      "kelly.maranch@gmail.com"
     ]
     
     if external_testers.empty?
