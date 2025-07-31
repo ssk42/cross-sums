@@ -56,7 +56,7 @@ jobs:
           xcodebuild test \
             -project "CrossSumsSimple.xcodeproj" \
             -scheme "CrossSumsMac" \
-            -destination "platform=macOS" \
+            -destination "platform=macOS,arch=arm64" \
             -testPlan "CrossSumsMac" \
             -only-testing:"CrossSumsMacTests" \
             -enableCodeCoverage YES
@@ -80,7 +80,7 @@ jobs:
           xcodebuild test \
             -project "CrossSumsSimple.xcodeproj" \
             -scheme "CrossSumsMac" \
-            -destination "platform=macOS" \
+            -destination "platform=macOS,arch=arm64" \
             -testPlan "CrossSumsMac" \
             -only-testing:"CrossSumsMacUITests" \
             -enableCodeCoverage YES
