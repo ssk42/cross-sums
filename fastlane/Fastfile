@@ -112,18 +112,17 @@ platform :ios do
     
     UI.message("✅ App Store Connect API Key configured successfully")
     
-    # 5. Upload to TestFlight with internal testers
+    # 5. Upload to TestFlight
     UI.message("Uploading to TestFlight...")
     upload_to_testflight(
       ipa: ipa_path,
       skip_waiting_for_build_processing: true,
       changelog: "New build uploaded automatically from GitHub Actions.",
-      app_platform: "ios",
-      beta_testers: ["sthreitz@gmail.com"]  # Add internal testers during upload
+      app_platform: "ios"
     )
 
-    puts "Build successfully uploaded to TestFlight with internal testers!"
-    puts "Note: External testers require manual addition through App Store Connect"
+    puts "Build successfully uploaded to TestFlight!"
+    puts "Note: Testers can be added manually through App Store Connect"
   end
 
   desc "Add internal testers to TestFlight"
