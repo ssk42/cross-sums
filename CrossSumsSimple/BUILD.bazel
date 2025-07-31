@@ -40,6 +40,10 @@ ios_application(
     infoplists = ["Info.plist"],
     minimum_os_version = "18.0",
     deps = [":CrossSumsSimple_lib"],
+    resources = [
+        "Resources/Assets.xcassets",
+        "Resources/Puzzles/puzzles.json",
+    ],
     # Add support for simulator builds
     provisioning_profile = None,  # Explicitly set to None for simulator builds
     visibility = ["//visibility:public"],
@@ -56,6 +60,10 @@ ios_application(
     infoplists = ["Info.plist"],
     minimum_os_version = "18.0",
     deps = [":CrossSumsSimple_lib"],
+    resources = [
+        "Resources/Assets.xcassets",
+        "Resources/Puzzles/puzzles.json",
+    ],
     # Provisioning profile will be set when available
     provisioning_profile = "CrossSumsSimple_AppStore.mobileprovision",
     visibility = ["//visibility:public"],
