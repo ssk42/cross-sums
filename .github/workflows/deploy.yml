@@ -194,6 +194,7 @@ jobs:
           # Archive the project using full automatic signing with provisioning updates
           xcodebuild -project "CrossSumsSimple.xcodeproj" \
             -scheme "Simple Cross Sums" \
+            -configuration "Release" \
             -destination "generic/platform=iOS" \
             -archivePath "CrossSumsSimple.xcarchive" \
             -allowProvisioningUpdates \
@@ -201,6 +202,7 @@ jobs:
             -authenticationKeyID "$APP_STORE_CONNECT_API_KEY_ID" \
             -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID" \
             DEVELOPMENT_TEAM="J4QUKKF6V3" \
+            CODE_SIGN_STYLE="Automatic" \
             archive
           
           echo "✅ Archive completed successfully"
