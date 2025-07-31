@@ -42,115 +42,11 @@ jobs:
           rm -f *.ipa
           echo "✅ Clean completed"
 
-      # 4.1. Install iOS Distribution Certificate for Code Signing
-      # This step installs the certificate directly into the system keychain for Bazel sandbox access
-      - name: Install iOS Distribution Certificate
-        env:
-          IOS_DIST_SIGNING_KEY: ${{ secrets.IOS_DIST_SIGNING_KEY }}
-          IOS_DIST_SIGNING_KEY_PASSWORD: ${{ secrets.IOS_DIST_SIGNING_KEY_PASSWORD }}
+      # 4.1. Note: Using automatic signing with API keys - no certificate installation needed
+      - name: Setup automatic signing
         run: |
-          echo "🔐 Installing certificate into system keychain for Bazel sandbox access..."
-          
-          # Create variable for certificate path
-          CERTIFICATE_PATH=$RUNNER_TEMP/ios_distribution.p12
-          
-          # Decode base64 certificate and save to file
-          echo "📄 Decoding certificate from secrets..."
-          echo -n "$IOS_DIST_SIGNING_KEY" | base64 --decode -o $CERTIFICATE_PATH
-          
-          # Import certificate directly into system keychain with codesign tool access
-          echo "📥 Installing certificate into system keychain..."
-          sudo security import $CERTIFICATE_PATH -k /Library/Keychains/System.keychain -P "$IOS_DIST_SIGNING_KEY_PASSWORD" -T /usr/bin/codesign
-          
-          # Verify certificate installation and show detailed certificate information
-          echo "✅ Verifying certificate installation and type..."
-          
-          # Show all codesigning identities with full details
-          echo "📋 All available codesigning identities:"
-          security find-identity -v -p codesigning
-          
-          # Extract certificate details to check type
-          echo "🔍 Analyzing installed certificate type..."
-          TEMP_CERT_PATH=$RUNNER_TEMP/cert_for_analysis.pem
-          openssl pkcs12 -in $CERTIFICATE_PATH -clcerts -nokeys -out $TEMP_CERT_PATH -passin pass:"$IOS_DIST_SIGNING_KEY_PASSWORD"
-          INSTALLED_CERT_SUBJECT=$(openssl x509 -in $TEMP_CERT_PATH -noout -subject)
-          INSTALLED_CERT_TYPE=$(echo "$INSTALLED_CERT_SUBJECT" | sed -n 's/.*CN = \([^,]*\).*/\1/p')
-          
-          # Debug: Show what we extracted
-          echo "🐛 DEBUG - Subject: $INSTALLED_CERT_SUBJECT"
-          echo "🐛 DEBUG - Extracted Type: '$INSTALLED_CERT_TYPE'"
-          
-          echo "📄 Installed Certificate Details:"
-          echo "Subject: $INSTALLED_CERT_SUBJECT"
-          echo "Certificate Type: $INSTALLED_CERT_TYPE"
-          
-          # Check if it's the correct type for TestFlight
-          if echo "$INSTALLED_CERT_TYPE" | grep -q "iPhone Distribution"; then
-            echo "✅ SUCCESS: Certificate type is 'iPhone Distribution' - correct for TestFlight"
-          elif echo "$INSTALLED_CERT_TYPE" | grep -q "iPhone Developer"; then
-            echo "❌ ERROR: Certificate type is 'iPhone Developer' - TestFlight requires 'iPhone Distribution'"
-            echo "Please export the iOS Distribution certificate from Keychain Access, not the Developer certificate"
-            exit 1
-          elif echo "$INSTALLED_CERT_TYPE" | grep -q "Apple Distribution"; then
-            echo "✅ SUCCESS: Certificate type is 'Apple Distribution' - correct for TestFlight"
-          else
-            echo "⚠️  WARNING: Unrecognized certificate type: $INSTALLED_CERT_TYPE"
-          fi
-          
-          # Clean up certificate files
-          rm -f $CERTIFICATE_PATH $TEMP_CERT_PATH
-          
-          echo "🎉 Certificate type verification completed!"
-
-      # 4.2. Analyze provisioning profile and verify certificate compatibility
-      - name: Verify certificate and provisioning profile compatibility
-        run: |
-          echo "🔍 Analyzing provisioning profile and certificate compatibility..."
-          
-          PROVISIONING_PROFILE_PATH="CrossSumsSimple/CrossSumsSimple_AppStore.mobileprovision"
-          
-          # Extract provisioning profile contents
-          echo "📄 Extracting provisioning profile contents..."
-          security cms -D -i "$PROVISIONING_PROFILE_PATH" > /tmp/profile.plist
-          
-          # Show provisioning profile details
-          echo "📋 Provisioning Profile Details:"
-          echo "Name: $(/usr/libexec/PlistBuddy -c 'Print Name' /tmp/profile.plist)"
-          echo "Team ID: $(/usr/libexec/PlistBuddy -c 'Print TeamIdentifier:0' /tmp/profile.plist)"
-          echo "Bundle ID: $(/usr/libexec/PlistBuddy -c 'Print Entitlements:application-identifier' /tmp/profile.plist)"
-          echo "Expiry: $(/usr/libexec/PlistBuddy -c 'Print ExpirationDate' /tmp/profile.plist)"
-          
-          # Extract certificate identity from provisioning profile
-          echo "🔐 Expected Certificate Identity from Provisioning Profile:"
-          /usr/libexec/PlistBuddy -c 'Print DeveloperCertificates:0' /tmp/profile.plist > /tmp/cert.der
-          PROVISIONING_CERT_SUBJECT=$(openssl x509 -inform DER -noout -subject -in /tmp/cert.der)
-          EXPECTED_IDENTITY=$(echo "$PROVISIONING_CERT_SUBJECT" | sed 's/.*CN = \([^,]*\).*/\1/')
-          
-          # Debug: Show what we extracted
-          echo "🐛 DEBUG - Provisioning Subject: $PROVISIONING_CERT_SUBJECT"
-          echo "🐛 DEBUG - Extracted Identity: '$EXPECTED_IDENTITY'"
-          echo "Expected: $EXPECTED_IDENTITY"
-          
-          # Show available certificates in keychain
-          echo "🔑 Available Signing Identities in Keychain:"
-          security find-identity -v -p codesigning
-          
-          # Check if expected identity is available
-          echo "✅ Checking certificate compatibility..."
-          if security find-identity -v -p codesigning | grep -q "$EXPECTED_IDENTITY"; then
-            echo "✅ SUCCESS: Found matching certificate identity in keychain!"
-            echo "CERTIFICATE_IDENTITY=$EXPECTED_IDENTITY" >> $GITHUB_ENV
-          else
-            echo "❌ ERROR: Expected certificate identity not found in keychain!"
-            echo "Expected: $EXPECTED_IDENTITY"
-            echo "Available identities:"
-            security find-identity -v -p codesigning
-            exit 1
-          fi
-          
-          # Clean up temporary files
-          rm -f /tmp/profile.plist /tmp/cert.der
-          echo "🎯 Certificate verification completed successfully!"
+          echo "🔐 Using automatic signing with App Store Connect API keys"
+          echo "✅ No certificate installation needed for automatic signing"
 
       # 5. Build and Archive with xcodebuild (replacing Bazel)
       # xcodebuild properly processes asset catalogs and generates required icon files
@@ -191,7 +87,7 @@ jobs:
           
           echo "🎯 API key validation completed"
           
-          # Archive the project using full automatic signing with provisioning updates
+          # Archive the project using automatic signing with API key authentication
           xcodebuild -project "CrossSumsSimple.xcodeproj" \
             -scheme "Simple Cross Sums" \
             -configuration "Release" \
@@ -203,10 +99,8 @@ jobs:
             -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID" \
             DEVELOPMENT_TEAM="J4QUKKF6V3" \
             PRODUCT_BUNDLE_IDENTIFIER="com.crosssumssimple.app" \
-            CODE_SIGN_STYLE="Manual" \
-            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            CODE_SIGN_STYLE="Automatic" \
             CODE_SIGN_ENTITLEMENTS="Simple Cross Sums.entitlements" \
-            PROVISIONING_PROFILE_SPECIFIER="CrossSumsSimple_AppStore" \
             archive
           
           echo "✅ Archive completed successfully"
