@@ -166,7 +166,30 @@ jobs:
           echo "🔐 Setting up Apple Developer authentication..."
           API_KEY_PATH=$RUNNER_TEMP/AuthKey.p8
           echo -n "$APP_STORE_CONNECT_API_KEY_CONTENT" | base64 --decode -o $API_KEY_PATH
-          echo "✅ API key file created at: $API_KEY_PATH"
+          
+          # Set proper permissions on the API key file
+          chmod 600 $API_KEY_PATH
+          
+          # Validate API key file creation
+          echo "🔍 Validating API key file..."
+          if [ -f "$API_KEY_PATH" ]; then
+            echo "✅ API key file exists at: $API_KEY_PATH"
+            echo "📊 File size: $(wc -c < $API_KEY_PATH) bytes"
+            echo "🔐 File permissions: $(ls -la $API_KEY_PATH)"
+            
+            # Check if file starts with expected P8 format
+            if head -1 "$API_KEY_PATH" | grep -q "BEGIN PRIVATE KEY"; then
+              echo "✅ API key file has correct P8 format header"
+            else
+              echo "❌ API key file missing P8 format header"
+              echo "🐛 First line: $(head -1 $API_KEY_PATH)"
+            fi
+          else
+            echo "❌ API key file was not created!"
+            exit 1
+          fi
+          
+          echo "🎯 API key validation completed"
           
           # Archive the project using full automatic signing with provisioning updates
           xcodebuild -project "CrossSumsSimple.xcodeproj" \
