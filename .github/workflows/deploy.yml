@@ -46,7 +46,7 @@ jobs:
             -scheme "Simple Cross Sums" \
             -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
             -testPlan "Simple Cross Sums" \
-            -only-testing:"Simple Cross Sums Tests" \
+            -only-testing:"Simple Cross Sums Tests/CrossSumsSimpleTests" \
             -enableCodeCoverage YES
 
       # 5. Run Unit Tests for CrossSumsMac
