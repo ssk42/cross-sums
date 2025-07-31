@@ -72,7 +72,11 @@ jobs:
           TEMP_CERT_PATH=$RUNNER_TEMP/cert_for_analysis.pem
           openssl pkcs12 -in $CERTIFICATE_PATH -clcerts -nokeys -out $TEMP_CERT_PATH -passin pass:"$IOS_DIST_SIGNING_KEY_PASSWORD"
           INSTALLED_CERT_SUBJECT=$(openssl x509 -in $TEMP_CERT_PATH -noout -subject)
-          INSTALLED_CERT_TYPE=$(echo "$INSTALLED_CERT_SUBJECT" | sed -n 's/.*CN=\([^,/]*\).*/\1/p')
+          INSTALLED_CERT_TYPE=$(echo "$INSTALLED_CERT_SUBJECT" | sed -n 's/.*CN = \([^,]*\).*/\1/p')
+          
+          # Debug: Show what we extracted
+          echo "🐛 DEBUG - Subject: $INSTALLED_CERT_SUBJECT"
+          echo "🐛 DEBUG - Extracted Type: '$INSTALLED_CERT_TYPE'"
           
           echo "📄 Installed Certificate Details:"
           echo "Subject: $INSTALLED_CERT_SUBJECT"
@@ -117,7 +121,12 @@ jobs:
           # Extract certificate identity from provisioning profile
           echo "🔐 Expected Certificate Identity from Provisioning Profile:"
           /usr/libexec/PlistBuddy -c 'Print DeveloperCertificates:0' /tmp/profile.plist > /tmp/cert.der
-          EXPECTED_IDENTITY=$(openssl x509 -inform DER -noout -subject -in /tmp/cert.der | sed 's/.*CN=\([^\/]*\).*/\1/')
+          PROVISIONING_CERT_SUBJECT=$(openssl x509 -inform DER -noout -subject -in /tmp/cert.der)
+          EXPECTED_IDENTITY=$(echo "$PROVISIONING_CERT_SUBJECT" | sed 's/.*CN = \([^,]*\).*/\1/')
+          
+          # Debug: Show what we extracted
+          echo "🐛 DEBUG - Provisioning Subject: $PROVISIONING_CERT_SUBJECT"
+          echo "🐛 DEBUG - Extracted Identity: '$EXPECTED_IDENTITY'"
           echo "Expected: $EXPECTED_IDENTITY"
           
           # Show available certificates in keychain
