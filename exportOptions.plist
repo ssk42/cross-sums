@@ -13,8 +13,15 @@
     <key>destination</key>
     <string>export</string>
     <key>signingStyle</key>
-    <string>automatic</string>
+    <string>manual</string>
     <key>teamID</key>
     <string>J4QUKKF6V3</string>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>com.crosssumssimple.app</key>
+        <string>CrossSumsSimple_AppStore</string>
+    </dict>
+    <key>codeSignIdentity</key>
+    <string>iPhone Distribution</string>
 </dict>
 </plist>
