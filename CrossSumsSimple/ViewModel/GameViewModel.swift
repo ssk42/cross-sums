@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import GameKit
+import UIKit
 
 /// The main ViewModel for game logic and state management
 /// 
@@ -329,7 +330,11 @@ class GameViewModel: ObservableObject {
         let correctState = puzzle.solutionState(at: row, column: column)!
         
         if expectedState != correctState {
-            // Mistake made - lose a life
+            // Mistake made - provide heavy haptic feedback for error
+            let errorFeedback = UIImpactFeedbackGenerator(style: .heavy)
+            errorFeedback.impactOccurred()
+            
+            // Lose a life
             if state.loseLife() {
                 gameState = state
                 print("💔 Mistake! Lives remaining: \(state.livesRemaining)")
@@ -340,6 +345,10 @@ class GameViewModel: ObservableObject {
                     print("💀 Game Over!")
                 }
             }
+        } else {
+            // Correct move - provide light haptic feedback for success
+            let successFeedback = UIImpactFeedbackGenerator(style: .light)
+            successFeedback.impactOccurred()
         }
     }
     

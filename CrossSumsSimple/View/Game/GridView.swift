@@ -162,7 +162,7 @@ struct SumLabel: View {
     }
     
     private var fontSize: CGFloat {
-        return min(size * 0.35, 20)
+        return min(size * 0.45, 24)
     }
 }
 

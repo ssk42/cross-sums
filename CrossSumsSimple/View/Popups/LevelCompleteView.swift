@@ -128,6 +128,20 @@ struct LevelCompleteView: View {
                         }
                         .disabled(!hasNextLevel)
                         
+                        // Stay Here Button
+                        Button(action: didTapStayHere) {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                Text("Stay Here")
+                                    .fontWeight(.semibold)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                        }
+                        
                         // Main Menu Button
                         Button(action: didTapMainMenu) {
                             HStack {
@@ -215,6 +229,11 @@ struct LevelCompleteView: View {
         let nextLevel = gameViewModel.currentLevel + 1
         gameViewModel.loadPuzzle(difficulty: puzzle.difficulty, level: nextLevel)
         
+        onDismiss()
+        dismiss()
+    }
+    
+    private func didTapStayHere() {
         onDismiss()
         dismiss()
     }

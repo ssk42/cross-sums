@@ -13,11 +13,13 @@ class PuzzleGenerator {
         let gridSize: Int
         let numberRange: ClosedRange<Int>
         let maxAttempts: Int
+        let minComplexityScore: Int
+        let maxComplexityScore: Int
         
-        static let easy = DifficultyConfig(gridSize: 3, numberRange: 1...9, maxAttempts: 100)
-        static let medium = DifficultyConfig(gridSize: 4, numberRange: 1...15, maxAttempts: 200)
-        static let hard = DifficultyConfig(gridSize: 5, numberRange: 1...20, maxAttempts: 300)
-        static let extraHard = DifficultyConfig(gridSize: 6, numberRange: 1...25, maxAttempts: 500)
+        static let easy = DifficultyConfig(gridSize: 3, numberRange: 1...9, maxAttempts: 100, minComplexityScore: 5, maxComplexityScore: 50)
+        static let medium = DifficultyConfig(gridSize: 4, numberRange: 1...15, maxAttempts: 200, minComplexityScore: 10, maxComplexityScore: 80)
+        static let hard = DifficultyConfig(gridSize: 5, numberRange: 1...20, maxAttempts: 300, minComplexityScore: 20, maxComplexityScore: 120)
+        static let extraHard = DifficultyConfig(gridSize: 6, numberRange: 1...25, maxAttempts: 500, minComplexityScore: 30, maxComplexityScore: 200)
     }
     
     // MARK: - Properties
@@ -60,6 +62,61 @@ class PuzzleGenerator {
         
         print("❌ Failed to generate puzzle for \(difficulty) level \(level) after \(config.maxAttempts) attempts")
         return nil
+    }
+    
+    /// Calculates complexity score based on solution patterns and constraints
+    /// - Parameters:
+    ///   - grid: The number grid
+    ///   - solution: The solution pattern
+    /// - Returns: Complexity score (higher = more complex)
+    private func calculateComplexityScore(grid: [[Int]], solution: [[Bool]]) -> Int {
+        let size = grid.count
+        var score = 0
+        
+        // Base score for grid size
+        score += size * size
+        
+        // Calculate row and column sums for analysis
+        let rowSums = calculateRowSums(grid: grid, solution: solution)
+        let columnSums = calculateColumnSums(grid: grid, solution: solution)
+        
+        // Score based on sum distribution complexity
+        let allSums = rowSums + columnSums
+        let uniqueSums = Set(allSums)
+        score += uniqueSums.count * 2 // More unique sums = more complex
+        
+        // Score based on number of cells kept vs removed (balanced is more complex)
+        let keptCells = solution.flatMap { $0 }.filter { $0 }.count
+        let totalCells = size * size
+        let balance = abs(keptCells - (totalCells - keptCells))
+        score += max(0, 10 - balance) // More balanced = higher score
+        
+        // Score based on sum variance (more varied sums = more complex)
+        if !allSums.isEmpty {
+            let sumMean = Double(allSums.reduce(0, +)) / Double(allSums.count)
+            let variance = allSums.map { pow(Double($0) - sumMean, 2) }.reduce(0, +) / Double(allSums.count)
+            score += Int(variance / 10) // Scale variance to reasonable range
+        }
+        
+        // Score based on alternating pattern complexity
+        var alternatingPatterns = 0
+        for row in 0..<size {
+            for col in 0..<(size-1) {
+                if solution[row][col] != solution[row][col+1] {
+                    alternatingPatterns += 1
+                }
+            }
+        }
+        for col in 0..<size {
+            for row in 0..<(size-1) {
+                if solution[row][col] != solution[row+1][col] {
+                    alternatingPatterns += 1
+                }
+            }
+        }
+        score += alternatingPatterns // More alternations = more complex
+        
+        return score
     }
     
     /// Validates that a puzzle has exactly one unique solution
@@ -133,6 +190,13 @@ class PuzzleGenerator {
         }
         
         let solution = solutions.first!
+        
+        // Calculate complexity score and check if it meets difficulty requirements
+        let complexityScore = calculateComplexityScore(grid: grid, solution: solution)
+        print("🎯 Complexity score: \(complexityScore) (target: \(config.minComplexityScore)-\(config.maxComplexityScore))")
+        guard complexityScore >= config.minComplexityScore && complexityScore <= config.maxComplexityScore else {
+            return nil
+        }
         
         // Calculate row and column sums
         let rowSums = calculateRowSums(grid: grid, solution: solution)

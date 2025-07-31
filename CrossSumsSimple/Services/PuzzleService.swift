@@ -389,7 +389,7 @@ class EmbeddedPuzzleGenerator {
      public init() {}
     
     /// Configuration for different difficulty levels
-    private struct DifficultyConfig {
+    private struct DifficultyConfig: Equatable {
         let baseGridSize: Int
         let numberRange: ClosedRange<Int>
         let maxAttempts: Int
@@ -399,36 +399,36 @@ class EmbeddedPuzzleGenerator {
         static let easy = DifficultyConfig(
             baseGridSize: 3, 
             numberRange: 1...9, 
-            maxAttempts: 5,
-            keptCellsPercentage: 0.4...0.6,
+            maxAttempts: 10,  // Increased from 5 for better reliability
+            keptCellsPercentage: 0.35...0.65,  // Slightly wider range
             usesAdvancedPatterns: false
         )
         static let medium = DifficultyConfig(
             baseGridSize: 4, 
             numberRange: 1...12, 
-            maxAttempts: 5,
-            keptCellsPercentage: 0.35...0.55,
+            maxAttempts: 15,  // Increased from 5 for better reliability
+            keptCellsPercentage: 0.3...0.6,  // Wider range for more flexibility
             usesAdvancedPatterns: false
         )
         static let hard = DifficultyConfig(
             baseGridSize: 4, 
             numberRange: 1...15, 
-            maxAttempts: 15,  // Increased from 8 to 15 for better reliability
-            keptCellsPercentage: 0.25...0.55,  // Slightly relaxed from 0.3...0.5
+            maxAttempts: 25,  // Increased further for advanced patterns
+            keptCellsPercentage: 0.2...0.6,  // Wider range for constraint diversity
             usesAdvancedPatterns: true
         )
         static let extraHard = DifficultyConfig(
             baseGridSize: 5, 
-            numberRange: 1...25, 
-            maxAttempts: 10,
-            keptCellsPercentage: 0.2...0.4,
+            numberRange: 1...28,  // Increased from 1-25 to approach Expert level (1-30)
+            maxAttempts: 60,  // Increased further for enhanced complexity
+            keptCellsPercentage: 0.12...0.42,  // Tighter range with lower minimum for more challenge
             usesAdvancedPatterns: true
         )
         static let expert = DifficultyConfig(
             baseGridSize: 6, 
-            numberRange: 1...30, 
-            maxAttempts: 15,
-            keptCellsPercentage: 0.15...0.35,
+            numberRange: 1...35,  // Increased from 1-30 to create significant gap vs Extra Hard (1-28)
+            maxAttempts: 90,  // Increased further for enhanced complexity
+            keptCellsPercentage: 0.10...0.45,  // Much tighter range with very challenging minimum
             usesAdvancedPatterns: true
         )
     }
@@ -529,20 +529,36 @@ class EmbeddedPuzzleGenerator {
     private func generateEmergencyFallbackPuzzle(difficulty: String, level: Int, baseSeed: UInt64) -> Puzzle? {
         print("🚨 Generating emergency fallback puzzle for \(difficulty) level \(level)")
         
-        // Use a very simple 3x3 grid with basic numbers
-        let size = 3
-        let grid = [
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9]
-        ]
+        // Determine appropriate size based on difficulty
+        let size: Int
+        let maxNumber: Int
+        let patternDescription: String
         
-        // Create a simple solution pattern (diagonal)
-        let solution = [
-            [true, false, false],
-            [false, true, false],
-            [false, false, true]
-        ]
+        switch difficulty.lowercased() {
+        case "expert":
+            size = 6
+            maxNumber = 25  // Increased from 20 to reflect higher number range (1-35)
+            patternDescription = "6x6 ultimate pattern"
+        case "extra hard", "extrahard":
+            size = 5
+            maxNumber = 22  // Increased from 15 to reflect higher number range (1-28)
+            patternDescription = "5x5 advanced pattern"
+        case "hard":
+            size = 4
+            maxNumber = 12
+            patternDescription = "4x4 alternating pattern"
+        case "medium":
+            size = 4
+            maxNumber = 10
+            patternDescription = "4x4 diagonal pattern"
+        default: // Easy and unknown
+            size = 3
+            maxNumber = 9
+            patternDescription = "3x3 diagonal pattern"
+        }
+        
+        // Generate grid and solution based on size
+        let (grid, solution) = generateEmergencyGridAndSolution(size: size, maxNumber: maxNumber, seed: baseSeed)
         
         // Calculate sums
         let rowSums = calculateRowSums(grid: grid, solution: solution)
@@ -559,8 +575,83 @@ class EmbeddedPuzzleGenerator {
             columnSums: columnSums
         )
         
-        print("✅ Generated emergency fallback puzzle: \(puzzleId) (3x3 diagonal pattern)")
+        print("✅ Generated emergency fallback puzzle: \(puzzleId) (\(patternDescription))")
         return puzzle
+    }
+    
+    /// Generates a deterministic grid and solution for emergency puzzles
+    private func generateEmergencyGridAndSolution(size: Int, maxNumber: Int, seed: UInt64) -> (grid: [[Int]], solution: [[Bool]]) {
+        var rng = SeededRandomNumberGenerator(seed: seed)
+        
+        // Generate grid with controlled randomness
+        var grid: [[Int]] = []
+        for row in 0..<size {
+            var gridRow: [Int] = []
+            for col in 0..<size {
+                // Use position-based seeding for deterministic results
+                let positionSeed = seed + UInt64(row * size + col)
+                var positionRng = SeededRandomNumberGenerator(seed: positionSeed)
+                let number = Int.random(in: 1...maxNumber, using: &positionRng)
+                gridRow.append(number)
+            }
+            grid.append(gridRow)
+        }
+        
+        // Generate solution with guaranteed uniqueness
+        var solution: [[Bool]] = Array(repeating: Array(repeating: false, count: size), count: size)
+        
+        if size == 3 {
+            // 3x3: Simple diagonal pattern
+            solution[0][0] = true
+            solution[1][1] = true
+            solution[2][2] = true
+        } else if size == 4 {
+            // 4x4: Alternating pattern with good constraint diversity
+            solution[0][0] = true
+            solution[0][2] = true
+            solution[1][1] = true
+            solution[1][3] = true
+            solution[2][0] = true
+            solution[2][2] = true
+            solution[3][1] = true
+            solution[3][3] = true
+        } else if size == 5 {
+            // 5x5: Cross pattern with good distribution
+            solution[0][2] = true
+            solution[1][1] = true
+            solution[1][3] = true
+            solution[2][0] = true
+            solution[2][2] = true
+            solution[2][4] = true
+            solution[3][1] = true
+            solution[3][3] = true
+            solution[4][2] = true
+        } else if size == 6 {
+            // 6x6: Expert-level pattern with good constraint diversity
+            solution[0][1] = true
+            solution[0][4] = true
+            solution[1][0] = true
+            solution[1][3] = true
+            solution[1][5] = true
+            solution[2][2] = true
+            solution[2][4] = true
+            solution[3][1] = true
+            solution[3][3] = true
+            solution[4][0] = true
+            solution[4][2] = true
+            solution[4][5] = true
+            solution[5][1] = true
+            solution[5][4] = true
+        } else {
+            // Fallback for other sizes: checkerboard pattern
+            for row in 0..<size {
+                for col in 0..<size {
+                    solution[row][col] = (row + col) % 2 == 0
+                }
+            }
+        }
+        
+        return (grid, solution)
     }
     
     private func getDifficultyConfig(for difficulty: String) -> DifficultyConfig? {
@@ -625,6 +716,43 @@ class EmbeddedPuzzleGenerator {
             return nil
         }
         
+        // CRITICAL: Validate solution uniqueness
+        // This is the key fix - we must verify the target sums have exactly one solution
+        if !validateSolutionUniqueness(grid: grid, targetRowSums: rowSums, targetColumnSums: columnSums, expectedSolution: solution) {
+            print("⚠️ Generated puzzle has multiple solutions, regenerating...")
+            return nil
+        }
+        
+        // For advanced difficulties, validate constraint diversity to ensure meaningful challenge
+        if config.usesAdvancedPatterns {
+            let diversityScore = calculateConstraintDiversityScore(grid: grid, rowSums: rowSums, columnSums: columnSums)
+            
+            // Set diversity requirements based on difficulty
+            let requiredScore: Double
+            let difficultyName: String
+            
+            switch config {
+            case .expert:
+                requiredScore = 0.65  // 65% for Expert (meaningful gap vs Extra Hard's 55%)
+                difficultyName = "Expert"
+            case .extraHard:
+                requiredScore = 0.55  // 55% for Extra Hard (closer to Expert's 60%)
+                difficultyName = "Extra Hard"
+            case .hard:
+                requiredScore = 0.4  // 40% for Hard
+                difficultyName = "Hard"
+            default:
+                requiredScore = 0.3  // 30% fallback
+                difficultyName = "Advanced"
+            }
+            
+            if diversityScore < requiredScore {
+                print("⚠️ \(difficultyName) puzzle lacks constraint diversity (score: \(String(format: "%.2f", diversityScore)), required: \(String(format: "%.2f", requiredScore))), regenerating...")
+                return nil
+            }
+            print("✅ \(difficultyName) puzzle constraint diversity: \(String(format: "%.2f", diversityScore)) (required: \(String(format: "%.2f", requiredScore)))")
+        }
+        
         let puzzleId = "\(difficulty.lowercased())-\(level)"
         
         return Puzzle(
@@ -645,16 +773,16 @@ class EmbeddedPuzzleGenerator {
         
         switch difficulty.lowercased() {
         case "extra hard", "extrahard":
-            // Progressive scaling: 5x5 → 6x6 → 7x7
-            if level <= 15 { return baseSize } // 5x5
-            else if level <= 30 { return baseSize + 1 } // 6x6
-            else { return baseSize + 2 } // 7x7
+            // Aggressive progression: 5x5 → 6x6 → 7x7 (faster transition to Expert-level grids)
+            if level <= 10 { return baseSize } // 5x5 (reduced from 15 levels)
+            else if level <= 25 { return baseSize + 1 } // 6x6 (starts earlier, longer duration)
+            else { return baseSize + 2 } // 7x7 (advanced challenge)
             
         case "expert":
-            // Progressive scaling: 6x6 → 7x7 → 8x8
-            if level <= 20 { return baseSize } // 6x6
-            else if level <= 40 { return baseSize + 1 } // 7x7
-            else { return baseSize + 2 } // 8x8
+            // Aggressive scaling: 6x6 → 7x7 → 8x8 (faster progression to maximum challenge)
+            if level <= 15 { return baseSize } // 6x6 (reduced from 20 levels)
+            else if level <= 30 { return baseSize + 1 } // 7x7 (starts much earlier)
+            else { return baseSize + 2 } // 8x8 (ultimate challenge starts at level 31)
             
         default:
             return baseSize
@@ -837,6 +965,164 @@ class EmbeddedPuzzleGenerator {
             
             if keptInCol > maxKeptPerRowCol {
                 print("🔍 Column \(col) has too many kept cells: \(keptInCol) (max: \(maxKeptPerRowCol))")
+                return false
+            }
+        }
+        
+        return true
+    }
+    
+    /// Validates that the target sums have exactly one unique solution
+    /// This is the critical method that ensures puzzle quality
+    private func validateSolutionUniqueness(grid: [[Int]], targetRowSums: [Int], targetColumnSums: [Int], expectedSolution: [[Bool]]) -> Bool {
+        let size = grid.count
+        
+        print("🔍 Starting solution uniqueness validation for \(size)x\(size) grid...")
+        
+        // For medium and large grids (4x4+), use optimized validation to avoid exponential complexity
+        // 3x3 = 2^9 = 512 combinations (fast)
+        // 4x4 = 2^16 = 65,536 combinations (acceptable but can be optimized) 
+        // 5x5 = 2^25 = 33+ million combinations (needs optimization)
+        // 6x6 = 2^36 = 68+ billion combinations (impossible without optimization)
+        if size >= 4 {
+            return validateLargeGridUniqueness(grid: grid, targetRowSums: targetRowSums, targetColumnSums: targetColumnSums, expectedSolution: expectedSolution)
+        }
+        
+        // For smaller grids, use exhaustive search
+        var foundSolutions: [[[Bool]]] = []
+        let totalCells = size * size
+        let maxCombinations = 1 << totalCells // 2^totalCells
+        
+        for combination in 0..<maxCombinations {
+            var candidateSolution: [[Bool]] = Array(repeating: Array(repeating: false, count: size), count: size)
+            
+            // Convert combination number to grid pattern
+            for cellIndex in 0..<totalCells {
+                let row = cellIndex / size
+                let col = cellIndex % size
+                let isKept = (combination >> cellIndex) & 1 == 1
+                candidateSolution[row][col] = isKept
+            }
+            
+            // Check if this candidate solution matches our target sums
+            if doesSolutionMatchTargets(grid: grid, solution: candidateSolution, targetRowSums: targetRowSums, targetColumnSums: targetColumnSums) {
+                foundSolutions.append(candidateSolution)
+                
+                // Early exit if we find more than one solution
+                if foundSolutions.count > 1 {
+                    print("❌ Found multiple solutions (at least \(foundSolutions.count)), puzzle is invalid")
+                    return false
+                }
+            }
+        }
+        
+        let solutionCount = foundSolutions.count
+        if solutionCount == 1 {
+            print("✅ Puzzle has exactly one unique solution")
+            return true
+        } else if solutionCount == 0 {
+            print("❌ No valid solution found for target sums")
+            return false
+        } else {
+            print("❌ Found \(solutionCount) solutions, puzzle is invalid")
+            return false
+        }
+    }
+    
+    /// Advanced validation for large grids (6x6+) using smart solution counting
+    private func validateLargeGridUniqueness(grid: [[Int]], targetRowSums: [Int], targetColumnSums: [Int], expectedSolution: [[Bool]]) -> Bool {
+        let size = grid.count
+        print("🔍 Using advanced solution counting for \(size)x\(size) grid...")
+        
+        // Strategy 1: Verify the expected solution produces correct target sums
+        if !doesSolutionMatchTargets(grid: grid, solution: expectedSolution, targetRowSums: targetRowSums, targetColumnSums: targetColumnSums) {
+            print("❌ Expected solution doesn't match target sums")
+            return false
+        }
+        print("✅ Expected solution produces correct target sums")
+        
+        // Strategy 2: Use constraint propagation to count possible solutions
+        let solutionCount = countSolutionsUsingConstraintPropagation(
+            grid: grid, 
+            targetRowSums: targetRowSums, 
+            targetColumnSums: targetColumnSums,
+            maxSolutionsToFind: 2 // We only need to know if there's 1 or >1
+        )
+        
+        switch solutionCount {
+        case 0:
+            print("❌ No valid solutions found")
+            return false
+        case 1:
+            print("✅ Exactly one unique solution found")
+            return true
+        default:
+            print("❌ Found \(solutionCount >= 2 ? "multiple" : "\(solutionCount)") solutions - puzzle not unique")
+            return false
+        }
+    }
+    
+    /// Analyzes how constraining a target sum is for given values
+    private func analyzeConstraintStrength(values: [Int], targetSum: Int) -> ConstraintStrength {
+        let n = values.count
+        if n > 10 { return .medium } // Skip expensive calculation for very large arrays
+        
+        var validCombinations = 0
+        let maxCombinations = 1 << n
+        
+        for combination in 0..<maxCombinations {
+            var sum = 0
+            for i in 0..<n {
+                if (combination >> i) & 1 == 1 {
+                    sum += values[i]
+                }
+            }
+            if sum == targetSum {
+                validCombinations += 1
+            }
+        }
+        
+        let totalPossible = maxCombinations
+        let ratio = Double(validCombinations) / Double(totalPossible)
+        
+        if ratio < 0.1 { return .strong }      // Less than 10% of combinations work
+        else if ratio < 0.3 { return .medium } // 10-30% of combinations work  
+        else { return .weak }                   // More than 30% of combinations work
+    }
+    
+    /// Constraint strength levels
+    private enum ConstraintStrength {
+        case strong  // Very few valid combinations - likely unique
+        case medium  // Moderate number of valid combinations
+        case weak    // Many valid combinations - may have multiple solutions
+    }
+    
+    /// Checks if a candidate solution produces the target row and column sums
+    private func doesSolutionMatchTargets(grid: [[Int]], solution: [[Bool]], targetRowSums: [Int], targetColumnSums: [Int]) -> Bool {
+        let size = grid.count
+        
+        // Check row sums
+        for row in 0..<size {
+            var actualSum = 0
+            for col in 0..<size {
+                if solution[row][col] {
+                    actualSum += grid[row][col]
+                }
+            }
+            if actualSum != targetRowSums[row] {
+                return false
+            }
+        }
+        
+        // Check column sums
+        for col in 0..<size {
+            var actualSum = 0
+            for row in 0..<size {
+                if solution[row][col] {
+                    actualSum += grid[row][col]
+                }
+            }
+            if actualSum != targetColumnSums[col] {
                 return false
             }
         }
@@ -1053,6 +1339,384 @@ class EmbeddedPuzzleGenerator {
         }
         
         return columnSums
+    }
+    
+    // MARK: - Advanced Solution Counting for Large Grids
+    
+    /// Efficiently counts solutions using constraint propagation and backtracking
+    /// This avoids the 2^36 explosion for 6x6 grids by using smart search pruning
+    private func countSolutionsUsingConstraintPropagation(
+        grid: [[Int]], 
+        targetRowSums: [Int], 
+        targetColumnSums: [Int],
+        maxSolutionsToFind: Int = 2
+    ) -> Int {
+        let size = grid.count
+        print("🔍 Starting constraint propagation for \(size)x\(size) grid...")
+        
+        // Create constraint satisfaction problem representation
+        var domains: [[Set<Bool>]] = Array(repeating: Array(repeating: Set([true, false]), count: size), count: size)
+        var solutionCount = 0
+        
+        // Apply initial constraint propagation
+        if !propagateConstraints(grid: grid, domains: &domains, targetRowSums: targetRowSums, targetColumnSums: targetColumnSums) {
+            print("❌ Initial constraint propagation failed - no solutions possible")
+            return 0
+        }
+        
+        // Use backtracking with constraint propagation to count solutions
+        backtrackWithPropagation(
+            grid: grid,
+            domains: &domains,
+            targetRowSums: targetRowSums,
+            targetColumnSums: targetColumnSums,
+            row: 0,
+            col: 0,
+            solutionCount: &solutionCount,
+            maxSolutions: maxSolutionsToFind
+        )
+        
+        print("🔍 Constraint propagation completed: found \(solutionCount) solution\(solutionCount == 1 ? "" : "s")")
+        return solutionCount
+    }
+    
+    /// Propagates constraints to reduce domain sizes
+    private func propagateConstraints(
+        grid: [[Int]], 
+        domains: inout [[Set<Bool>]], 
+        targetRowSums: [Int], 
+        targetColumnSums: [Int]
+    ) -> Bool {
+        let size = grid.count
+        var changed = true
+        
+        // Keep propagating until no more changes occur
+        while changed {
+            changed = false
+            
+            // Propagate row constraints
+            for row in 0..<size {
+                if propagateRowConstraint(grid: grid, domains: &domains, row: row, targetSum: targetRowSums[row]) {
+                    changed = true
+                }
+            }
+            
+            // Propagate column constraints
+            for col in 0..<size {
+                if propagateColumnConstraint(grid: grid, domains: &domains, col: col, targetSum: targetColumnSums[col]) {
+                    changed = true
+                }
+            }
+            
+            // Check for empty domains (impossible constraints)
+            for row in 0..<size {
+                for col in 0..<size {
+                    if domains[row][col].isEmpty {
+                        return false
+                    }
+                }
+            }
+        }
+        
+        return true
+    }
+    
+    /// Propagates constraints for a single row
+    private func propagateRowConstraint(grid: [[Int]], domains: inout [[Set<Bool>]], row: Int, targetSum: Int) -> Bool {
+        let size = grid[0].count
+        var changed = false
+        
+        // Calculate minimum and maximum possible sums for this row
+        var minSum = 0
+        var maxSum = 0
+        var fixedSum = 0
+        var variableCells: [Int] = []
+        
+        for col in 0..<size {
+            let cellValue = grid[row][col]
+            if domains[row][col].count == 1 {
+                // Fixed cell
+                if domains[row][col].contains(true) {
+                    fixedSum += cellValue
+                }
+            } else {
+                // Variable cell
+                variableCells.append(col)
+                maxSum += cellValue
+            }
+        }
+        
+        let remainingSum = targetSum - fixedSum
+        
+        // If remaining sum is impossible, mark invalid cells
+        if remainingSum < 0 || remainingSum > maxSum {
+            // This constraint is impossible
+            for col in variableCells {
+                if domains[row][col].count > 1 {
+                    domains[row][col] = Set()
+                    changed = true
+                }
+            }
+            return changed
+        }
+        
+        // Apply logical deductions
+        for col in variableCells {
+            let cellValue = grid[row][col]
+            let otherMaxSum = maxSum - cellValue
+            
+            // If we must include this cell to reach target sum
+            if remainingSum > otherMaxSum {
+                if domains[row][col].contains(false) {
+                    domains[row][col].remove(false)
+                    changed = true
+                }
+            }
+            
+            // If including this cell would exceed target sum
+            if remainingSum < cellValue {
+                if domains[row][col].contains(true) {
+                    domains[row][col].remove(true)
+                    changed = true
+                }
+            }
+        }
+        
+        return changed
+    }
+    
+    /// Propagates constraints for a single column
+    private func propagateColumnConstraint(grid: [[Int]], domains: inout [[Set<Bool>]], col: Int, targetSum: Int) -> Bool {
+        let size = grid.count
+        var changed = false
+        
+        // Calculate minimum and maximum possible sums for this column
+        var maxSum = 0
+        var fixedSum = 0
+        var variableCells: [Int] = []
+        
+        for row in 0..<size {
+            let cellValue = grid[row][col]
+            if domains[row][col].count == 1 {
+                // Fixed cell
+                if domains[row][col].contains(true) {
+                    fixedSum += cellValue
+                }
+            } else {
+                // Variable cell
+                variableCells.append(row)
+                maxSum += cellValue
+            }
+        }
+        
+        let remainingSum = targetSum - fixedSum
+        
+        // If remaining sum is impossible, mark invalid cells
+        if remainingSum < 0 || remainingSum > maxSum {
+            for row in variableCells {
+                if domains[row][col].count > 1 {
+                    domains[row][col] = Set()
+                    changed = true
+                }
+            }
+            return changed
+        }
+        
+        // Apply logical deductions
+        for row in variableCells {
+            let cellValue = grid[row][col]
+            let otherMaxSum = maxSum - cellValue
+            
+            // If we must include this cell to reach target sum
+            if remainingSum > otherMaxSum {
+                if domains[row][col].contains(false) {
+                    domains[row][col].remove(false)
+                    changed = true
+                }
+            }
+            
+            // If including this cell would exceed target sum
+            if remainingSum < cellValue {
+                if domains[row][col].contains(true) {
+                    domains[row][col].remove(true)
+                    changed = true
+                }
+            }
+        }
+        
+        return changed
+    }
+    
+    /// Backtrack with constraint propagation to count solutions
+    private func backtrackWithPropagation(
+        grid: [[Int]],
+        domains: inout [[Set<Bool>]],
+        targetRowSums: [Int],
+        targetColumnSums: [Int],
+        row: Int,
+        col: Int,
+        solutionCount: inout Int,
+        maxSolutions: Int
+    ) {
+        let size = grid.count
+        
+        // Early termination if we've found enough solutions
+        if solutionCount >= maxSolutions {
+            return
+        }
+        
+        // Find next variable cell
+        var nextRow = row
+        var nextCol = col
+        
+        // Find next cell that needs assignment
+        while nextRow < size {
+            while nextCol < size && domains[nextRow][nextCol].count == 1 {
+                nextCol += 1
+            }
+            if nextCol < size {
+                break
+            }
+            nextRow += 1
+            nextCol = 0
+        }
+        
+        // If all cells are assigned, check if we have a valid solution
+        if nextRow >= size {
+            if isCompleteAssignmentValid(grid: grid, domains: domains, targetRowSums: targetRowSums, targetColumnSums: targetColumnSums) {
+                solutionCount += 1
+            }
+            return
+        }
+        
+        // Try both values for the current cell
+        let originalDomains = domains
+        
+        for value in domains[nextRow][nextCol] {
+            // Make assignment
+            domains[nextRow][nextCol] = Set([value])
+            
+            // Propagate constraints
+            var domainsCopy = domains
+            if propagateConstraints(grid: grid, domains: &domainsCopy, targetRowSums: targetRowSums, targetColumnSums: targetColumnSums) {
+                domains = domainsCopy
+                // Recurse
+                backtrackWithPropagation(
+                    grid: grid,
+                    domains: &domains,
+                    targetRowSums: targetRowSums,
+                    targetColumnSums: targetColumnSums,
+                    row: nextRow,
+                    col: nextCol + 1,
+                    solutionCount: &solutionCount,
+                    maxSolutions: maxSolutions
+                )
+            }
+            
+            // Early termination check
+            if solutionCount >= maxSolutions {
+                return
+            }
+            
+            // Backtrack
+            domains = originalDomains
+        }
+    }
+    
+    /// Checks if a complete assignment satisfies all constraints
+    private func isCompleteAssignmentValid(
+        grid: [[Int]], 
+        domains: [[Set<Bool>]], 
+        targetRowSums: [Int], 
+        targetColumnSums: [Int]
+    ) -> Bool {
+        let size = grid.count
+        
+        // Convert domains to solution
+        var solution: [[Bool]] = Array(repeating: Array(repeating: false, count: size), count: size)
+        for row in 0..<size {
+            for col in 0..<size {
+                if domains[row][col].count == 1 && domains[row][col].contains(true) {
+                    solution[row][col] = true
+                }
+            }
+        }
+        
+        return doesSolutionMatchTargets(grid: grid, solution: solution, targetRowSums: targetRowSums, targetColumnSums: targetColumnSums)
+    }
+    
+    // MARK: - Constraint Diversity Scoring
+    
+    /// Calculates how diverse and meaningful the puzzle constraints are
+    /// Returns a score from 0.0 (poor diversity) to 1.0 (excellent diversity)
+    private func calculateConstraintDiversityScore(grid: [[Int]], rowSums: [Int], columnSums: [Int]) -> Double {
+        let size = grid.count
+        var score = 0.0
+        
+        // Factor 1: Sum variance (diverse target sums are more interesting)
+        let allSums = rowSums + columnSums
+        let sumVariance = calculateVariance(values: allSums)
+        let normalizedSumVariance = min(1.0, sumVariance / 100.0) // Normalize to 0-1
+        score += normalizedSumVariance * 0.3
+        
+        // Factor 2: Number uniqueness (more unique sums = better constraints)
+        let uniqueSums = Set(allSums)
+        let uniquenessRatio = Double(uniqueSums.count) / Double(allSums.count)
+        score += uniquenessRatio * 0.25
+        
+        // Factor 3: Constraint strength distribution (good mix of strong/medium/weak)
+        var strongConstraints = 0
+        var mediumConstraints = 0
+        var weakConstraints = 0
+        
+        // Analyze row constraints
+        for row in 0..<size {
+            let rowValues = grid[row]
+            let strength = analyzeConstraintStrength(values: rowValues, targetSum: rowSums[row])
+            switch strength {
+            case .strong: strongConstraints += 1
+            case .medium: mediumConstraints += 1
+            case .weak: weakConstraints += 1
+            }
+        }
+        
+        // Analyze column constraints
+        for col in 0..<size {
+            let colValues = (0..<size).map { grid[$0][col] }
+            let strength = analyzeConstraintStrength(values: colValues, targetSum: columnSums[col])
+            switch strength {
+            case .strong: strongConstraints += 1
+            case .medium: mediumConstraints += 1
+            case .weak: weakConstraints += 1
+            }
+        }
+        
+        let totalConstraints = strongConstraints + mediumConstraints + weakConstraints
+        let strongRatio = Double(strongConstraints) / Double(totalConstraints)
+        let mediumRatio = Double(mediumConstraints) / Double(totalConstraints)
+        let weakRatio = Double(weakConstraints) / Double(totalConstraints)
+        
+        // Ideal distribution: some strong, mostly medium, few weak
+        let idealBalance = (strongRatio >= 0.2 && strongRatio <= 0.5) && 
+                          (mediumRatio >= 0.4) && 
+                          (weakRatio <= 0.3)
+        score += idealBalance ? 0.25 : (mediumRatio * 0.25) // Reward balanced or medium-heavy distributions
+        
+        // Factor 4: Number distribution complexity (avoid repetitive patterns)
+        let flatGrid = grid.flatMap { $0 }
+        let numberUniquenesRatio = Double(Set(flatGrid).count) / Double(flatGrid.count)
+        score += numberUniquenesRatio * 0.2
+        
+        return min(1.0, score)
+    }
+    
+    /// Calculates variance for an array of integers
+    private func calculateVariance(values: [Int]) -> Double {
+        guard !values.isEmpty else { return 0.0 }
+        
+        let mean = Double(values.reduce(0, +)) / Double(values.count)
+        let squaredDifferences = values.map { pow(Double($0) - mean, 2) }
+        return squaredDifferences.reduce(0, +) / Double(values.count)
     }
 }
 

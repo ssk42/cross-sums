@@ -80,10 +80,6 @@ struct PuzzleCellView: View {
         .scaleEffect(isPressed ? 0.98 : 1.0)
         .contentShape(Rectangle())
         .onTapGesture {
-            // Light haptic feedback for tap
-            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-            impactFeedback.impactOccurred()
-            
             withAnimation(.easeInOut(duration: 0.15)) {
                 onTap()
             }
