@@ -1,17 +1,95 @@
 # .github/workflows/deploy.yml
 
-name: Build with Bazel, Deploy with Fastlane
+name: CI/CD Pipeline
 
-# Trigger this workflow on every push to the 'main' branch
+# Trigger this workflow on every push to the 'main' branch and pull requests
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
+  test:
+    name: Run Tests
+    runs-on: macos-latest
+    
+    steps:
+      # 1. Checkout the repository code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Cache Xcode derived data for faster builds
+      - name: Cache Xcode derived data
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-xcode-deriveddata-test-${{ hashFiles('**/project.pbxproj') }}
+          restore-keys: |
+            ${{ runner.os }}-xcode-deriveddata-test-
+            ${{ runner.os }}-xcode-deriveddata-
+
+      # 3. Select the version of Xcode to use
+      - name: Select Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.2.0'
+
+      # 4. Run Unit Tests for Simple Cross Sums
+      - name: Run Simple Cross Sums Unit Tests
+        run: |
+          echo "🧪 Running unit tests for Simple Cross Sums..."
+          xcodebuild test \
+            -project "CrossSumsSimple.xcodeproj" \
+            -scheme "Simple Cross Sums" \
+            -destination "platform=iOS Simulator,name=iPhone 15,OS=latest" \
+            -testPlan "Simple Cross Sums" \
+            -only-testing:"Simple Cross Sums Tests" \
+            -enableCodeCoverage YES
+
+      # 5. Run Unit Tests for CrossSumsMac
+      - name: Run CrossSumsMac Unit Tests
+        run: |
+          echo "🧪 Running unit tests for CrossSumsMac..."
+          xcodebuild test \
+            -project "CrossSumsSimple.xcodeproj" \
+            -scheme "CrossSumsMac" \
+            -destination "platform=macOS" \
+            -testPlan "CrossSumsMac" \
+            -only-testing:"CrossSumsMacTests" \
+            -enableCodeCoverage YES
+
+      # 6. Run UI Tests for Simple Cross Sums
+      - name: Run Simple Cross Sums UI Tests
+        run: |
+          echo "🧪 Running UI tests for Simple Cross Sums..."
+          xcodebuild test \
+            -project "CrossSumsSimple.xcodeproj" \
+            -scheme "Simple Cross Sums" \
+            -destination "platform=iOS Simulator,name=iPhone 15,OS=latest" \
+            -testPlan "Simple Cross Sums" \
+            -only-testing:"Simple Cross Sums UI Tests" \
+            -enableCodeCoverage YES
+
+      # 7. Run UI Tests for CrossSumsMac
+      - name: Run CrossSumsMac UI Tests
+        run: |
+          echo "🧪 Running UI tests for CrossSumsMac..."
+          xcodebuild test \
+            -project "CrossSumsSimple.xcodeproj" \
+            -scheme "CrossSumsMac" \
+            -destination "platform=macOS" \
+            -testPlan "CrossSumsMac" \
+            -only-testing:"CrossSumsMacUITests" \
+            -enableCodeCoverage YES
+
   build-and-deploy:
     name: Build and Deploy to TestFlight
     runs-on: macos-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
       # 1. Checkout the repository code
