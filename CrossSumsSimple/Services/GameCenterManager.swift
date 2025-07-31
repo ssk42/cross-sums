@@ -174,19 +174,25 @@ class GameCenterManager: NSObject, ObservableObject {
     ///   - timeInSeconds: The completion time in seconds
     ///   - difficulty: The difficulty level ("Easy", "Medium", "Hard", "Extra Hard")
     func submitCompletionTime(_ timeInSeconds: TimeInterval, difficulty: String) {
+        print("🐛 DEBUG: Attempting to submit completion time - Auth: \(isAuthenticated), Difficulty: '\(difficulty)'")
+        
         guard isAuthenticated else {
             print("⚠️ Cannot submit score - not authenticated")
             return
         }
         
         let leaderboardID = getCompletionTimeLeaderboardID(for: difficulty)
+        print("🐛 DEBUG: Mapped to leaderboard ID: '\(leaderboardID)'")
+        
         guard !leaderboardID.isEmpty else {
             print("⚠️ Unknown difficulty for leaderboard: \(difficulty)")
             return
         }
         
-        // Convert time to milliseconds for better precision in scores
-        let scoreValue = Int64(timeInSeconds * 1000)
+        // Convert time to centiseconds for Game Center time leaderboards
+        // Game Center expects time scores in 1/100th of a second
+        let scoreValue = Int64(timeInSeconds * 100)
+        print("🐛 DEBUG: Time \(timeInSeconds)s converted to \(scoreValue) centiseconds")
         
         if #available(iOS 14.0, macOS 11.0, *) {
             // Use modern API for iOS 14+
@@ -275,22 +281,26 @@ class GameCenterManager: NSObject, ObservableObject {
     private func getCompletionTimeLeaderboardID(for difficulty: String) -> String {
         switch difficulty.lowercased() {
         case "easy": return LeaderboardIDs.easyFastest
-        case "medium": return LeaderboardIDs.mediumFastest
+        case "medium", "advanced": return LeaderboardIDs.mediumFastest  // Handle both "Medium" and "Advanced"
         case "hard": return LeaderboardIDs.hardFastest
         case "extra hard": return LeaderboardIDs.extraHardFastest
         case "expert": return LeaderboardIDs.expertFastest
-        default: return ""
+        default: 
+            print("🐛 DEBUG: Unknown difficulty '\(difficulty)' - no leaderboard mapping")
+            return ""
         }
     }
     
     private func getHighestLevelLeaderboardID(for difficulty: String) -> String {
         switch difficulty.lowercased() {
         case "easy": return LeaderboardIDs.easyHighest
-        case "medium": return LeaderboardIDs.mediumHighest
+        case "medium", "advanced": return LeaderboardIDs.mediumHighest  // Handle both "Medium" and "Advanced"
         case "hard": return LeaderboardIDs.hardHighest
         case "extra hard": return LeaderboardIDs.extraHardHighest
         case "expert": return LeaderboardIDs.expertHighest
-        default: return ""
+        default: 
+            print("🐛 DEBUG: Unknown difficulty '\(difficulty)' - no leaderboard mapping")
+            return ""
         }
     }
     
