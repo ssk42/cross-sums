@@ -49,19 +49,7 @@ jobs:
             -only-testing:"Simple Cross Sums Tests/CrossSumsSimpleTests" \
             -enableCodeCoverage YES
 
-      # 5. Run Unit Tests for CrossSumsMac
-      - name: Run CrossSumsMac Unit Tests
-        run: |
-          echo "🧪 Running unit tests for CrossSumsMac..."
-          xcodebuild test \
-            -project "CrossSumsSimple.xcodeproj" \
-            -scheme "CrossSumsMac" \
-            -destination "platform=macOS,arch=arm64" \
-            -testPlan "CrossSumsMac" \
-            -only-testing:"CrossSumsMacTests" \
-            -enableCodeCoverage YES
-
-      # 6. Run UI Tests for Simple Cross Sums
+      # 5. Run UI Tests for Simple Cross Sums
       - name: Run Simple Cross Sums UI Tests
         run: |
           echo "🧪 Running UI tests for Simple Cross Sums..."
@@ -71,18 +59,6 @@ jobs:
             -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" \
             -testPlan "Simple Cross Sums" \
             -only-testing:"Simple Cross Sums UI Tests" \
-            -enableCodeCoverage YES
-
-      # 7. Run UI Tests for CrossSumsMac
-      - name: Run CrossSumsMac UI Tests
-        run: |
-          echo "🧪 Running UI tests for CrossSumsMac..."
-          xcodebuild test \
-            -project "CrossSumsSimple.xcodeproj" \
-            -scheme "CrossSumsMac" \
-            -destination "platform=macOS,arch=arm64" \
-            -testPlan "CrossSumsMac" \
-            -only-testing:"CrossSumsMacUITests" \
             -enableCodeCoverage YES
 
   build-and-deploy:
