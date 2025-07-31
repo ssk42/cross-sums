@@ -158,12 +158,11 @@ jobs:
         run: |
           echo "🏗️ Building and archiving with xcodebuild..."
           
-          # Archive the project using automatic signing
+          # Archive the project using full automatic signing
           xcodebuild -project "CrossSumsSimple.xcodeproj" \
             -scheme "Simple Cross Sums" \
             -destination "generic/platform=iOS" \
             -archivePath "CrossSumsSimple.xcarchive" \
-            CODE_SIGN_IDENTITY="$CERTIFICATE_IDENTITY" \
             DEVELOPMENT_TEAM="J4QUKKF6V3" \
             archive
           
