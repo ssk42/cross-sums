@@ -202,8 +202,9 @@ jobs:
             -authenticationKeyID "$APP_STORE_CONNECT_API_KEY_ID" \
             -authenticationKeyIssuerID "$APP_STORE_CONNECT_ISSUER_ID" \
             DEVELOPMENT_TEAM="J4QUKKF6V3" \
-            CODE_SIGN_STYLE="Manual" \
-            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            PRODUCT_BUNDLE_IDENTIFIER="com.crosssumssimple.app" \
+            CODE_SIGN_STYLE="Automatic" \
+            CODE_SIGN_ENTITLEMENTS="Simple Cross Sums.entitlements" \
             archive
           
           echo "✅ Archive completed successfully"
