@@ -154,4 +154,43 @@ platform :ios do
     
     puts "Internal testers added successfully!"
   end
+
+  desc "Add external testers (fan group) to TestFlight"
+  lane :add_external_testers do
+    # Add external testers by email
+    # Replace these with your actual fan group emails
+    external_testers = [
+      # Add fan group emails here
+      # "fan1@example.com",
+      # "fan2@example.com"
+    ]
+    
+    if external_testers.empty?
+      UI.message("No external testers configured. Add emails to the external_testers array.")
+      return
+    end
+    
+    external_testers.each do |email|
+      UI.message("Adding external tester: #{email}")
+      pilot(
+        distribute_external: true,
+        notify_external_testers: true,
+        email: email
+      )
+    end
+    
+    puts "External testers added successfully!"
+  end
+
+  desc "Submit for external testing (requires Apple review)"
+  lane :submit_external_testing do
+    UI.message("Submitting build for external testing...")
+    pilot(
+      distribute_external: true,
+      notify_external_testers: true,
+      changelog: "New build available for external testing!",
+      app_platform: "ios"
+    )
+    puts "Build submitted for external testing review!"
+  end
 end
