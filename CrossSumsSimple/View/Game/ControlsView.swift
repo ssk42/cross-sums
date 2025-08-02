@@ -7,8 +7,11 @@ struct ControlsView: View {
     @State private var showRestartConfirmation = false
     @State private var showMainMenuConfirmation = false
     
+    @ScaledMetric private var controlSpacing: CGFloat = 10
+    @ScaledMetric private var controlPadding: CGFloat = 12
+    
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: controlSpacing) {
             // Main Menu Button
             ControlButton(
                 icon: "house.fill",
@@ -51,7 +54,7 @@ struct ControlsView: View {
             .accessibilityLabel("Restart")
             .accessibilityHint(gameViewModel.isGameActive ? "Restart the current level. All progress will be lost." : "Cannot restart - game is not active")
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, controlPadding)
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 12)
@@ -114,6 +117,8 @@ struct ControlButton: View {
     let action: () -> Void
     
     @State private var isPressed: Bool = false
+    @ScaledMetric private var iconSize: CGFloat = 24
+    @ScaledMetric private var buttonPadding: CGFloat = 8
     
     var body: some View {
         Button(action: {
@@ -123,10 +128,10 @@ struct ControlButton: View {
                 }
             }
         }) {
-            VStack(spacing: 6) {
+            VStack(spacing: 4) {
                 // Icon
                 Image(systemName: icon)
-                    .font(.system(size: 24, weight: .semibold))
+                    .font(.system(size: iconSize, weight: .semibold))
                     .foregroundColor(iconColor)
                     .scaleEffect(isPressed ? 0.9 : 1.0)
                 
@@ -144,7 +149,7 @@ struct ControlButton: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, buttonPadding)
             .background(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(backgroundColor)

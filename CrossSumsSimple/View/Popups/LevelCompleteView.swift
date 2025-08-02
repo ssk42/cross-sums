@@ -10,6 +10,11 @@ struct LevelCompleteView: View {
     @State private var showShareSheet = false
     @Environment(\.dismiss) private var dismiss
     
+    @ScaledMetric private var iconSize: CGFloat = 120
+    @ScaledMetric private var successIconSize: CGFloat = 60
+    @ScaledMetric private var buttonPadding: CGFloat = 40
+    @ScaledMetric private var contentSpacing: CGFloat = 16
+    
     private let shareService = ShareResultsService.shared
     
     var body: some View {
@@ -34,24 +39,24 @@ struct LevelCompleteView: View {
                     }
                 }
                 
-                VStack(spacing: 30) {
-                    Spacer()
+                ScrollView {
+                    VStack(spacing: contentSpacing) {
                     
                     // Success Icon
                     ZStack {
                         Circle()
                             .fill(Color.green.opacity(0.2))
-                            .frame(width: 120, height: 120)
+                            .frame(width: iconSize, height: iconSize)
                         
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 60, weight: .bold))
+                            .font(.system(size: successIconSize, weight: .bold))
                             .foregroundColor(.green)
                             .scaleEffect(showCelebration ? 1.2 : 1.0)
                     }
                     .animation(.spring(response: 0.6, dampingFraction: 0.7), value: showCelebration)
                     
                     // Success Message
-                    VStack(spacing: 12) {
+                    VStack(spacing: 8) {
                         Text("Level Complete!")
                             .font(.largeTitle)
                             .fontWeight(.bold)
@@ -71,11 +76,9 @@ struct LevelCompleteView: View {
                             .padding(.horizontal)
                     }
                     
-                    Spacer()
-                    
                     // Stats Section
                     if let gameState = gameViewModel.gameState {
-                        VStack(spacing: 16) {
+                        VStack(spacing: 10) {
                             Text("Level Stats")
                                 .font(.headline)
                                 .foregroundColor(.primary)
@@ -112,10 +115,8 @@ struct LevelCompleteView: View {
                         .padding(.horizontal)
                     }
                     
-                    Spacer()
-                    
                     // Action Buttons
-                    VStack(spacing: 16) {
+                    VStack(spacing: 10) {
                         // Share Button
                         Button(action: didTapShare) {
                             HStack {
@@ -176,10 +177,11 @@ struct LevelCompleteView: View {
                             .cornerRadius(12)
                         }
                     }
-                    .padding(.horizontal, 40)
+                    .padding(.horizontal, buttonPadding)
                     .padding(.bottom)
+                    }
+                    .padding()
                 }
-                .padding()
             }
             .navigationTitle("Success!")
             .navigationBarTitleDisplayMode(.inline)
@@ -316,14 +318,17 @@ struct StatItem: View {
     let value: String
     let color: Color
     
+    @ScaledMetric private var iconSize: CGFloat = 24
+    @ScaledMetric private var valueSize: CGFloat = 18
+    
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 5) {
             Image(systemName: icon)
-                .font(.system(size: 24, weight: .semibold))
+                .font(.system(size: iconSize, weight: .semibold))
                 .foregroundColor(color)
             
             Text(value)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(.system(size: valueSize, weight: .bold, design: .rounded))
                 .foregroundColor(.primary)
             
             Text(title)

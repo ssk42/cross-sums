@@ -3,13 +3,17 @@ import SwiftUI
 struct GridView: View {
     @ObservedObject var gameViewModel: GameViewModel
     
-    private let spacing: CGFloat = 4
-    private let sumLabelWidth: CGFloat = 50
+    @ScaledMetric private var baseSpacing: CGFloat = 2
+    @ScaledMetric private var baseSumLabelWidth: CGFloat = 40
     
     var body: some View {
         GeometryReader { geometry in
             if let puzzle = gameViewModel.currentPuzzle,
                let gameState = gameViewModel.gameState {
+                
+                // Scale spacing and label width based on screen size
+                let spacing = max(baseSpacing, geometry.size.width * 0.008)
+                let sumLabelWidth = max(baseSumLabelWidth, geometry.size.width * 0.12)
                 
                 let availableWidth = geometry.size.width - sumLabelWidth - spacing
                 let cellSize = min(

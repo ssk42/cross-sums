@@ -5,6 +5,9 @@ struct DailyPuzzleCardView: View {
     let onTap: () -> Void
     let onShare: (() -> Void)?
     
+    @ScaledMetric private var badgeSize: CGFloat = 50
+    @ScaledMetric private var cornerRadius: CGFloat = 20
+    
     private var isCompleted: Bool {
         dailyPuzzleService.isTodayCompleted()
     }
@@ -36,10 +39,10 @@ struct DailyPuzzleCardView: View {
         Button(action: isCompleted ? {} : onTap) {
             VStack(spacing: 0) {
                 // Header Section
-                VStack(spacing: 12) {
+                VStack(spacing: 8) {
                     HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack(spacing: 8) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 6) {
                                 Image(systemName: "calendar.badge.clock")
                                     .font(.system(size: 18, weight: .semibold))
                                     .foregroundColor(accentColor)
@@ -65,11 +68,11 @@ struct DailyPuzzleCardView: View {
                         streakProgressView
                     }
                 }
-                .padding(.top, 20)
-                .padding(.horizontal, 20)
+                .padding(.top, 12)
+                .padding(.horizontal, 16)
                 
                 // Main Content Section
-                HStack(spacing: 24) {
+                HStack(spacing: 16) {
                     // Streak Display
                     streakDisplayView
                     
@@ -83,18 +86,18 @@ struct DailyPuzzleCardView: View {
                     // Difficulty Badge
                     difficultyBadgeView
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
                 
                 // Bottom Section
                 if !isCompleted {
                     bottomCallToActionView
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 20)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 12)
                 } else {
                     completedCallToActionView
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 20)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 12)
                 }
             }
             .background(cardBackground)
@@ -109,7 +112,7 @@ struct DailyPuzzleCardView: View {
         .accessibilityLabel(isCompleted ? "Daily puzzle completed" : "Daily puzzle available")
         .accessibilityHint(isCompleted ? "Today's daily puzzle is already completed. Come back tomorrow for the next puzzle." : "Play today's daily puzzle")
         .accessibilityValue(isCompleted ? "Completed in \(completionTime.map(formatTime) ?? "unknown time"). Next puzzle available tomorrow." : "Not completed")
-        .padding(.horizontal, 20)
+        .padding(.horizontal, 16)
     }
     
     // MARK: - View Components
@@ -149,7 +152,7 @@ struct DailyPuzzleCardView: View {
     }
     
     private var streakProgressView: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: 4) {
             HStack {
                 Image(systemName: "flame.fill")
                     .font(.system(size: 12, weight: .bold))
@@ -173,7 +176,7 @@ struct DailyPuzzleCardView: View {
     }
     
     private var streakDisplayView: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             ZStack {
                 Circle()
                     .fill(
@@ -183,7 +186,7 @@ struct DailyPuzzleCardView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 50, height: 50)
+                    .frame(width: badgeSize, height: badgeSize)
                 
                 if currentStreak > 0 {
                     Image(systemName: "flame.fill")
@@ -196,7 +199,7 @@ struct DailyPuzzleCardView: View {
                 }
             }
             
-            VStack(spacing: 2) {
+            VStack(spacing: 1) {
                 Text("\(currentStreak)")
                     .font(.system(size: 18, weight: .black, design: .rounded))
                     .foregroundColor(currentStreak > 0 ? .orange : .gray)
@@ -209,10 +212,10 @@ struct DailyPuzzleCardView: View {
     }
     
     private var centerActionView: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             if isCompleted {
                 // Completion Display
-                VStack(spacing: 6) {
+                VStack(spacing: 4) {
                     Image(systemName: "trophy.fill")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundColor(.yellow)
@@ -229,11 +232,11 @@ struct DailyPuzzleCardView: View {
                 }
             } else {
                 // Play Prompt
-                VStack(spacing: 6) {
+                VStack(spacing: 4) {
                     ZStack {
                         Circle()
                             .fill(accentColor)
-                            .frame(width: 56, height: 56)
+                            .frame(width: badgeSize * 1.12, height: badgeSize * 1.12)
                         
                         Image(systemName: "play.fill")
                             .font(.system(size: 20, weight: .bold))
@@ -249,7 +252,7 @@ struct DailyPuzzleCardView: View {
     }
     
     private var difficultyBadgeView: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 6) {
             ZStack {
                 Circle()
                     .fill(
@@ -259,14 +262,14 @@ struct DailyPuzzleCardView: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 50, height: 50)
+                    .frame(width: badgeSize, height: badgeSize)
                 
                 Image(systemName: "brain.head.profile")
                     .font(.system(size: 20, weight: .medium))
                     .foregroundColor(.purple)
             }
             
-            VStack(spacing: 2) {
+            VStack(spacing: 1) {
                 Text("Medium")
                     .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundColor(.purple)
@@ -290,8 +293,8 @@ struct DailyPuzzleCardView: View {
             
             Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(accentColor.opacity(0.08))
@@ -299,7 +302,7 @@ struct DailyPuzzleCardView: View {
     }
     
     private var completedCallToActionView: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 8) {
             // Share button (if callback provided)
             if let onShare = onShare {
                 Button(action: onShare) {
@@ -314,8 +317,8 @@ struct DailyPuzzleCardView: View {
                         
                         Spacer()
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color.blue.opacity(0.08))
@@ -336,8 +339,8 @@ struct DailyPuzzleCardView: View {
                 
                 Spacer()
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.green.opacity(0.08))
@@ -346,7 +349,7 @@ struct DailyPuzzleCardView: View {
     }
     
     private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: 20)
+        RoundedRectangle(cornerRadius: cornerRadius)
             .fill(
                 LinearGradient(
                     gradient: Gradient(stops: [
@@ -359,7 +362,7 @@ struct DailyPuzzleCardView: View {
                 )
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: cornerRadius)
                     .stroke(
                         LinearGradient(
                             gradient: Gradient(colors: [

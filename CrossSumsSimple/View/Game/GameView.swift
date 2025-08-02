@@ -9,19 +9,19 @@ struct GameView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            VStack(spacing: 16) {
+            VStack(spacing: 10) {
                 // HUD - Level info, lives, hints
                 HUDView(gameViewModel: gameViewModel)
                     .padding(.horizontal)
                 
                 // Main game area
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 12) {
                         // Grid - The main puzzle
                         GridView(gameViewModel: gameViewModel)
                             .frame(
-                                width: min(geometry.size.width - 40, 400),
-                                height: min(geometry.size.width - 40, 400)
+                                width: min(geometry.size.width - 40, geometry.size.height * 0.6),
+                                height: min(geometry.size.width - 40, geometry.size.height * 0.6)
                             )
                             .padding(.horizontal)
                         

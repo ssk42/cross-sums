@@ -15,20 +15,22 @@ struct MainMenuView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-            // Background gradient
-            LinearGradient(
-                gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-            
-            VStack(spacing: 30) {
-                Spacer()
+            GeometryReader { geometry in
+                ZStack {
+                // Background gradient
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.3)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: geometry.size.height * 0.008) {
+                Spacer().frame(maxHeight: geometry.size.height * 0.005)
                 
                 // Title
-                VStack(spacing: 10) {
+                VStack(spacing: 6) {
                     Text("Cross Sums")
                         .font(.largeTitle)
                         .fontWeight(.bold)
@@ -45,7 +47,7 @@ struct MainMenuView: View {
                         .accessibilityHint("Brief description of the game rules")
                 }
                 
-                Spacer()
+                Spacer().frame(maxHeight: geometry.size.height * 0.005)
                 
                 // Daily Puzzle Section
                 DailyPuzzleCardView(
@@ -59,10 +61,10 @@ struct MainMenuView: View {
                 )
                 .accessibilityIdentifier("dailyPuzzleCard")
                 
-                Spacer()
+                Spacer().frame(maxHeight: geometry.size.height * 0.005)
                 
                 // Difficulty Selection
-                VStack(spacing: 20) {
+                VStack(spacing: 12) {
                     Text("Select Difficulty")
                         .font(.headline)
                         .foregroundColor(.primary)
@@ -79,13 +81,13 @@ struct MainMenuView: View {
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
-                    .padding(.horizontal)
+                    .padding(.horizontal, geometry.size.width * 0.05)
                     .accessibilityIdentifier("difficultyPicker")
                     .accessibilityLabel("Difficulty selector")
                     .accessibilityHint("Currently selected: \(selectedDifficulty). Double tap to change difficulty.")
                     
                     // Level info for selected difficulty
-                    VStack(spacing: 5) {
+                    VStack(spacing: 3) {
                         let nextLevel = gameViewModel.getNextLevel(for: selectedDifficulty)
                         let highestLevel = gameViewModel.getHighestLevel(for: selectedDifficulty)
                         
@@ -113,10 +115,10 @@ struct MainMenuView: View {
                     .accessibilityLabel("Level Progress: Next level \(gameViewModel.getNextLevel(for: selectedDifficulty))" + (gameViewModel.getHighestLevel(for: selectedDifficulty) > 0 ? ", highest completed \(gameViewModel.getHighestLevel(for: selectedDifficulty))" : ""))
                 }
                 
-                Spacer()
+                Spacer().frame(maxHeight: geometry.size.height * 0.005)
                 
                 // Action Buttons
-                VStack(spacing: 15) {
+                VStack(spacing: 10) {
                     // Play Button
                     Button(action: didTapPlay) {
                         HStack {
@@ -153,11 +155,11 @@ struct MainMenuView: View {
                     .accessibilityLabel("How to Play")
                     .accessibilityHint("Learn the rules and instructions for playing Cross Sums")
                 }
-                .padding(.horizontal, 40)
+                .padding(.horizontal, geometry.size.width * 0.1)
                 
                 // Game Center Section
                 if gameCenterManager.isAuthenticated {
-                    VStack(spacing: 10) {
+                    VStack(spacing: 6) {
                         HStack {
                             Image(systemName: "gamecontroller.fill")
                                 .foregroundColor(.green)
@@ -234,18 +236,18 @@ struct MainMenuView: View {
                             .accessibilityLabel("Game Center Dashboard")
                             .accessibilityHint("Open full Game Center interface")
                         }
-                        .padding(.horizontal, 40)
+                        .padding(.horizontal, geometry.size.width * 0.1)
                     }
                     .padding(.vertical, 10)
                     .background(Color(.systemBackground).opacity(0.8))
                     .cornerRadius(12)
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, geometry.size.width * 0.05)
                 }
                 
-                Spacer()
+                Spacer().frame(maxHeight: geometry.size.height * 0.005)
                 
                 // Player Stats
-                VStack(spacing: 5) {
+                VStack(spacing: 3) {
                     Text("Hints Available: \(gameViewModel.hintsAvailable)")
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -264,7 +266,10 @@ struct MainMenuView: View {
                 }
                 .padding(.bottom)
             }
-            .padding()
+            .frame(minHeight: geometry.size.height)
+            .padding(geometry.size.width * 0.05)
+                }
+            }
             
             // Loading overlay
             if isLoading {
