@@ -65,6 +65,12 @@ class GameCenterManager: NSObject, ObservableObject {
         // Streak achievements
         static let onFire = "crosssums.achievement.on_fire"
         static let unstoppable = "crosssums.achievement.unstoppable"
+        
+        // Daily puzzle achievements
+        static let dailyPlayer = "crosssums.achievement.daily_player"
+        static let dailyStreakWeek = "crosssums.achievement.daily_streak_week"
+        static let dailyStreakMonth = "crosssums.achievement.daily_streak_month"
+        static let dailySpeedster = "crosssums.achievement.daily_speedster"
     }
     
     // MARK: - Singleton
@@ -189,10 +195,9 @@ class GameCenterManager: NSObject, ObservableObject {
             return
         }
         
-        // Convert time to centiseconds for Game Center time leaderboards
-        // Game Center expects time scores in 1/100th of a second
-        let scoreValue = Int64(timeInSeconds * 100)
-        print("🐛 DEBUG: Time \(timeInSeconds)s converted to \(scoreValue) centiseconds")
+        // Submit time in seconds for cleaner, more intuitive leaderboard scores
+        let scoreValue = Int64(timeInSeconds)
+        print("🐛 DEBUG: Submitting completion time: \(scoreValue) seconds")
         
         if #available(iOS 14.0, macOS 11.0, *) {
             // Use modern API for iOS 14+

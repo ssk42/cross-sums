@@ -78,6 +78,11 @@ class GameViewModel: ObservableObject {
         return currentPuzzle?.difficulty ?? ""
     }
     
+    /// Whether the current puzzle is a daily puzzle
+    var isCurrentPuzzleDaily: Bool {
+        return currentPuzzle?.id.hasPrefix("daily-") ?? false
+    }
+    
     // MARK: - Initialization
     
     /// Initializes the GameViewModel with service dependencies
@@ -87,11 +92,11 @@ class GameViewModel: ObservableObject {
     ///   - gameCenterManager: Game Center manager (default: shared instance)
     init(puzzleService: PuzzleServiceProtocol = PuzzleService.shared, 
          persistenceService: PersistenceService = .shared,
-         gameCenterManager: GameCenterManager = .shared) {
+         gameCenterManager: GameCenterManager? = nil) {
         self.puzzleService = puzzleService
         self.persistenceService = persistenceService
-        self.gameCenterManager = gameCenterManager
-        self.achievementTracker = AchievementTracker(gameCenterManager: gameCenterManager)
+        self.gameCenterManager = gameCenterManager ?? .shared
+        self.achievementTracker = AchievementTracker(gameCenterManager: self.gameCenterManager)
         
         // Load player profile
         self.playerProfile = persistenceService.loadProfile()
@@ -262,30 +267,56 @@ class GameViewModel: ObservableObject {
     /// Checks if the current puzzle solution is complete and correct (US8)
     func checkForWinCondition() {
         guard let puzzle = currentPuzzle,
-              let state = gameState,
+              var state = gameState,
               !isLevelComplete && !isGameOver else {
             return
         }
         
         // Check if all cells are marked
-        guard state.isGridFullyMarked else {
-            return // Still cells to fill
-        }
-        
-        // Check if solution is correct
-        let solidMask = state.solidGridMask
-        if puzzle.isValidSolution(solidMask) {
-            // Level completed!
-            handleLevelComplete()
+        if state.isGridFullyMarked {
+            // Check if solution is correct
+            let solidMask = state.solidGridMask
+            if puzzle.isValidSolution(solidMask) {
+                // Level completed!
+                handleLevelComplete()
+            } else {
+                print("❌ Solution is complete but incorrect")
+                // Could optionally trigger game over or let player continue
+            }
         } else {
-            print("❌ Solution is complete but incorrect")
-            // Could optionally trigger game over or let player continue
+            // Check if only red cells (false values) remain unmarked
+            let unmarkedCells = state.getUnmarkedCells()
+            let allRemainingAreRed = unmarkedCells.allSatisfy { cell in
+                puzzle.solutionState(at: cell.row, column: cell.column) == false
+            }
+            
+            if allRemainingAreRed && !unmarkedCells.isEmpty {
+                print("🔴 Auto-completing: Only red cells remain - marking them automatically")
+                
+                // Mark all remaining cells as red (false)
+                for cell in unmarkedCells {
+                    _ = state.setCellState(row: cell.row, column: cell.column, state: false)
+                }
+                
+                // Update the game state
+                gameState = state
+                updateCurrentSums()
+                
+                // Now check if the puzzle is complete and correct
+                let solidMask = state.solidGridMask
+                if puzzle.isValidSolution(solidMask) {
+                    // Level completed!
+                    handleLevelComplete()
+                } else {
+                    print("❌ Auto-completion resulted in incorrect solution")
+                }
+            }
         }
     }
     
     // MARK: - Private Helper Methods
     
-    private func updateCurrentSums() {
+    internal func updateCurrentSums() {
         guard let puzzle = currentPuzzle, let state = gameState else {
             currentRowSums = []
             currentColumnSums = []
@@ -365,11 +396,44 @@ class GameViewModel: ObservableObject {
         let movesUsed = state.moveCount
         let livesLost = 3 - state.livesRemaining // Assuming starting lives is 3
         
-        // Update player progress
-        let wasNewRecord = playerProfile.completeLevel(levelNumber, for: difficulty)
+        // Handle different completion types
+        var wasNewRecord = false
         
-        // Award hints for completion
-        playerProfile.awardHintsForCompletion(level: levelNumber, difficulty: difficulty)
+        if isCurrentPuzzleDaily {
+            // Handle daily puzzle completion
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            dateFormatter.timeZone = TimeZone(identifier: "UTC")
+            let todayString = dateFormatter.string(from: Date())
+            
+            playerProfile.completeDailyPuzzle(date: todayString, timeInSeconds: completionTime)
+            
+            // CRITICAL: Update DailyPuzzleService completion state with complete performance data
+            // This ensures the UI knows the puzzle is completed and prevents replay
+            DailyPuzzleService.shared.completeTodaysPuzzle(
+                timeInSeconds: completionTime,
+                movesUsed: movesUsed,
+                livesLeft: state.livesRemaining
+            )
+            
+            // Award bonus hints for daily completion
+            playerProfile.addHints(3)
+            print("🗓️ Daily puzzle completed! Awarded 3 bonus hints.")
+            
+            // Track daily achievements
+            let currentStreak = playerProfile.calculateDailyStreak()
+            achievementTracker.trackDailyPuzzleCompletion(
+                completionTime: completionTime,
+                streak: currentStreak,
+                totalDailyCompleted: playerProfile.totalDailyPuzzlesCompleted
+            )
+        } else {
+            // Handle regular level completion
+            wasNewRecord = playerProfile.completeLevel(levelNumber, for: difficulty)
+            
+            // Award hints for completion
+            playerProfile.awardHintsForCompletion(level: levelNumber, difficulty: difficulty)
+        }
         
         // Save progress
         saveProgress()

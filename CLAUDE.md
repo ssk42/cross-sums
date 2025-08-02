@@ -131,3 +131,4 @@ When working with UI tests, use these element identifiers:
 - Whenever a build is run, the build must succeed. If there's any failure, it must be corrected before anything else can continue. 
 - When a test is run, the test must succeed. If there's a failure, or if there's any compilation failure, it must be corrected before anything else can con tinue.
 - Treat this app like a high level enterprise app. This needs to be top notch quality. Well architected, well tested, well developed. Using first class principles. 
+- Before any commits, increase build numbers

@@ -3,10 +3,13 @@ import SwiftUI
 struct MainMenuView: View {
     @StateObject private var gameViewModel = GameViewModel()
     @StateObject private var gameCenterManager = GameCenterManager.shared
+    @StateObject private var dailyPuzzleService = DailyPuzzleService.shared
     @State private var selectedDifficulty: String = "Easy"
     @State private var isLoading: Bool = false
     @State private var showHelp: Bool = false
     @State private var navigateToGame: Bool = false
+    @State private var navigateToDailyPuzzle: Bool = false
+    @State private var showDailyShareSheet: Bool = false
     
     private let difficulties = ["Easy", "Medium", "Hard", "Extra Hard", "Expert"]
     
@@ -41,6 +44,20 @@ struct MainMenuView: View {
                         .accessibilityLabel("Add numbers to match target sums")
                         .accessibilityHint("Brief description of the game rules")
                 }
+                
+                Spacer()
+                
+                // Daily Puzzle Section
+                DailyPuzzleCardView(
+                    dailyPuzzleService: dailyPuzzleService,
+                    onTap: {
+                        didTapDailyPuzzle()
+                    },
+                    onShare: dailyPuzzleService.isTodayCompleted() ? {
+                        didTapShareDailyPuzzle()
+                    } : nil
+                )
+                .accessibilityIdentifier("dailyPuzzleCard")
                 
                 Spacer()
                 
@@ -268,7 +285,15 @@ struct MainMenuView: View {
         .sheet(isPresented: $showHelp) {
             HelpView()
         }
+        .sheet(isPresented: $showDailyShareSheet) {
+            if let shareContent = generateDailyPuzzleShareContent() {
+                ShareSheet(activityItems: [shareContent.text, shareContent.image].compactMap { $0 })
+            }
+        }
         .navigationDestination(isPresented: $navigateToGame) {
+            GameView(gameViewModel: gameViewModel)
+        }
+        .navigationDestination(isPresented: $navigateToDailyPuzzle) {
             GameView(gameViewModel: gameViewModel)
         }
         .onAppear {
@@ -277,6 +302,9 @@ struct MainMenuView: View {
             
             // Initialize Game Center authentication
             gameCenterManager.authenticatePlayer()
+            
+            // Refresh daily puzzle state
+            dailyPuzzleService.refreshDailyState()
         }
         .onChange(of: selectedDifficulty) { _, newValue in
             didChangeDifficulty(to: newValue)
@@ -322,6 +350,65 @@ struct MainMenuView: View {
     private func didChangeDifficulty(to difficulty: String) {
         // Update UI to reflect new difficulty selection
         // Level info will automatically update due to @StateObject binding
+    }
+    
+    private func didTapDailyPuzzle() {
+        print("🗓️ MainMenuView: Daily puzzle button tapped")
+        
+        isLoading = true
+        
+        // Load today's daily puzzle
+        let dailyPuzzle = dailyPuzzleService.getTodaysPuzzle()
+        print("🗓️ Loading daily puzzle: \(dailyPuzzle.id)")
+        
+        // Validate puzzle integrity before proceeding
+        guard dailyPuzzle.isValid else {
+            print("❌ Daily puzzle failed validation: \(dailyPuzzle.id)")
+            isLoading = false
+            return
+        }
+        
+        // Set up the puzzle and game state
+        gameViewModel.currentPuzzle = dailyPuzzle
+        gameViewModel.gameState = GameState(for: dailyPuzzle)
+        gameViewModel.isLevelComplete = false
+        gameViewModel.isGameOver = false
+        
+        // CRITICAL: Initialize all derived state that GridView depends on
+        gameViewModel.updateHintAvailability()
+        gameViewModel.updateCurrentSums()
+        
+        isLoading = false
+        
+        print("✅ Daily puzzle loaded successfully: \(dailyPuzzle.id)")
+        print("🗓️ Current sums initialized - rows: \(gameViewModel.currentRowSums.count), columns: \(gameViewModel.currentColumnSums.count)")
+        print("🗓️ Triggering navigation to daily puzzle")
+        navigateToDailyPuzzle = true
+    }
+    
+    private func didTapShareDailyPuzzle() {
+        showDailyShareSheet = true
+    }
+    
+    private func generateDailyPuzzleShareContent() -> ShareContent? {
+        guard dailyPuzzleService.isTodayCompleted(),
+              let completionData = dailyPuzzleService.getTodayCompletionData() else {
+            return nil
+        }
+        
+        // Create a mock daily puzzle for share content generation
+        let dailyPuzzle = dailyPuzzleService.getTodaysPuzzle()
+        let currentStreak = dailyPuzzleService.getCurrentStreak()
+        
+        // Use actual performance data from when the player completed the puzzle
+        return ShareResultsService.shared.generateShareContent(
+            puzzle: dailyPuzzle,
+            completionTime: completionData.timeInSeconds,
+            movesUsed: completionData.movesUsed,
+            livesLeft: completionData.livesLeft,
+            isDaily: true,
+            streak: currentStreak > 0 ? currentStreak : nil
+        )
     }
 }
 

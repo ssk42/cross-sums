@@ -26,6 +26,10 @@
 		AA0001020 /* GameCenterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000020 /* GameCenterManager.swift */; };
 		AA0001021 /* AchievementTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000021 /* AchievementTracker.swift */; };
 		AA0001022 /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000022 /* GameKit.framework */; };
+		AA0001023 /* DailyPuzzleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000023 /* DailyPuzzleService.swift */; };
+		AA0001024 /* ShareResultsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000024 /* ShareResultsService.swift */; };
+		AA0001025 /* DailyPuzzleCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000025 /* DailyPuzzleCardView.swift */; };
+		AA0001026 /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000026 /* ShareSheet.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +74,10 @@
 		AA0000020 /* GameCenterManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameCenterManager.swift; sourceTree = "<group>"; };
 		AA0000021 /* AchievementTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementTracker.swift; sourceTree = "<group>"; };
 		AA0000022 /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
+		AA0000023 /* DailyPuzzleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPuzzleService.swift; sourceTree = "<group>"; };
+		AA0000024 /* ShareResultsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareResultsService.swift; sourceTree = "<group>"; };
+		AA0000025 /* DailyPuzzleCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPuzzleCardView.swift; sourceTree = "<group>"; };
+		AA0000026 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -183,6 +191,8 @@
 				AA0000008 /* PersistenceService.swift */,
 				AA0000020 /* GameCenterManager.swift */,
 				AA0000021 /* AchievementTracker.swift */,
+				AA0000023 /* DailyPuzzleService.swift */,
+				AA0000024 /* ShareResultsService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -200,6 +210,7 @@
 			isa = PBXGroup;
 			children = (
 				AA0000002 /* MainMenuView.swift */,
+				AA0000025 /* DailyPuzzleCardView.swift */,
 			);
 			path = MainMenu;
 			sourceTree = "<group>";
@@ -220,6 +231,7 @@
 			children = (
 				AA0000013 /* HelpView.swift */,
 				AA0000019 /* LevelCompleteView.swift */,
+				AA0000026 /* ShareSheet.swift */,
 			);
 			path = Popups;
 			sourceTree = "<group>";
@@ -409,6 +421,10 @@
 				AA0001017 /* LevelCompleteView.swift in Sources */,
 				AA0001020 /* GameCenterManager.swift in Sources */,
 				AA0001021 /* AchievementTracker.swift in Sources */,
+				AA0001023 /* DailyPuzzleService.swift in Sources */,
+				AA0001024 /* ShareResultsService.swift in Sources */,
+				AA0001025 /* DailyPuzzleCardView.swift in Sources */,
+				AA0001026 /* ShareSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

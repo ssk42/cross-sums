@@ -80,6 +80,37 @@ class AchievementTracker: ObservableObject {
         puzzlesCompletedWithoutMistakes = 0
     }
     
+    /// Called when a daily puzzle is completed
+    /// - Parameters:
+    ///   - completionTime: Time taken to complete in seconds
+    ///   - streak: Current daily streak
+    ///   - totalDailyCompleted: Total daily puzzles completed
+    func trackDailyPuzzleCompletion(
+        completionTime: TimeInterval,
+        streak: Int,
+        totalDailyCompleted: Int
+    ) {
+        // Daily Player - Complete your first daily puzzle
+        if totalDailyCompleted >= 1 {
+            gameCenterManager.unlockAchievement(GameCenterManager.AchievementIDs.dailyPlayer)
+        }
+        
+        // Daily Streak Week - Complete 7 consecutive daily puzzles
+        if streak >= 7 {
+            gameCenterManager.unlockAchievement(GameCenterManager.AchievementIDs.dailyStreakWeek)
+        }
+        
+        // Daily Streak Month - Complete 30 consecutive daily puzzles
+        if streak >= 30 {
+            gameCenterManager.unlockAchievement(GameCenterManager.AchievementIDs.dailyStreakMonth)
+        }
+        
+        // Daily Speedster - Complete a daily puzzle in under 60 seconds
+        if completionTime < 60 {
+            gameCenterManager.unlockAchievement(GameCenterManager.AchievementIDs.dailySpeedster)
+        }
+    }
+    
     // MARK: - Private Achievement Checking Methods
     
     private func checkProgressionAchievements(playerProfile: PlayerProfile) {

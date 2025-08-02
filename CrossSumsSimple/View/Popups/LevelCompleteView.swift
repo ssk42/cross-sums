@@ -7,7 +7,10 @@ struct LevelCompleteView: View {
     
     @State private var showCelebration = false
     @State private var confettiCount = 0
+    @State private var showShareSheet = false
     @Environment(\.dismiss) private var dismiss
+    
+    private let shareService = ShareResultsService.shared
     
     var body: some View {
         NavigationView {
@@ -113,6 +116,23 @@ struct LevelCompleteView: View {
                     
                     // Action Buttons
                     VStack(spacing: 16) {
+                        // Share Button
+                        Button(action: didTapShare) {
+                            HStack {
+                                Image(systemName: "square.and.arrow.up")
+                                Text("Share Result")
+                                    .fontWeight(.semibold)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.purple)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                        }
+                        .accessibilityIdentifier("shareButton")
+                        .accessibilityLabel("Share Result")
+                        .accessibilityHint("Share your puzzle completion on social media")
+                        
                         // Next Level Button
                         Button(action: didTapNextLevel) {
                             HStack {
@@ -169,6 +189,11 @@ struct LevelCompleteView: View {
                         didTapMainMenu()
                     }
                 }
+            }
+        }
+        .sheet(isPresented: $showShareSheet) {
+            if let shareContent = generateShareContent() {
+                ShareSheet(activityItems: [shareContent.text, shareContent.image].compactMap { $0 })
             }
         }
         .onAppear {
@@ -242,6 +267,36 @@ struct LevelCompleteView: View {
         onDismiss()
         dismiss()
         onNavigateToMainMenu()
+    }
+    
+    private func didTapShare() {
+        showShareSheet = true
+    }
+    
+    private func generateShareContent() -> ShareContent? {
+        guard let puzzle = gameViewModel.currentPuzzle,
+              let gameState = gameViewModel.gameState else {
+            return nil
+        }
+        
+        let completionTime = gameState.elapsedTime
+        let movesUsed = gameState.moveCount
+        let livesLeft = gameState.livesRemaining
+        let isDaily = gameViewModel.isCurrentPuzzleDaily
+        
+        var streak: Int? = nil
+        if isDaily {
+            streak = gameViewModel.playerProfile.calculateDailyStreak()
+        }
+        
+        return shareService.generateShareContent(
+            puzzle: puzzle,
+            completionTime: completionTime,
+            movesUsed: movesUsed,
+            livesLeft: livesLeft,
+            isDaily: isDaily,
+            streak: streak
+        )
     }
     
     // MARK: - Helper Methods

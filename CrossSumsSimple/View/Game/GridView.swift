@@ -28,12 +28,12 @@ struct GridView: View {
                         ForEach(0..<puzzle.columnCount, id: \.self) { col in
                             SumLabel(
                                 target: puzzle.columnSums[col],
-                                current: gameViewModel.currentColumnSums[col],
+                                current: col < gameViewModel.currentColumnSums.count ? gameViewModel.currentColumnSums[col] : 0,
                                 size: cellSize
                             )
                             .accessibilityIdentifier("columnSum\(col)")
                             .accessibilityLabel("Column \(col + 1)")
-                            .accessibilityValue("Current: \(gameViewModel.currentColumnSums[col]), Target: \(puzzle.columnSums[col])")
+                            .accessibilityValue("Current: \(col < gameViewModel.currentColumnSums.count ? gameViewModel.currentColumnSums[col] : 0), Target: \(puzzle.columnSums[col])")
                             .accessibilityHint("Sum of numbers kept in column \(col + 1)")
                         }
                     }
@@ -44,12 +44,12 @@ struct GridView: View {
                             // Row sum label
                             SumLabel(
                                 target: puzzle.rowSums[row],
-                                current: gameViewModel.currentRowSums[row],
+                                current: row < gameViewModel.currentRowSums.count ? gameViewModel.currentRowSums[row] : 0,
                                 size: cellSize
                             )
                             .accessibilityIdentifier("rowSum\(row)")
                             .accessibilityLabel("Row \(row + 1)")
-                            .accessibilityValue("Current: \(gameViewModel.currentRowSums[row]), Target: \(puzzle.rowSums[row])")
+                            .accessibilityValue("Current: \(row < gameViewModel.currentRowSums.count ? gameViewModel.currentRowSums[row] : 0), Target: \(puzzle.rowSums[row])")
                             .accessibilityHint("Sum of numbers kept in row \(row + 1)")
                             
                             // Row cells

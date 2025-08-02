@@ -49,7 +49,11 @@
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
       "Bash(cp:*)",
-      "WebFetch(domain:developer.apple.com)"
+      "WebFetch(domain:developer.apple.com)",
+      "Bash(echo $?)",
+      "mcp__ide__getDiagnostics",
+      "Bash(swiftc:*)",
+      "Bash(gh workflow:*)"
     ],
     "deny": []
   }
